@@ -1,0 +1,26 @@
+package com.example.h2_shop.controller;
+
+import com.example.h2_shop.model.dto.RolesDTO;
+import com.example.h2_shop.service.RolesService;
+import com.example.h2_shop.service.ServiceResult;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api")
+public class RolesController {
+    @Autowired
+    RolesService rolesService;
+
+    @GetMapping("/getAllRole")
+    public ResponseEntity<ServiceResult<List<RolesDTO>>> getAllRoleWithNoPage(){
+        List<RolesDTO> rolesDTOList = this.rolesService.getAllRole();
+        return ResponseEntity.ok(new ServiceResult<>(rolesDTOList,HttpStatus.OK,"Lấy dữ liệu thành công" ));
+    }
+}
