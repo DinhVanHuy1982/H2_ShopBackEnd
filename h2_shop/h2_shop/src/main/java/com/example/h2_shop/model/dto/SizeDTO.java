@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import java.time.Instant;
 
 public class SizeDTO {
-    private long id;
+    private Long id;
     private String sizeName;
     private String sizeCode;
     private String description;
@@ -28,11 +28,11 @@ public class SizeDTO {
     public SizeDTO() {
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

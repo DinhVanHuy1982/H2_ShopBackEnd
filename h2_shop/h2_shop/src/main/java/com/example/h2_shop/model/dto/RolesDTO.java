@@ -1,130 +1,56 @@
 package com.example.h2_shop.model.dto;
 
-
-import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
-import java.util.Objects;
 
 public class RolesDTO{
 
     private Long id;
 
-    private String code;
-
-    private String name;
-
-    private Integer status;
-
-    private String description;
-
     private Instant createTime;
-
-    private String createName;
-
     private Instant updateTime;
-
+    private String createName;
     private String updateName;
+    private  String description;
 
-    private Long countUser;
-    private String functionId;
-    private String functionCode;
-    private List<String> functionAction;
-    private List<FunctionsDTO> listFunctions;
-    private String action;
-    private String textSearch;
-    private String order;
-    private String orderName;
-    private Boolean allRole = false;
+    private String roleName;
+    private String roleCode;
 
-    private long userUse;
+    private List<FunctionsDTO> listFunction;
 
-    public long getUserUse() {
-        return userUse;
+    private List<RolesDetailsDTO> listRolesDetailsDTO;
+
+    public RolesDTO() {
     }
 
-    public void setUserUse(long userUse) {
-        this.userUse = userUse;
+    public RolesDTO(Long id, String roleName, String roleCode, Instant createTime, Instant updateTime, String createName, String updateName, String description, List<FunctionsDTO> listFunction, List<RolesDetailsDTO> listRolesDetailsDTO) {
+        this.id = id;
+        this.roleName = roleName;
+        this.roleCode = roleCode;
+        this.createTime = createTime;
+        this.updateTime = updateTime;
+        this.createName = createName;
+        this.updateName = updateName;
+        this.description = description;
+        this.listFunction = listFunction;
+        this.listRolesDetailsDTO = listRolesDetailsDTO;
     }
 
-    public Boolean getAllRole() {
-        return allRole;
+
+    public List<FunctionsDTO> getListFunction() {
+        return listFunction;
     }
 
-    public void setAllRole(Boolean allRole) {
-        this.allRole = allRole;
+    public List<RolesDetailsDTO> getListRolesDetailsDTO() {
+        return listRolesDetailsDTO;
     }
 
-    public Long getCountUser() {
-        return countUser;
+    public void setListRolesDetailsDTO(List<RolesDetailsDTO> listRolesDetailsDTO) {
+        this.listRolesDetailsDTO = listRolesDetailsDTO;
     }
 
-    public void setCountUser(Long countUser) {
-        this.countUser = countUser;
-    }
-
-    public String getFunctionId() {
-        return functionId;
-    }
-
-    public void setFunctionId(String functionId) {
-        this.functionId = functionId;
-    }
-
-    public String getFunctionCode() {
-        return functionCode;
-    }
-
-    public void setFunctionCode(String functionCode) {
-        this.functionCode = functionCode;
-    }
-
-    public List<String> getFunctionAction() {
-        return functionAction;
-    }
-
-    public void setFunctionAction(List<String> functionAction) {
-        this.functionAction = functionAction;
-    }
-
-    public List<FunctionsDTO> getListFunctions() {
-        return listFunctions;
-    }
-
-    public void setListFunctions(List<FunctionsDTO> listFunctions) {
-        this.listFunctions = listFunctions;
-    }
-
-    public String getAction() {
-        return action;
-    }
-
-    public void setAction(String action) {
-        this.action = action;
-    }
-
-    public String getTextSearch() {
-        return textSearch;
-    }
-
-    public void setTextSearch(String textSearch) {
-        this.textSearch = textSearch;
-    }
-
-    public String getOrder() {
-        return order;
-    }
-
-    public void setOrder(String order) {
-        this.order = order;
-    }
-
-    public String getOrderName() {
-        return orderName;
-    }
-
-    public void setOrderName(String orderName) {
-        this.orderName = orderName;
+    public void setListFunction(List<FunctionsDTO> listFunction) {
+        this.listFunction = listFunction;
     }
 
     public Long getId() {
@@ -135,36 +61,20 @@ public class RolesDTO{
         this.id = id;
     }
 
-    public String getCode() {
-        return code;
+    public String getRoleName() {
+        return roleName;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
     }
 
-    public String getName() {
-        return name;
+    public String getRoleCode() {
+        return roleCode;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
+    public void setRoleCode(String roleCode) {
+        this.roleCode = roleCode;
     }
 
     public Instant getCreateTime() {
@@ -175,20 +85,20 @@ public class RolesDTO{
         this.createTime = createTime;
     }
 
-    public String getCreateName() {
-        return createName;
-    }
-
-    public void setCreateName(String createName) {
-        this.createName = createName;
-    }
-
     public Instant getUpdateTime() {
         return updateTime;
     }
 
     public void setUpdateTime(Instant updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public String getCreateName() {
+        return createName;
+    }
+
+    public void setCreateName(String createName) {
+        this.createName = createName;
     }
 
     public String getUpdateName() {
@@ -199,40 +109,12 @@ public class RolesDTO{
         this.updateName = updateName;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof RolesDTO)) {
-            return false;
-        }
-
-        RolesDTO rolesDTO = (RolesDTO) o;
-        if (this.id == null) {
-            return false;
-        }
-        return Objects.equals(this.id, rolesDTO.id);
+    public String getDescription() {
+        return description;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.id);
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    // prettier-ignore
-    @Override
-    public String toString() {
-        return "RolesDTO{" +
-                "id=" + getId() +
-                ", code='" + getCode() + "'" +
-                ", name='" + getName() + "'" +
-                ", status=" + getStatus() +
-                ", description='" + getDescription() + "'" +
-                ", createTime='" + getCreateTime() + "'" +
-                ", createName='" + getCreateName() + "'" +
-                ", updateTime='" + getUpdateTime() + "'" +
-                ", updateName='" + getUpdateName() + "'" +
-                "}";
-    }
 }

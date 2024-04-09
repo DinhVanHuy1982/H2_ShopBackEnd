@@ -6,5 +6,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface ProductService {
-    public ServiceResult<?> createService(List<MultipartFile> listFileAvatar);
+    public ServiceResult<?> createProduct(List<MultipartFile> listFileAvatar,ProductDTO productDTO);
+    public ServiceResult<?> createComment(List<MultipartFile> listFileAvatar);
 }

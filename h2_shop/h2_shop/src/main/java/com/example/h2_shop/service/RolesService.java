@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface RolesService {
     public List<RolesDTO> getAllRole();
+
+    public ServiceResult<?> createRole(RolesDTO rolesDTO);
 }

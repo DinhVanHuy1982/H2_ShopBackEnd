@@ -8,7 +8,7 @@ public class User {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     @Column(name="userName")
     private String username;
     @Column(name="password")
@@ -31,7 +31,7 @@ public class User {
     private Roles roles;
 
     @Column(name = "is_active")
-    private long isActive;
+    private Long isActive;
 
     public Roles getRoles() {
         return roles;
@@ -45,7 +45,7 @@ public class User {
 
     }
 
-    public User(long id, String username, String password, String email, String address, String phoneNumber, String avatar, String fileId, Roles roles, long isActive) {
+    public User(Long id, String username, String password, String email, String address, String phoneNumber, String avatar, String fileId, Roles roles, Long isActive) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -66,11 +66,11 @@ public class User {
         this.fileId = fileId;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -122,11 +122,11 @@ public class User {
         this.avatar = avatar;
     }
 
-    public long getIsActive() {
+    public Long getIsActive() {
         return isActive;
     }
 
-    public void setIsActive(long isActive) {
+    public void setIsActive(Long isActive) {
         this.isActive = isActive;
     }
 }

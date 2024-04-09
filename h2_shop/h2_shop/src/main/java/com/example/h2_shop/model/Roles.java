@@ -10,11 +10,8 @@ public class Roles {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-    @Column(name="role_name")
-    private String roleName;
-    @Column(name="role_code")
-    private String roleCode;
+    private Long id;
+
     @Column(name="create_time")
     private Instant createTime;
     @Column(name="update_time")
@@ -25,16 +22,30 @@ public class Roles {
     private String updateName;
     @Column(name="description")
     private  String description;
-
+    @Column(name="role_name")
+    private String roleName;
+    @Column(name="role_code")
+    private String roleCode;
 
     public Roles() {
     }
 
-    public long getId() {
+    public Roles(Long id, String roleName, String roleCode, Instant createTime, Instant updateTime, String createName, String updateName, String description) {
+        this.id = id;
+        this.roleName = roleName;
+        this.roleCode = roleCode;
+        this.createTime = createTime;
+        this.updateTime = updateTime;
+        this.createName = createName;
+        this.updateName = updateName;
+        this.description = description;
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

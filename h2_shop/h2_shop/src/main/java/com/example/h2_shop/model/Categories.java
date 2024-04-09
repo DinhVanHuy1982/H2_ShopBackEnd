@@ -10,13 +10,13 @@ public class Categories {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     @Column(name = "categori_name")
     private String categoriName;
     @Column(name = "categori_code")
     private String categoriCode;
     @Column(name = "parent_id")
-    private long parentId;
+    private Long parentId;
     @Column(name = "create_time")
     private Instant createTime;
     @Column(name = "description")
@@ -25,11 +25,11 @@ public class Categories {
     public Categories() {
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -49,11 +49,11 @@ public class Categories {
         this.categoriCode = categoriCode;
     }
 
-    public long getParentId() {
+    public Long getParentId() {
         return parentId;
     }
 
-    public void setParentId(long parentId) {
+    public void setParentId(Long parentId) {
         this.parentId = parentId;
     }
 

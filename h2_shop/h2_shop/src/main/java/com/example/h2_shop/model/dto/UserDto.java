@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class UserDto {
-    private long id;
+    private Long id;
     private String username;
     private String password;
     private String email;
@@ -17,10 +17,12 @@ public class UserDto {
 
     private Roles roles;
 
+    private Long roleId;
+
 //    private GrantedAuthority grantedAuthority;
 
 
-    public UserDto(long id, String username, String password, String email, String address, String phoneNumber, String avatar, Roles roles) {
+    public UserDto(Long id, String username, String password, String email, String address, String phoneNumber, String avatar, Roles roles) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -32,11 +34,11 @@ public class UserDto {
 //        this.grantedAuthority = grantedAuthority;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -96,7 +98,15 @@ public class UserDto {
         this.roles = roles;
     }
 
-//    public GrantedAuthority getGrantedAuthority() {
+    public Long getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(Long roleId) {
+        this.roleId = roleId;
+    }
+
+    //    public GrantedAuthority getGrantedAuthority() {
 //        return grantedAuthority;
 //    }
 //

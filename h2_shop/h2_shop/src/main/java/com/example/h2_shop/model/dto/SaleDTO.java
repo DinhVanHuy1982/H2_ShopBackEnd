@@ -7,7 +7,7 @@ import java.time.Instant;
 
 public class SaleDTO {
 
-    private long id;
+    private Long id;
     private String quantity;
     private String description;
     private Instant startTime;
@@ -15,9 +15,9 @@ public class SaleDTO {
     private Instant applyDate;
 
     private String type;
-    private long minPrice;
-    private long maxPrice;
-    private long maxDiscount;
+    private Long minPrice;
+    private Long maxPrice;
+    private Long maxDiscount;
     private float maxPurchase;
     private Product product;
 
@@ -31,11 +31,11 @@ public class SaleDTO {
     public SaleDTO() {
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -87,27 +87,27 @@ public class SaleDTO {
         this.type = type;
     }
 
-    public long getMinPrice() {
+    public Long getMinPrice() {
         return minPrice;
     }
 
-    public void setMinPrice(long minPrice) {
+    public void setMinPrice(Long minPrice) {
         this.minPrice = minPrice;
     }
 
-    public long getMaxPrice() {
+    public Long getMaxPrice() {
         return maxPrice;
     }
 
-    public void setMaxPrice(long maxPrice) {
+    public void setMaxPrice(Long maxPrice) {
         this.maxPrice = maxPrice;
     }
 
-    public long getMaxDiscount() {
+    public Long getMaxDiscount() {
         return maxDiscount;
     }
 
-    public void setMaxDiscount(long maxDiscount) {
+    public void setMaxDiscount(Long maxDiscount) {
         this.maxDiscount = maxDiscount;
     }
 

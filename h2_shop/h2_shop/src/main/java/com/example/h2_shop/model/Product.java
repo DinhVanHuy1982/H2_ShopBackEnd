@@ -10,15 +10,15 @@ public class Product {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     @Column(name = "product_code")
     private String productCode;
     @Column(name = "product_name")
     private String productName;
     @Column(name = "price")
-    private long price;
+    private Long price;
     @Column(name = "quantity")
-    private long quantity;
+    private Long quantity;
     @Column(name = "description")
     private String description;
     @Column(name = "create_time")
@@ -28,7 +28,7 @@ public class Product {
     @Column(name = "type_warranty")
     private String typeWarranty;
     @Column(name = "warranty")
-    private long warranty;
+    private Long warranty;
     @ManyToOne
     @JoinColumn(name="categories_id")
     private Categories categories;
@@ -44,11 +44,11 @@ public class Product {
     public Product() {
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -68,19 +68,19 @@ public class Product {
         this.productName = productName;
     }
 
-    public long getPrice() {
+    public Long getPrice() {
         return price;
     }
 
-    public void setPrice(long price) {
+    public void setPrice(Long price) {
         this.price = price;
     }
 
-    public long getQuantity() {
+    public Long getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(long quantity) {
+    public void setQuantity(Long quantity) {
         this.quantity = quantity;
     }
 
@@ -116,11 +116,11 @@ public class Product {
         this.typeWarranty = typeWarranty;
     }
 
-    public long getWarranty() {
+    public Long getWarranty() {
         return warranty;
     }
 
-    public void setWarranty(long warranty) {
+    public void setWarranty(Long warranty) {
         this.warranty = warranty;
     }
 }

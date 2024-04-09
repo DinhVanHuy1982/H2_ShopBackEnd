@@ -7,7 +7,7 @@ import jakarta.persistence.*;
 import java.time.Instant;
 
 public class OrdersDTO {
-    private long id;
+    private Long id;
 
     private Instant orderDate;
     private int paymentMethod;//type_apparams PAYMENT
@@ -19,17 +19,17 @@ public class OrdersDTO {
 
     private String buyerAddress;
 
-    private long quantity;
+    private Long quantity;
 
-    private long status;
+    private Long status;
 
     private String comment;
 
-    private long price;// giá của mỗi sản phẩm được bán ra
+    private Long price;// giá của mỗi sản phẩm được bán ra
 
     private String estimatePickUp;
 
-    private long rating;
+    private Long rating;
 
     private float tax;
     private String shippingUnit; // type_apparams SHIPUNIT
@@ -61,11 +61,11 @@ public class OrdersDTO {
     public OrdersDTO() {
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -117,19 +117,19 @@ public class OrdersDTO {
         this.buyerAddress = buyerAddress;
     }
 
-    public long getQuantity() {
+    public Long getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(long quantity) {
+    public void setQuantity(Long quantity) {
         this.quantity = quantity;
     }
 
-    public long getStatus() {
+    public Long getStatus() {
         return status;
     }
 
-    public void setStatus(long status) {
+    public void setStatus(Long status) {
         this.status = status;
     }
 
@@ -141,11 +141,11 @@ public class OrdersDTO {
         this.comment = comment;
     }
 
-    public long getPrice() {
+    public Long getPrice() {
         return price;
     }
 
-    public void setPrice(long price) {
+    public void setPrice(Long price) {
         this.price = price;
     }
 
@@ -157,11 +157,11 @@ public class OrdersDTO {
         this.estimatePickUp = estimatePickUp;
     }
 
-    public long getRating() {
+    public Long getRating() {
         return rating;
     }
 
-    public void setRating(long rating) {
+    public void setRating(Long rating) {
         this.rating = rating;
     }
 

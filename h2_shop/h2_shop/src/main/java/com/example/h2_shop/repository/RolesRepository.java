@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public interface RolesRepository extends JpaRepository<Roles, Long> {
 
@@ -16,4 +17,6 @@ public interface RolesRepository extends JpaRepository<Roles, Long> {
             " left join `user` u on u.role_id = r.id \n" +
             " group by r.id, rd.function_id", nativeQuery = true)
     public List<Map<String,Object>> getAllRoles();
+
+    public Optional<Roles> findByRoleCode(String roleCode);
 }

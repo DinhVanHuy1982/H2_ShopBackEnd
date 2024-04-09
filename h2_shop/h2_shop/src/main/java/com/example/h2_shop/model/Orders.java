@@ -10,7 +10,7 @@ public class Orders {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name="order_date")
     private Instant orderDate;
@@ -31,22 +31,22 @@ public class Orders {
     private String buyerAddress;
 
     @Column(name="quantity")
-    private long quantity;
+    private Long quantity;
 
     @Column(name="status")
-    private long status;
+    private Long status;
 
     @Column(name="comment")
     private String comment;
 
     @Column(name="price")
-    private long price;// giá của mỗi sản phẩm được bán ra
+    private Long price;// giá của mỗi sản phẩm được bán ra
 
     @Column(name="estimatePickUp")
     private String estimatePickUp;
 
     @Column(name="rating")
-    private long rating;
+    private Long rating;
 
     @Column(name="tax")
     private float tax;
@@ -97,11 +97,11 @@ public class Orders {
     public Orders() {
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -153,19 +153,19 @@ public class Orders {
         this.buyerAddress = buyerAddress;
     }
 
-    public long getQuantity() {
+    public Long getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(long quantity) {
+    public void setQuantity(Long quantity) {
         this.quantity = quantity;
     }
 
-    public long getStatus() {
+    public Long getStatus() {
         return status;
     }
 
-    public void setStatus(long status) {
+    public void setStatus(Long status) {
         this.status = status;
     }
 
@@ -177,11 +177,11 @@ public class Orders {
         this.comment = comment;
     }
 
-    public long getPrice() {
+    public Long getPrice() {
         return price;
     }
 
-    public void setPrice(long price) {
+    public void setPrice(Long price) {
         this.price = price;
     }
 
@@ -193,11 +193,11 @@ public class Orders {
         this.estimatePickUp = estimatePickUp;
     }
 
-    public long getRating() {
+    public Long getRating() {
         return rating;
     }
 
-    public void setRating(long rating) {
+    public void setRating(Long rating) {
         this.rating = rating;
     }
 

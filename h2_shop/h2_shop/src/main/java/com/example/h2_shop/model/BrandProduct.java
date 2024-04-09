@@ -10,11 +10,11 @@ public class BrandProduct {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     @Column(name = "import_quantity")
-    private long importQuantity;
+    private Long importQuantity;
     @Column(name = "import_price")
-    private long importPrice;
+    private Long importPrice;
     @Column(name = "import_date")
     private Instant importDate;
     @Column(name = "category_code")
@@ -46,27 +46,27 @@ public class BrandProduct {
     public BrandProduct() {
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public long getImportQuantity() {
+    public Long getImportQuantity() {
         return importQuantity;
     }
 
-    public void setImportQuantity(long importQuantity) {
+    public void setImportQuantity(Long importQuantity) {
         this.importQuantity = importQuantity;
     }
 
-    public long getImportPrice() {
+    public Long getImportPrice() {
         return importPrice;
     }
 
-    public void setImportPrice(long importPrice) {
+    public void setImportPrice(Long importPrice) {
         this.importPrice = importPrice;
     }
 

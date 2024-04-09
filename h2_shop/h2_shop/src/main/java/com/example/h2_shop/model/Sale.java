@@ -11,7 +11,7 @@ public class Sale {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     @Column(name = "quantity")
     private String quantity;
     @Column(name = "description")
@@ -26,11 +26,11 @@ public class Sale {
 
     private String type;
     @Column(name = "minPrice")
-    private long minPrice;
+    private Long minPrice;
     @Column(name = "maxPrice")
-    private long maxPrice;
+    private Long maxPrice;
     @Column(name = "max_discount")
-    private long maxDiscount;
+    private Long maxDiscount;
     @Column(name = "max_purchase")
     private float maxPurchase;
     @ManyToOne
@@ -47,11 +47,11 @@ public class Sale {
     public Sale() {
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -103,27 +103,27 @@ public class Sale {
         this.type = type;
     }
 
-    public long getMinPrice() {
+    public Long getMinPrice() {
         return minPrice;
     }
 
-    public void setMinPrice(long minPrice) {
+    public void setMinPrice(Long minPrice) {
         this.minPrice = minPrice;
     }
 
-    public long getMaxPrice() {
+    public Long getMaxPrice() {
         return maxPrice;
     }
 
-    public void setMaxPrice(long maxPrice) {
+    public void setMaxPrice(Long maxPrice) {
         this.maxPrice = maxPrice;
     }
 
-    public long getMaxDiscount() {
+    public Long getMaxDiscount() {
         return maxDiscount;
     }
 
-    public void setMaxDiscount(long maxDiscount) {
+    public void setMaxDiscount(Long maxDiscount) {
         this.maxDiscount = maxDiscount;
     }
 

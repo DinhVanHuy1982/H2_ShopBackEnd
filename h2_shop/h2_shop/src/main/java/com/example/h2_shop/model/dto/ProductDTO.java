@@ -4,19 +4,40 @@ import com.example.h2_shop.model.Categories;
 import jakarta.persistence.*;
 
 import java.time.Instant;
+import java.util.List;
 
 public class ProductDTO {
-    private long id;
+    private Long id;
     private String productCode;
     private String productName;
-    private long price;
-    private long quantity;
+    private Long price;
+    private Long quantity;
     private String description;
     private Instant createTime;
     private Instant updateTime;
     private String typeWarranty;
-    private long warranty;
+    private Long warranty;
     private Categories categories;
+
+    private List<SizeDTO> sizeDTOList;
+
+    private Long brandId;
+
+    public Long getBrandId() {
+        return brandId;
+    }
+
+    public void setBrandId(Long brandId) {
+        this.brandId = brandId;
+    }
+
+    public List<SizeDTO> getSizeDTOList() {
+        return sizeDTOList;
+    }
+
+    public void setSizeDTOList(List<SizeDTO> sizeDTOList) {
+        this.sizeDTOList = sizeDTOList;
+    }
 
     public Categories getCategories() {
         return categories;
@@ -29,11 +50,11 @@ public class ProductDTO {
     public ProductDTO() {
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -53,19 +74,19 @@ public class ProductDTO {
         this.productName = productName;
     }
 
-    public long getPrice() {
+    public Long getPrice() {
         return price;
     }
 
-    public void setPrice(long price) {
+    public void setPrice(Long price) {
         this.price = price;
     }
 
-    public long getQuantity() {
+    public Long getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(long quantity) {
+    public void setQuantity(Long quantity) {
         this.quantity = quantity;
     }
 
@@ -101,11 +122,11 @@ public class ProductDTO {
         this.typeWarranty = typeWarranty;
     }
 
-    public long getWarranty() {
+    public Long getWarranty() {
         return warranty;
     }
 
-    public void setWarranty(long warranty) {
+    public void setWarranty(Long warranty) {
         this.warranty = warranty;
     }
 }

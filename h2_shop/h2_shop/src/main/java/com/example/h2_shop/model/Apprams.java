@@ -9,7 +9,7 @@ public class Apprams {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name = "name")
     private String name;
@@ -26,7 +26,7 @@ public class Apprams {
     public Apprams() {
     }
 
-    public Apprams(long id, String name, String code, String value, String parentCode, String type) {
+    public Apprams(Long id, String name, String code, String value, String parentCode, String type) {
         this.id = id;
         this.name = name;
         this.code = code;
@@ -35,11 +35,11 @@ public class Apprams {
         this.type = type;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

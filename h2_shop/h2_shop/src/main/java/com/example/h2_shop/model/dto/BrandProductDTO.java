@@ -8,9 +8,9 @@ import java.time.Instant;
 
 
 public class BrandProductDTO {
-    private long id;
-    private long importQuantity;
-    private long importPrice;
+    private Long id;
+    private Long importQuantity;
+    private Long importPrice;
     private Instant importDate;
     private String categoryCode;
 
@@ -36,27 +36,27 @@ public class BrandProductDTO {
     public BrandProductDTO() {
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public long getImportQuantity() {
+    public Long getImportQuantity() {
         return importQuantity;
     }
 
-    public void setImportQuantity(long importQuantity) {
+    public void setImportQuantity(Long importQuantity) {
         this.importQuantity = importQuantity;
     }
 
-    public long getImportPrice() {
+    public Long getImportPrice() {
         return importPrice;
     }
 
-    public void setImportPrice(long importPrice) {
+    public void setImportPrice(Long importPrice) {
         this.importPrice = importPrice;
     }
 

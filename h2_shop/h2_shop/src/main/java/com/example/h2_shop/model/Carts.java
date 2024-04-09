@@ -10,10 +10,10 @@ public class Carts {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name="quantity")
-    private long quantity;
+    private Long quantity;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
@@ -32,7 +32,7 @@ public class Carts {
     public Carts() {
     }
 
-    public Carts(long id, long quantity, Product product, User user, Instant createTime, Instant updateTime) {
+    public Carts(Long id, Long quantity, Product product, User user, Instant createTime, Instant updateTime) {
         this.id = id;
         this.quantity = quantity;
         this.product = product;
@@ -41,19 +41,19 @@ public class Carts {
         this.updateTime = updateTime;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public long getQuantity() {
+    public Long getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(long quantity) {
+    public void setQuantity(Long quantity) {
         this.quantity = quantity;
     }
 

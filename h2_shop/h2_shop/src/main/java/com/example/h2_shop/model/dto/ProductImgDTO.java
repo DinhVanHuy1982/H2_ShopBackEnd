@@ -1,45 +1,33 @@
-package com.example.h2_shop.model;
+package com.example.h2_shop.model.dto;
 
-import jakarta.persistence.*;
+import com.example.h2_shop.model.Orders;
+import com.example.h2_shop.model.Product;
+import jakarta.persistence.Column;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
-@Entity
-@Table(name = "product_img")
-public class ProductImg {
-    @Id
-    @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class ProductImgDTO {
+
     private Long id;
 
-    @Column(name="file_id")
     private String fileId;
 
-    @Column(name="file_name")
     private String fileName;
 
-    @Column(name="order_img")
     private Long order;
 
-    @Column(name="file_size")
     private String fileSize;
 
-    @ManyToOne
-    @JoinColumn(name="product_id")
     private Product product;
 
-
-    @Column(name="avatar")
     private boolean avatar;
-
-    @ManyToOne
-    @JoinColumn(name ="order_id")
     private Orders orders;
 
+    public ProductImgDTO() {
 
-
-    public ProductImg() {
     }
 
-    public ProductImg(Long id, String fileId, String fileName, Long order, String fileSize, Product product, boolean avatar) {
+    public ProductImgDTO(Long id, String fileId, String fileName, Long order, String fileSize, Product product, boolean avatar, Orders orders) {
         this.id = id;
         this.fileId = fileId;
         this.fileName = fileName;
@@ -47,13 +35,6 @@ public class ProductImg {
         this.fileSize = fileSize;
         this.product = product;
         this.avatar = avatar;
-    }
-
-    public Orders getOrders() {
-        return orders;
-    }
-
-    public void setOrders(Orders orders) {
         this.orders = orders;
     }
 
@@ -111,5 +92,13 @@ public class ProductImg {
 
     public void setAvatar(boolean avatar) {
         this.avatar = avatar;
+    }
+
+    public Orders getOrders() {
+        return orders;
+    }
+
+    public void setOrders(Orders orders) {
+        this.orders = orders;
     }
 }

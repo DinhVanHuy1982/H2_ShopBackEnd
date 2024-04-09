@@ -1,30 +1,44 @@
-package com.example.h2_shop.model;
+package com.example.h2_shop.model.dto;
 
-import jakarta.persistence.*;
+import com.example.h2_shop.model.Function;
+import com.example.h2_shop.model.Roles;
+import jakarta.persistence.Column;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
-@Entity
-@Table(name = "role_details")
-public class RolesDetails {
-    @Id
-    @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class RolesDetailsDTO {
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id")
     private Roles role;
 
-    @ManyToOne
-    @JoinColumn(name="function_id")
+    private Long roleId;
+
     private Function function;
 
-    @Column(name="action")
     private String action;
 
-    public RolesDetails() {
+    private Long functionId;
+
+    public RolesDetailsDTO() {
     }
 
-    public RolesDetails(Long id, Roles role, Function function, String action) {
+    public Long getRoleId() {
+        return roleId;
+    }
+
+    public Long getFunctionId() {
+        return functionId;
+    }
+
+    public void setFunctionId(Long functionId) {
+        this.functionId = functionId;
+    }
+
+    public void setRoleId(Long roleId) {
+        this.roleId = roleId;
+    }
+
+    public RolesDetailsDTO(Long id, Roles role, Function function, String action) {
         this.id = id;
         this.role = role;
         this.function = function;
