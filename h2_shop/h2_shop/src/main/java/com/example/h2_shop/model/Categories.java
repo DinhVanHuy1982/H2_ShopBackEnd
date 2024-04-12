@@ -22,6 +22,9 @@ public class Categories {
     @Column(name = "description")
     private String description;
 
+    @Column(name="status")
+    private String status;
+
     public Categories() {
     }
 
@@ -71,5 +74,13 @@ public class Categories {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

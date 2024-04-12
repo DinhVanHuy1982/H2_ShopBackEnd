@@ -3,6 +3,7 @@ package com.example.h2_shop.model.dto;
 import jakarta.persistence.*;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CategoriesDTO {
@@ -12,18 +13,20 @@ public class CategoriesDTO {
     private Long parentId;
     private Instant createTime;
     private String description;
+    private String status;
 
-    private List<CategoriesDTO> categoriesDTOList;
+    private List<CategoriesDTO> children = new ArrayList<>();;
+
 
     public CategoriesDTO() {
     }
 
-    public List<CategoriesDTO> getCategoriesDTOList() {
-        return categoriesDTOList;
+    public List<CategoriesDTO> getChildren() {
+        return children;
     }
 
-    public void setCategoriesDTOList(List<CategoriesDTO> categoriesDTOList) {
-        this.categoriesDTOList = categoriesDTOList;
+    public void setChildren(List<CategoriesDTO> categoriesDTOList) {
+        this.children = categoriesDTOList;
     }
 
     public Long getId() {
@@ -72,5 +75,13 @@ public class CategoriesDTO {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

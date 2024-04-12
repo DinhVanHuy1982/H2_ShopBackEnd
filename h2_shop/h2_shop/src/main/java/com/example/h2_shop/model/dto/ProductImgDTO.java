@@ -10,11 +10,11 @@ public class ProductImgDTO {
 
     private Long id;
 
-    private String fileId;
+    private Long fileId;
 
     private String fileName;
 
-    private Long order;
+    private String type;
 
     private String fileSize;
 
@@ -27,11 +27,11 @@ public class ProductImgDTO {
 
     }
 
-    public ProductImgDTO(Long id, String fileId, String fileName, Long order, String fileSize, Product product, boolean avatar, Orders orders) {
+    public ProductImgDTO(Long id, Long fileId, String fileName, String type, String fileSize, Product product, boolean avatar, Orders orders) {
         this.id = id;
         this.fileId = fileId;
         this.fileName = fileName;
-        this.order = order;
+        this.type = type;
         this.fileSize = fileSize;
         this.product = product;
         this.avatar = avatar;
@@ -46,11 +46,11 @@ public class ProductImgDTO {
         this.id = id;
     }
 
-    public String getFileId() {
+    public Long getFileId() {
         return fileId;
     }
 
-    public void setFileId(String fileId) {
+    public void setFileId(Long fileId) {
         this.fileId = fileId;
     }
 
@@ -62,13 +62,9 @@ public class ProductImgDTO {
         this.fileName = fileName;
     }
 
-    public Long getOrder() {
-        return order;
-    }
 
-    public void setOrder(Long order) {
-        this.order = order;
-    }
+
+
 
     public String getFileSize() {
         return fileSize;
@@ -100,5 +96,13 @@ public class ProductImgDTO {
 
     public void setOrders(Orders orders) {
         this.orders = orders;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

@@ -36,6 +36,9 @@ public class Brands {
     @Column(name="avatar")
     private String avatar;
 
+    @Column(name="status")
+    private Long status;
+
     public Brands() {
     }
 
@@ -109,5 +112,13 @@ public class Brands {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    public Long getStatus() {
+        return status;
+    }
+
+    public void setStatus(Long status) {
+        this.status = status;
     }
 }

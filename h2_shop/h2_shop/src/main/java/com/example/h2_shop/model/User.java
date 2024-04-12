@@ -2,6 +2,8 @@ package com.example.h2_shop.model;
 
 import jakarta.persistence.*;
 
+import java.time.Instant;
+
 @Entity
 @Table(name = "user")
 public class User {
@@ -33,6 +35,12 @@ public class User {
     @Column(name = "is_active")
     private Long isActive;
 
+    @Column(name="create_time")
+    private Instant createTime;
+
+    @Column(name="status")
+    private Long status;
+
     public Roles getRoles() {
         return roles;
     }
@@ -45,7 +53,7 @@ public class User {
 
     }
 
-    public User(Long id, String username, String password, String email, String address, String phoneNumber, String avatar, String fileId, Roles roles, Long isActive) {
+    public User(Long id, String username, String password, String email, String address, String phoneNumber, String avatar, String fileId, Roles roles, Long isActive, Instant createTime, Long status) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -56,6 +64,8 @@ public class User {
         this.fileId = fileId;
         this.roles = roles;
         this.isActive = isActive;
+        this.createTime = createTime;
+        this.status = status;
     }
 
     public String getFileId() {
@@ -128,5 +138,20 @@ public class User {
 
     public void setIsActive(Long isActive) {
         this.isActive = isActive;
+    }
+
+    public Instant getCreateTime() {
+        return createTime;
+    }
+    public void setCreateTime(Instant createTime) {
+        this.createTime = createTime;
+    }
+
+    public Long getStatus() {
+        return status;
+    }
+
+    public void setStatus(Long status) {
+        this.status = status;
     }
 }

@@ -2,6 +2,8 @@ package com.example.h2_shop.model.dto;
 
 import com.example.h2_shop.model.Roles;
 import lombok.Data;
+
+import java.time.Instant;
 //import org.springframework.security.core.GrantedAuthority;
 
 @Data
@@ -14,15 +16,19 @@ public class UserDto {
     private String phoneNumber;
 
     private String avatar;
-
+    private String fileId;
     private Roles roles;
+    private Long isActive;
+    private Instant createTime;
+    private Long status;
 
     private Long roleId;
+    private FileDto fileDto;
 
 //    private GrantedAuthority grantedAuthority;
 
 
-    public UserDto(Long id, String username, String password, String email, String address, String phoneNumber, String avatar, Roles roles) {
+    public UserDto(Long id, String username, String password, String email, String address, String phoneNumber, String avatar, String fileId, Roles roles, Long isActive, Instant createTime, Long status) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -30,8 +36,11 @@ public class UserDto {
         this.address = address;
         this.phoneNumber = phoneNumber;
         this.avatar = avatar;
+        this.fileId = fileId;
         this.roles = roles;
-//        this.grantedAuthority = grantedAuthority;
+        this.isActive = isActive;
+        this.createTime = createTime;
+        this.status = status;
     }
 
     public Long getId() {
@@ -106,7 +115,31 @@ public class UserDto {
         this.roleId = roleId;
     }
 
-    //    public GrantedAuthority getGrantedAuthority() {
+    public Instant getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Instant createTime) {
+        this.createTime = createTime;
+    }
+    public Long getStatus() {
+        return status;
+    }
+
+    public void setStatus(Long status) {
+        this.status = status;
+    }
+
+    public FileDto getFileDto() {
+        return fileDto;
+    }
+
+    public void setFileDto(FileDto fileDto) {
+        this.fileDto = fileDto;
+    }
+
+
+//    public GrantedAuthority getGrantedAuthority() {
 //        return grantedAuthority;
 //    }
 //

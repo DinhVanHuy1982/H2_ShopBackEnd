@@ -23,6 +23,18 @@ public class ProductDTO {
 
     private Long brandId;
 
+    private Long categoriesID;
+
+    private List<ProductImgDTO> productImgDTOList;
+
+    public List<ProductImgDTO> getProductImgDTOList() {
+        return productImgDTOList;
+    }
+
+    public void setProductImgDTOList(List<ProductImgDTO> productImgDTOList) {
+        this.productImgDTOList = productImgDTOList;
+    }
+
     public Long getBrandId() {
         return brandId;
     }
@@ -128,5 +140,13 @@ public class ProductDTO {
 
     public void setWarranty(Long warranty) {
         this.warranty = warranty;
+    }
+
+    public Long getCategoriesID() {
+        return categoriesID;
+    }
+
+    public void setCategoriesID(Long categoriesID) {
+        this.categoriesID = categoriesID;
     }
 }

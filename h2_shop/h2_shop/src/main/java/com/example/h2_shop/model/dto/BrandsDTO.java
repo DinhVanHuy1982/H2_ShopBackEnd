@@ -1,7 +1,5 @@
 package com.example.h2_shop.model.dto;
 
-import jakarta.persistence.*;
-
 import java.time.Instant;
 
 public class BrandsDTO {
@@ -21,6 +19,10 @@ public class BrandsDTO {
     private String email;
 
     private String avatar;
+
+    private Long status;
+
+    private String searchBrand;
 
     public BrandsDTO() {
     }
@@ -95,5 +97,21 @@ public class BrandsDTO {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    public Long getStatus() {
+        return status;
+    }
+
+    public void setStatus(Long status) {
+        this.status = status;
+    }
+
+    public String getSearchBrand() {
+        return searchBrand;
+    }
+
+    public void setSearchBrand(String searchBrand) {
+        this.searchBrand = searchBrand;
     }
 }

@@ -1,10 +1,12 @@
 package com.example.h2_shop.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
 @Entity
 @Table(name = "product_img")
 public class ProductImg {
+    @Getter
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,8 +18,8 @@ public class ProductImg {
     @Column(name="file_name")
     private String fileName;
 
-    @Column(name="order_img")
-    private Long order;
+    @Column(name="type")
+    private String type;
 
     @Column(name="file_size")
     private String fileSize;
@@ -39,14 +41,22 @@ public class ProductImg {
     public ProductImg() {
     }
 
-    public ProductImg(Long id, String fileId, String fileName, Long order, String fileSize, Product product, boolean avatar) {
+    public ProductImg(Long id, String fileId, String fileName, String type, String fileSize, Product product, boolean avatar) {
         this.id = id;
         this.fileId = fileId;
         this.fileName = fileName;
-        this.order = order;
+        this.type = type;
         this.fileSize = fileSize;
         this.product = product;
         this.avatar = avatar;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setFileId(String fileId) {
+        this.fileId = fileId;
     }
 
     public Orders getOrders() {
@@ -57,21 +67,12 @@ public class ProductImg {
         this.orders = orders;
     }
 
-    public Long getId() {
-        return id;
-    }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getFileId() {
         return fileId;
     }
 
-    public void setFileId(String fileId) {
-        this.fileId = fileId;
-    }
 
     public String getFileName() {
         return fileName;
@@ -81,12 +82,12 @@ public class ProductImg {
         this.fileName = fileName;
     }
 
-    public Long getOrder() {
-        return order;
+    public String getType() {
+        return type;
     }
 
-    public void setOrder(Long order) {
-        this.order = order;
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getFileSize() {
