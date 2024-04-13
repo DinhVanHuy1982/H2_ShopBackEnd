@@ -17,6 +17,8 @@ public class SizeDTO {
 
     private Product product;
 
+    private Integer position; // vị trí trong danh sách truyền vào
+
     public Product getProduct() {
         return product;
     }
@@ -90,5 +92,13 @@ public class SizeDTO {
 
     public void setUpdateName(String updateName) {
         this.updateName = updateName;
+    }
+
+    public Integer getPosition() {
+        return position;
+    }
+
+    public void setPosition(Integer position) {
+        this.position = position;
     }
 }

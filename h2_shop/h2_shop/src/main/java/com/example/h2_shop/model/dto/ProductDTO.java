@@ -1,6 +1,7 @@
 package com.example.h2_shop.model.dto;
 
 import com.example.h2_shop.model.Categories;
+import com.example.h2_shop.model.ProductDetail;
 import jakarta.persistence.*;
 
 import java.time.Instant;
@@ -17,6 +18,9 @@ public class ProductDTO {
     private Instant updateTime;
     private String typeWarranty;
     private Long warranty;
+
+    private Float tax;
+    private String saleCode;
     private Categories categories;
 
     private List<SizeDTO> sizeDTOList;
@@ -29,6 +33,7 @@ public class ProductDTO {
 
     private BrandProductDTO brandProductDTO;
 
+    private List<ProductDetailDTO> listProductDetail;
     public BrandProductDTO getBrandProductDTO() {
         return brandProductDTO;
     }
@@ -158,5 +163,29 @@ public class ProductDTO {
 
     public void setCategoriesID(Long categoriesID) {
         this.categoriesID = categoriesID;
+    }
+
+    public Float getTax() {
+        return tax;
+    }
+
+    public void setTax(Float tax) {
+        this.tax = tax;
+    }
+
+    public String getSaleCode() {
+        return saleCode;
+    }
+
+    public void setSaleCode(String saleCode) {
+        this.saleCode = saleCode;
+    }
+
+    public List<ProductDetailDTO> getListProductDetail() {
+        return listProductDetail;
+    }
+
+    public void setListProductDetail(List<ProductDetailDTO> listProductDetail) {
+        this.listProductDetail = listProductDetail;
     }
 }

@@ -1,14 +1,8 @@
 package com.example.h2_shop.service.impl;
 
 import com.example.h2_shop.model.*;
-import com.example.h2_shop.model.dto.BrandProductDTO;
-import com.example.h2_shop.model.dto.FileDto;
-import com.example.h2_shop.model.dto.ProductDTO;
-import com.example.h2_shop.model.dto.ProductImgDTO;
-import com.example.h2_shop.model.mapper.BrandProductMapper;
-import com.example.h2_shop.model.mapper.ProductImgMapper;
-import com.example.h2_shop.model.mapper.ProductMapper;
-import com.example.h2_shop.model.mapper.SizeMapper;
+import com.example.h2_shop.model.dto.*;
+import com.example.h2_shop.model.mapper.*;
 import com.example.h2_shop.repository.*;
 import com.example.h2_shop.service.CategoriesService;
 import com.example.h2_shop.service.FileService;
@@ -18,6 +12,7 @@ import io.micrometer.common.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
@@ -29,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class ProductServiceImpl implements ProductService {
 
     @Autowired
@@ -48,8 +44,13 @@ public class ProductServiceImpl implements ProductService {
     private final ProductImgRepository productImgRepository;
     private final ProductImgMapper productImgMapper;
     private final BrandProductMapper brandProductMapper;
+    private final SizeRepository sizeRepository;
+    private final TypeProductMapper typeProductMapper;
+    private final TypeProductRepository typeProductRepository;
+    private final ProductDetailMapper productDetailMapper;
+    private final ProductDetailRepository productDetailRepository;
 
-    public ProductServiceImpl(BrandRepository brandRepository,BrandProductMapper brandProductMapper,BrandProductRepository brandProductRepository,ProductImgMapper productImgMapper,ProductImgRepository productImgRepository,CategoriesRepository categoriesRepository,ProductRepository productRepository,CategoriesService categoriesService){
+    public ProductServiceImpl(TypeProductMapper typeProductMapper,ProductDetailRepository productDetailRepository,ProductDetailMapper productDetailMapper,TypeProductRepository typeProductRepository,SizeRepository sizeRepository, BrandRepository brandRepository,BrandProductMapper brandProductMapper,BrandProductRepository brandProductRepository,ProductImgMapper productImgMapper,ProductImgRepository productImgRepository,CategoriesRepository categoriesRepository,ProductRepository productRepository,CategoriesService categoriesService){
         this.productRepository=productRepository;
         this.categoriesService=categoriesService;
         this.brandRepository=brandRepository;
@@ -58,14 +59,19 @@ public class ProductServiceImpl implements ProductService {
         this.productImgMapper=productImgMapper;
         this.brandProductRepository=brandProductRepository;
         this.brandProductMapper = brandProductMapper;
+        this.sizeRepository = sizeRepository;
+        this.typeProductMapper=typeProductMapper;
+        this.typeProductRepository = typeProductRepository;
+        this.productDetailMapper = productDetailMapper;
+        this.productDetailRepository=productDetailRepository;
     }
 
 
     @Override
-    public ServiceResult<ProductDTO> createProduct(List<MultipartFile> listFileAvatar,ProductDTO productDTO) {
+    public ServiceResult<ProductDTO> createProduct(List<MultipartFile> listFileAvatar, ProductDTO productDTO, List<SizeDTO> sizeDTOList, List<TypeProductDTO> typeProductDTOList) {
 
         int countSuccess = 0;
-        String errVali = this.validationProduct(productDTO);
+        String errVali = this.validationProduct(productDTO,sizeDTOList,typeProductDTOList);
         ServiceResult<ProductDTO> serviceResult = new ServiceResult<>();
         if(errVali.length()>0){
             serviceResult.setData(null);
@@ -78,20 +84,62 @@ public class ProductServiceImpl implements ProductService {
         ProductDTO productDTOReturn = new ProductDTO();
         Product product = this.productMapper.toEntity(productDTO);
         if(productDTO.getCategoriesID()!=null){
-            Optional<Categories> categoriesOp = this.categoriesRepository.findByParentId(productDTO.getCategoriesID());
-            if(categoriesOp.isPresent()){
+            Optional<Categories> categoriesOp = this.categoriesRepository.findById(productDTO.getCategoriesID());
+            if(categoriesOp.isPresent()){ // check xem có tôn tại categori này hay không
                 Optional<Categories> categoriesParent = this.categoriesRepository.findByParentId(productDTO.getCategoriesID());
-                if(!categoriesParent.isPresent()){
-                    product.setCategories(categoriesParent.get());
+                if(categoriesParent.isEmpty()){  // check xem categori có là danh mục cha của 1 danh mục nào đó hay không
+                    product.setCategories(categoriesOp.get());
                 }
             }
         }
+
+        List<ProductDetailDTO> productDetailDTOList = productDTO.getListProductDetail();
+        // size
+        List<Size> sizeList = new ArrayList<>();
+        if(sizeDTOList!=null){
+             sizeList = this.sizeMapper.toEntity(sizeDTOList);
+            for(int i=0;i<sizeList.size();i++){
+                sizeList.get(i).setCreateName(sizeList.get(i).getSizeName());
+                sizeList.get(i).setCreateTime(Instant.now());
+            }
+            sizeList = this.sizeRepository.saveAll(sizeList);
+
+            for(int i=0;i<productDetailDTOList.size();i++){
+                productDetailDTOList.get(i).setSize(sizeList.get(productDetailDTOList.get(i).getPositionSize()-1));
+            }
+        }
+        //typeProduct
+        List<TypeProduct> typeProductList = new ArrayList<>();
+        if(typeProductDTOList!=null){
+            typeProductList = this.typeProductMapper.toEntity(typeProductDTOList);
+            for(int i=0;i<typeProductList.size();i++){
+                typeProductList.get(i).setCreateTime(Instant.now());
+            }
+            typeProductList = this.typeProductRepository.saveAll(typeProductList);
+
+            for(int i=0;i<productDetailDTOList.size();i++){
+                productDetailDTOList.get(i).setTypeProduct(typeProductList.get(productDetailDTOList.get(i).getPositionType()-1));
+            }
+        }
+
+
+
         product.setCreateTime(Instant.now());
         product = this.productRepository.save(product);
+
+        for (int i=0;i<productDetailDTOList.size();i++){
+            productDetailDTOList.get(i).setProduct(product);
+        }
+
+        List<ProductDetail> productDetailList = this.productDetailMapper.toEntity(productDetailDTOList);
+        productDetailList = this.productDetailRepository.saveAll(productDetailList);
+        productDetailDTOList = this.productDetailMapper.toDto(productDetailList);
+
         productDTOReturn = this.productMapper.toDto(product);
+        productDTOReturn.setListProductDetail(productDetailDTOList);
 
 
-        if(!listFileAvatar.isEmpty()){
+        if(listFileAvatar!=null){
             ServiceResult<List<FileDto>> fileDtoServiceResult = this.fileService.createListFile(listFileAvatar);
             List<ProductImg> productImgList = new ArrayList<>();
             if(fileDtoServiceResult.getStatus()==HttpStatus.OK){
@@ -155,8 +203,38 @@ public class ProductServiceImpl implements ProductService {
         return serviceResult;
     }
 
-    public String validationProduct(ProductDTO productDTO){
+    public String validationProduct(ProductDTO productDTO, List<SizeDTO> sizeDTOList, List<TypeProductDTO> typeProductDTOList){
         StringBuilder err=new StringBuilder();
+
+        //validation productDetail with size and type
+        List<ProductDetailDTO> productDetailDTOList = productDTO.getListProductDetail();
+        if(productDetailDTOList!=null && sizeDTOList!=null && typeProductDTOList!=null){
+            for(int i=0;i<productDetailDTOList.size();i++){
+                if(productDetailDTOList.get(i).getPositionSize()>sizeDTOList.size()){
+                    err.append("Thứ tự size sản phẩm không đúng");break;
+                }else if(productDetailDTOList.get(i).getPositionType()>typeProductDTOList.size()){
+                    err.append("Thứ tự loại sản phẩm không đúng");break;
+                }
+            }
+        }
+
+        //validation size
+        if(sizeDTOList!=null){
+            for (int i=0;i<sizeDTOList.size();i++){
+                if(StringUtils.isEmpty(sizeDTOList.get(i).getSizeName())){
+                    err.append("Size sản phẩm không được để trống");break;
+                }
+            }
+        }
+
+        //validation typeProduct
+        if(typeProductDTOList!=null){
+            for(int i=0;i<typeProductDTOList.size();i++){
+                if(StringUtils.isEmpty(typeProductDTOList.get(i).getTypeName())){
+                    err.append("Loại sản phẩm không được để trống");break;
+                }
+            }
+        }
 
         // name
         if(StringUtils.isEmpty(productDTO.getProductName())){

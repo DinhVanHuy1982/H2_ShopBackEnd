@@ -13,7 +13,7 @@ public class Sale {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "quantity")
-    private String quantity;
+    private Long quantity;
     @Column(name = "description")
     private String description;
     @Column(name = "start_time")
@@ -53,14 +53,6 @@ public class Sale {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(String quantity) {
-        this.quantity = quantity;
     }
 
     public String getDescription() {
@@ -133,5 +125,13 @@ public class Sale {
 
     public void setMaxPurchase(float maxPurchase) {
         this.maxPurchase = maxPurchase;
+    }
+
+    public Long getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Long quantity) {
+        this.quantity = quantity;
     }
 }

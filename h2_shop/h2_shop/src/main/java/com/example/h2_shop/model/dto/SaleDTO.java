@@ -8,7 +8,7 @@ import java.time.Instant;
 public class SaleDTO {
 
     private Long id;
-    private String quantity;
+    private Long quantity;
     private String description;
     private Instant startTime;
     private Instant endTime;
@@ -39,11 +39,11 @@ public class SaleDTO {
         this.id = id;
     }
 
-    public String getQuantity() {
+    public Long getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(String quantity) {
+    public void setQuantity(Long quantity) {
         this.quantity = quantity;
     }
 

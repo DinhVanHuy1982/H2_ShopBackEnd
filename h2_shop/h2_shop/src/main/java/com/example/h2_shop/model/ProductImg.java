@@ -33,8 +33,8 @@ public class ProductImg {
     private boolean avatar;
 
     @ManyToOne
-    @JoinColumn(name ="order_id")
-    private Orders orders;
+    @JoinColumn(name ="order_detail_id")
+    private OrderDetail orderDetail;
 
 
 
@@ -59,12 +59,12 @@ public class ProductImg {
         this.fileId = fileId;
     }
 
-    public Orders getOrders() {
-        return orders;
+    public OrderDetail getOrderDetail() {
+        return orderDetail;
     }
 
-    public void setOrders(Orders orders) {
-        this.orders = orders;
+    public void setOrderDetail(OrderDetail orderDetail) {
+        this.orderDetail = orderDetail;
     }
 
 

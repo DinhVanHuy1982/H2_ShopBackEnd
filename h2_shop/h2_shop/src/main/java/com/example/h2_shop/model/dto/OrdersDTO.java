@@ -5,13 +5,14 @@ import com.example.h2_shop.model.User;
 import jakarta.persistence.*;
 
 import java.time.Instant;
+import java.util.List;
 
 public class OrdersDTO {
     private Long id;
 
+    private String orderCode;
     private Instant orderDate;
-    private int paymentMethod;//type_apparams PAYMENT
-    private String typeApp;
+    private Integer paymentMethod;//type_apparams PAYMENT
 
     private String phoneNumber;
 
@@ -25,22 +26,27 @@ public class OrdersDTO {
 
     private String comment;
 
-    private Long price;// giá của mỗi sản phẩm được bán ra
+    private Long price;// giá của tổng sản phẩm được bán ra
 
     private String estimatePickUp;
 
     private Long rating;
-
-    private float tax;
     private String shippingUnit; // type_apparams SHIPUNIT
 
     private float shipPrice;
 
-    private String saleCode;
+    private Long userId;
+    private Long productId;
+
 
     private User user;
 
     private Product product;
+
+    private List<OrderDetailDTO> orderDetailDTOList;
+
+    private Long saleId; // mã giảm giá cho hóa đơn
+
 
     public User getUser() {
         return user;
@@ -77,21 +83,14 @@ public class OrdersDTO {
         this.orderDate = orderDate;
     }
 
-    public int getPaymentMethod() {
+    public Integer getPaymentMethod() {
         return paymentMethod;
     }
 
-    public void setPaymentMethod(int paymentMethod) {
+    public void setPaymentMethod(Integer paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
 
-    public String getTypeApp() {
-        return typeApp;
-    }
-
-    public void setTypeApp(String typeApp) {
-        this.typeApp = typeApp;
-    }
 
     public String getPhoneNumber() {
         return phoneNumber;
@@ -165,13 +164,6 @@ public class OrdersDTO {
         this.rating = rating;
     }
 
-    public float getTax() {
-        return tax;
-    }
-
-    public void setTax(float tax) {
-        this.tax = tax;
-    }
 
     public String getShippingUnit() {
         return shippingUnit;
@@ -189,11 +181,45 @@ public class OrdersDTO {
         this.shipPrice = shipPrice;
     }
 
-    public String getSaleCode() {
-        return saleCode;
+    public String getOrderCode() {
+        return orderCode;
     }
 
-    public void setSaleCode(String saleCode) {
-        this.saleCode = saleCode;
+    public void setOrderCode(String orderCode) {
+        this.orderCode = orderCode;
     }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Long getProductId() {
+        return productId;
+    }
+
+    public void setProductId(Long productId) {
+        this.productId = productId;
+    }
+
+    public List<OrderDetailDTO> getOrderDetailDTOList() {
+        return orderDetailDTOList;
+    }
+
+    public void setOrderDetailDTOList(List<OrderDetailDTO> orderDetailDTOList) {
+        this.orderDetailDTOList = orderDetailDTOList;
+    }
+
+    public Long getSaleId() {
+        return saleId;
+    }
+
+    public void setSaleId(Long saleId) {
+        this.saleId = saleId;
+    }
+
+
 }

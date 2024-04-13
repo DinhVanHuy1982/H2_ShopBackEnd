@@ -32,6 +32,10 @@ public class Product {
     @ManyToOne
     @JoinColumn(name="categories_id")
     private Categories categories;
+    @Column(name="tax")
+    private Float tax;
+    @Column(name="sale_code")
+    private String saleCode;
 
     public Categories getCategories() {
         return categories;
@@ -122,5 +126,21 @@ public class Product {
 
     public void setWarranty(Long warranty) {
         this.warranty = warranty;
+    }
+
+    public Float getTax() {
+        return tax;
+    }
+
+    public void setTax(Float tax) {
+        this.tax = tax;
+    }
+
+    public String getSaleCode() {
+        return saleCode;
+    }
+
+    public void setSaleCode(String saleCode) {
+        this.saleCode = saleCode;
     }
 }

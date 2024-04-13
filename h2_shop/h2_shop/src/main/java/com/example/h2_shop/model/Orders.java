@@ -12,14 +12,15 @@ public class Orders {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "order_code")
+    private String orderCode;
+
     @Column(name="order_date")
     private Instant orderDate;
 
     @Column(name="payment_method")
-    private int paymentMethod;//type_apparams PAYMENT
+    private Integer paymentMethod;//type_apparams PAYMENT
 
-    @Column(name="type_app")
-    private String typeApp;
 
     @Column(name="phone_number")
     private String phoneNumber;
@@ -40,7 +41,7 @@ public class Orders {
     private String comment;
 
     @Column(name="price")
-    private Long price;// giá của mỗi sản phẩm được bán ra
+    private Float price;// giá của tổng hóa đơn
 
     @Column(name="estimatePickUp")
     private String estimatePickUp;
@@ -48,24 +49,21 @@ public class Orders {
     @Column(name="rating")
     private Long rating;
 
-    @Column(name="tax")
-    private float tax;
+
     @Column(name="shipping_unit")
     private String shippingUnit; // type_apparams SHIPUNIT
 
     @Column(name="ship_price")
     private float shipPrice;
 
-    @Column(name="sale_code")
-    private String saleCode;
 
     @ManyToOne
     @JoinColumn(name="user_id")
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name="product_id")
-    private Product product;
+//    @ManyToOne
+//    @JoinColumn(name="product_id")
+//    private Product product;
 
     @Column(name="reply_comment")
     private String replyComment;
@@ -86,13 +84,13 @@ public class Orders {
         this.user = user;
     }
 
-    public Product getProduct() {
-        return product;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
-    }
+//    public Product getProduct() {
+//        return product;
+//    }
+//
+//    public void setProduct(Product product) {
+//        this.product = product;
+//    }
 
     public Orders() {
     }
@@ -113,20 +111,12 @@ public class Orders {
         this.orderDate = orderDate;
     }
 
-    public int getPaymentMethod() {
+    public Integer getPaymentMethod() {
         return paymentMethod;
     }
 
-    public void setPaymentMethod(int paymentMethod) {
+    public void setPaymentMethod(Integer paymentMethod) {
         this.paymentMethod = paymentMethod;
-    }
-
-    public String getTypeApp() {
-        return typeApp;
-    }
-
-    public void setTypeApp(String typeApp) {
-        this.typeApp = typeApp;
     }
 
     public String getPhoneNumber() {
@@ -177,11 +167,11 @@ public class Orders {
         this.comment = comment;
     }
 
-    public Long getPrice() {
+    public Float getPrice() {
         return price;
     }
 
-    public void setPrice(Long price) {
+    public void setPrice(Float price) {
         this.price = price;
     }
 
@@ -201,14 +191,6 @@ public class Orders {
         this.rating = rating;
     }
 
-    public float getTax() {
-        return tax;
-    }
-
-    public void setTax(float tax) {
-        this.tax = tax;
-    }
-
     public String getShippingUnit() {
         return shippingUnit;
     }
@@ -225,11 +207,11 @@ public class Orders {
         this.shipPrice = shipPrice;
     }
 
-    public String getSaleCode() {
-        return saleCode;
+    public String getOrderCode() {
+        return orderCode;
     }
 
-    public void setSaleCode(String saleCode) {
-        this.saleCode = saleCode;
+    public void setOrderCode(String orderCode) {
+        this.orderCode = orderCode;
     }
 }
