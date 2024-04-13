@@ -1,16 +1,15 @@
 package com.example.h2_shop.service.impl;
 
 import com.example.h2_shop.model.*;
+import com.example.h2_shop.model.dto.BrandProductDTO;
 import com.example.h2_shop.model.dto.FileDto;
 import com.example.h2_shop.model.dto.ProductDTO;
 import com.example.h2_shop.model.dto.ProductImgDTO;
+import com.example.h2_shop.model.mapper.BrandProductMapper;
 import com.example.h2_shop.model.mapper.ProductImgMapper;
 import com.example.h2_shop.model.mapper.ProductMapper;
 import com.example.h2_shop.model.mapper.SizeMapper;
-import com.example.h2_shop.repository.BrandRepository;
-import com.example.h2_shop.repository.CategoriesRepository;
-import com.example.h2_shop.repository.ProductImgRepository;
-import com.example.h2_shop.repository.ProductRepository;
+import com.example.h2_shop.repository.*;
 import com.example.h2_shop.service.CategoriesService;
 import com.example.h2_shop.service.FileService;
 import com.example.h2_shop.service.ProductService;
@@ -44,17 +43,21 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CategoriesService categoriesService;
     private final BrandRepository brandRepository;
+    private final BrandProductRepository brandProductRepository;
     private final CategoriesRepository categoriesRepository;
     private final ProductImgRepository productImgRepository;
     private final ProductImgMapper productImgMapper;
+    private final BrandProductMapper brandProductMapper;
 
-    public ProductServiceImpl(BrandRepository brandRepository,ProductImgMapper productImgMapper,ProductImgRepository productImgRepository,CategoriesRepository categoriesRepository,ProductRepository productRepository,CategoriesService categoriesService){
+    public ProductServiceImpl(BrandRepository brandRepository,BrandProductMapper brandProductMapper,BrandProductRepository brandProductRepository,ProductImgMapper productImgMapper,ProductImgRepository productImgRepository,CategoriesRepository categoriesRepository,ProductRepository productRepository,CategoriesService categoriesService){
         this.productRepository=productRepository;
         this.categoriesService=categoriesService;
         this.brandRepository=brandRepository;
         this.categoriesRepository=categoriesRepository;
         this.productImgRepository=productImgRepository;
         this.productImgMapper=productImgMapper;
+        this.brandProductRepository=brandProductRepository;
+        this.brandProductMapper = brandProductMapper;
     }
 
 
@@ -134,6 +137,18 @@ public class ProductServiceImpl implements ProductService {
 //                }
 //            }
         }
+
+        if(productDTO.getBrandId()!=null){
+             BrandProduct brandProduct = new BrandProduct();
+             brandProduct.setProduct(product);
+             brandProduct.setBrands(this.brandRepository.findById(productDTO.getBrandId()).get());
+             brandProduct.setImportDate(Instant.now());
+             brandProduct = this.brandProductRepository.save(brandProduct);
+             BrandProductDTO brandProductDTO = this.brandProductMapper.toDto(brandProduct);
+             brandProductDTO.setCategoryCode(productDTOReturn.getCategories().getCategoriCode());
+             productDTOReturn.setBrandProductDTO(brandProductDTO);
+        }
+
         serviceResult.setData(productDTOReturn);
         serviceResult.setStatus(HttpStatus.OK);
         serviceResult.setMessage("Luu thanh cong");

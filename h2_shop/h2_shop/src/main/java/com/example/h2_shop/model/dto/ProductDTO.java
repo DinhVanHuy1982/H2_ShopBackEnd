@@ -27,6 +27,16 @@ public class ProductDTO {
 
     private List<ProductImgDTO> productImgDTOList;
 
+    private BrandProductDTO brandProductDTO;
+
+    public BrandProductDTO getBrandProductDTO() {
+        return brandProductDTO;
+    }
+
+    public void setBrandProductDTO(BrandProductDTO brandProductDTO) {
+        this.brandProductDTO = brandProductDTO;
+    }
+
     public List<ProductImgDTO> getProductImgDTOList() {
         return productImgDTOList;
     }
