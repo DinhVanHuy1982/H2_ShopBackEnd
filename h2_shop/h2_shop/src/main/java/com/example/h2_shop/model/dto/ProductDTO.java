@@ -25,6 +25,8 @@ public class ProductDTO {
 
     private List<SizeDTO> sizeDTOList;
 
+    private List<TypeProductDTO> typeProductDTOList;
+
     private Long brandId;
 
     private Long categoriesID;
@@ -187,5 +189,13 @@ public class ProductDTO {
 
     public void setListProductDetail(List<ProductDetailDTO> listProductDetail) {
         this.listProductDetail = listProductDetail;
+    }
+
+    public List<TypeProductDTO> getTypeProductDTOList() {
+        return typeProductDTOList;
+    }
+
+    public void setTypeProductDTOList(List<TypeProductDTO> typeProductDTOList) {
+        this.typeProductDTOList = typeProductDTOList;
     }
 }

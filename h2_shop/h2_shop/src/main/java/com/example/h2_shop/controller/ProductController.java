@@ -17,12 +17,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/product")
+@RequestMapping("/api")
 public class ProductController {
 
     @Autowired
     ProductService productService;
-    @PostMapping(value ="/createProduct", consumes = {"multipart/form-data"})
+    @PostMapping(value ="/product/createProduct", consumes = {"multipart/form-data"})
     public ResponseEntity<ServiceResult<?>> createProduct(@RequestPart(value = "file",required = false) List<MultipartFile> fileAvatar,
                                                           @RequestPart(value="productDTO") ProductDTO productDTO,
                                                           @RequestPart(value = "sizeList",required = false)List<SizeDTO> sizeDTOList,
@@ -31,14 +31,33 @@ public class ProductController {
         return ResponseEntity.ok(stringServiceResult);
     }
 
-    @PostMapping(value ="/comment", consumes = {"multipart/form-data"})
+    @PostMapping(value ="/product/comment", consumes = {"multipart/form-data"})
     public ResponseEntity<ServiceResult<?>> createComment(@RequestPart(value = "file",required = false) List<MultipartFile> fileAvatar){
         ServiceResult<?> stringServiceResult = this.productService.createComment(fileAvatar);
         return ResponseEntity.ok(stringServiceResult);
     }
 
+    /**
+     * Description of the method
+     *
+     * @param productId: truyền id sản phẩm vào để lấy ra chi tiết của sản phẩm
+     * @return ProductDTO : trả về product chứa toàn bộ thông tin của sản phẩm
+     * @throws
+     * @author admin
+     * @since 4/14/2024
+     * @modifiedBy
+     * @modifiedDate
+     * @vesion 1.0
+     */
+    @GetMapping("/product/getProductById")
+    public  ServiceResult<ProductDTO> getProductById(@RequestParam("id") Long productId){
+
+        ServiceResult<ProductDTO> serviceResult = this.productService.getProductById(productId);
+        return  serviceResult;
+    }
+
 //    @CrossOrigin(origins = "http://localhost:4211")
-    @GetMapping(value ="/testAPI")
+    @GetMapping(value ="/product/testAPI")
     public ResponseEntity<ServiceResult<?>> testAPI(){
         ServiceResult<?> stringServiceResult = new ServiceResult<>(new ArrayList<>(), HttpStatus.BAD_GATEWAY, "ok");
         return ResponseEntity.ok(stringServiceResult);

@@ -18,10 +18,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Transactional
@@ -93,7 +92,7 @@ public class ProductServiceImpl implements ProductService {
             }
         }
 
-        List<ProductDetailDTO> productDetailDTOList = productDTO.getListProductDetail();
+        List<ProductDetailDTO> productDetailDTOList = productDTO.getListProductDetail();// sản phẩm có số lượng được thêm vào bảng
         // size
         List<Size> sizeList = new ArrayList<>();
         if(sizeDTOList!=null){
@@ -122,10 +121,38 @@ public class ProductServiceImpl implements ProductService {
             }
         }
 
-
-
         product.setCreateTime(Instant.now());
         product = this.productRepository.save(product);
+
+        // lấy ra danh sách các loại và kiểu chưa được xếp số lượng thì gán chúng bằng 0
+        List<ProductDetailDTO> productDetailDTOS = new ArrayList<>(); // danh sách productDetail không có số lượng
+        if(!sizeList.isEmpty() && !typeProductList.isEmpty()){
+
+            // lấy ra danh sách kết hợp tất cả các trường hợp có thể xảy ra khi kết hợp size và type
+            for(int i=0;i<sizeList.size();i++){
+                for (int j=0;j<typeProductList.size();j++){
+                    ProductDetailDTO productDetailDTO = new ProductDetailDTO();
+                    productDetailDTO.setSize(sizeList.get(i));
+                    productDetailDTO.setTypeProduct(typeProductList.get(j));
+                    productDetailDTO.setProduct(product);
+                    productDetailDTO.setQuantity(0L);
+                    productDetailDTOS.add(productDetailDTO);
+                }
+            }
+
+            // loại bỏ những bản ghi orderDeatil đã được lưu trước đó
+            for(int i=0;i<productDetailDTOS.size();i++){
+                for(int j=0;j<productDetailDTOList.size();j++){
+                    if(productDetailDTOS.get(i).getSize().getId() == productDetailDTOList.get(j).getSize().getId()
+                            && productDetailDTOS.get(i).getTypeProduct().getId() == productDetailDTOList.get(j).getTypeProduct().getId()){
+                        productDetailDTOS.remove(i);
+                        i--;
+                    }
+                }
+            }
+            List<ProductDetail> productDetails = this.productDetailMapper.toEntity(productDetailDTOS);
+            productDetails = this.productDetailRepository.saveAll(productDetails);
+        }
 
         for (int i=0;i<productDetailDTOList.size();i++){
             productDetailDTOList.get(i).setProduct(product);
@@ -313,6 +340,54 @@ public class ProductServiceImpl implements ProductService {
             return new ServiceResult<>("Thanh cong", HttpStatus.OK,"Thành công "+ countSuccess+"/"+listFileAvatar.size());
         }else{
             return new ServiceResult<>("That bai", HttpStatus.BAD_REQUEST,"Thhất bại" );
+        }
+    }
+
+    @Override
+    public ServiceResult<ProductDTO> getProductById(Long productId) {
+        ServiceResult<ProductDTO> serviceResult = new ServiceResult<>();
+        if(productId==null){
+            serviceResult.setMessage("Cần truyền id của sản phẩm");
+            serviceResult.setStatus(HttpStatus.BAD_REQUEST);
+            return serviceResult;
+        }else{
+            Optional<Product> productOP = this.productRepository.findById(productId);
+            if(productOP.isEmpty()){
+                serviceResult.setMessage("Sản phẩm không tồn tại");
+                serviceResult.setStatus(HttpStatus.BAD_REQUEST);
+                return serviceResult;
+            }else{
+                Product product = productOP.get();
+                ProductDTO productDTO = this.productMapper.toDto(product);
+
+                List<ProductDetail> productDetail = this.productDetailRepository.findAllByProductId(productId);
+                if(productDetail!=null){
+                    List<ProductDetailDTO> productDetailDTO = this.productDetailMapper.toDto(productDetail);
+
+                    Set<Size> sizeSet = new HashSet<>();
+                    Set<TypeProduct> typeProductsSet = new HashSet<>();
+                    for(int i=0;i<productDetailDTO.size();i++){
+                        productDetailDTO.get(i).setProduct(null);
+                        sizeSet.add(this.sizeRepository.findById(productDetailDTO.get(i).getSize().getId()).get());
+                        typeProductsSet.add(this.typeProductRepository.findById(productDetailDTO.get(i).getTypeProduct().getId()).get());
+                    }
+                    List<Size> sizeList = new ArrayList<>(sizeSet);
+                    List<TypeProduct> typeProductList = new ArrayList<>(typeProductsSet);
+
+                    List<SizeDTO> sizeDTOList = this.sizeMapper.toDto(sizeList);
+                    List<TypeProductDTO> typeProductDTOList = this.typeProductMapper.toDto(typeProductList);
+
+
+
+                    productDTO.setSizeDTOList(sizeDTOList);
+                    productDTO.setTypeProductDTOList(typeProductDTOList);
+                    productDTO.setListProductDetail(productDetailDTO);
+                }
+                serviceResult.setData(productDTO);
+                serviceResult.setStatus(HttpStatus.OK);
+                return serviceResult;
+            }
+
         }
     }
 }
