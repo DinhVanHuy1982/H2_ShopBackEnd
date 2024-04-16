@@ -146,7 +146,7 @@ public class ProductServiceImpl implements ProductService {
                     if(productDetailDTOS.get(i).getSize().getId() == productDetailDTOList.get(j).getSize().getId()
                             && productDetailDTOS.get(i).getTypeProduct().getId() == productDetailDTOList.get(j).getTypeProduct().getId()){
                         productDetailDTOS.remove(i);
-                        i--;
+                        i--;break;
                     }
                 }
             }

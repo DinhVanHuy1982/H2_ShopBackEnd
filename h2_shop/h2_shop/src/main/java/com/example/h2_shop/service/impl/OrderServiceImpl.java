@@ -1,17 +1,19 @@
 package com.example.h2_shop.service.impl;
 
 import com.example.h2_shop.model.*;
-import com.example.h2_shop.model.dto.OrderDetailDTO;
-import com.example.h2_shop.model.dto.OrdersDTO;
+import com.example.h2_shop.model.dto.*;
 import com.example.h2_shop.model.mapper.OrderDetailMapper;
 import com.example.h2_shop.model.mapper.OrderMapper;
+import com.example.h2_shop.model.mapper.ProductImgMapper;
 import com.example.h2_shop.repository.*;
+import com.example.h2_shop.service.FileService;
 import com.example.h2_shop.service.OrderService;
 import com.example.h2_shop.service.ServiceResult;
 import io.micrometer.common.util.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -34,8 +36,11 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final SaleRepository saleRepository;
     private final ProductDetailRepository productDetailRepository;
+    private final FileService fileService;
+    private final ProductImgRepository productImgRepository;
+    private final ProductImgMapper productImgMapper;
 
-    public OrderServiceImpl(UserRepository userRepository,ProductDetailRepository productDetailRepository,OrderDetailRepository orderDetailRepository, OrderDetailMapper orderDetailMapper,SaleRepository saleRepository,OrderRepository orderRepository,OrderMapper orderMapper, ProductRepository productRepository,ApparamsRepository apparamsRepository) {
+    public OrderServiceImpl(FileService fileService,ProductImgMapper productImgMapper, ProductImgRepository productImgRepository, UserRepository userRepository,ProductDetailRepository productDetailRepository,OrderDetailRepository orderDetailRepository, OrderDetailMapper orderDetailMapper,SaleRepository saleRepository,OrderRepository orderRepository,OrderMapper orderMapper, ProductRepository productRepository,ApparamsRepository apparamsRepository) {
         this.productRepository = productRepository;
         this.apparamsRepository=apparamsRepository;
         this.userRepository=userRepository;
@@ -45,6 +50,9 @@ public class OrderServiceImpl implements OrderService {
         this.orderDetailMapper=orderDetailMapper;
         this.orderDetailRepository=orderDetailRepository;
         this.productDetailRepository = productDetailRepository;
+        this.fileService=fileService;
+        this.productImgRepository=productImgRepository;
+        this.productImgMapper = productImgMapper;
     }
 
     @Override
@@ -154,6 +162,104 @@ public class OrderServiceImpl implements OrderService {
 
             return  serviceResult;
         }
+    }
+
+    @Override
+    public ServiceResult<CommentDTO> createComment(List<MultipartFile> filesComment, CommentDTO commentDTO) {
+
+        String err = this.validatorComment(filesComment,commentDTO);
+        ServiceResult<CommentDTO> serviceResult = new ServiceResult<>();
+        if(err.length()>0){
+            serviceResult.setMessage(err);
+            serviceResult.setStatus(HttpStatus.BAD_REQUEST);
+            return serviceResult;
+        }else{
+            CommentDTO commentDTOReturn = new CommentDTO();
+
+            OrderDetail orderDetail = this.orderDetailRepository.findListOrderCompleteByProductAndUser(commentDTO.getUserID(), commentDTO.getProductID(), commentDTO.getOrderDetailID());
+
+            orderDetail.setComment(commentDTO.getComment());
+            if(commentDTO.getRating()!=null){
+                orderDetail.setRating(commentDTO.getRating());
+            }
+            List<ProductImg> productImgList = new ArrayList<>();
+            if(filesComment!=null){
+                ServiceResult<List<FileDto>> serviceListFile = this.fileService.createListFile(filesComment);
+                if(serviceListFile.getStatus()==HttpStatus.OK){
+
+                    List<FileDto> fileDtos= serviceListFile.getData();
+                    for (int i=0;i<fileDtos.size();i++){
+                        ProductImg productImg = new ProductImg();
+                        productImg.setFileSize(fileDtos.get(i).getFileSize()+ "bytes");
+                        productImg.setOrderDetail(orderDetail);
+                        productImg.setFileName(fileDtos.get(i).getFileName());
+                        productImg.setFileId(fileDtos.get(i).getFileId());
+                        productImg.setType("IMGCMT");
+                        productImgList.add(productImg);
+                    }
+                    this.productImgRepository.saveAll(productImgList);
+                }
+            }
+            orderDetail = this.orderDetailRepository.save(orderDetail);
+            OrderDetailDTO orderDetailDTO = this.orderDetailMapper.toDto(orderDetail);
+            orderDetailDTO.setTypeProductId(orderDetail.getProductDetail().getTypeProduct().getId());
+            orderDetailDTO.setSizeProductId(orderDetail.getProductDetail().getSize().getId());
+            orderDetailDTO.setProductDetail(null);
+            orderDetailDTO.setOrders(null);
+
+            commentDTOReturn.setOrderDetailDTO(orderDetailDTO);
+
+            List<ProductImgDTO> productImgDTO = this.productImgMapper.toDto(productImgList);
+            commentDTOReturn.setProductImgDTOList(productImgDTO);
+
+            serviceResult.setStatus(HttpStatus.OK);
+            serviceResult.setMessage("Bạn đã bình luận thành công");
+            serviceResult.setData(commentDTOReturn);
+            return serviceResult;
+
+        }
+    }
+
+    public String validatorComment(List<MultipartFile> filesComment, CommentDTO commentDTO){
+        String err = "";
+        if(filesComment !=null){
+            if(filesComment.size()>5){
+                err="Danh sách ảnh vieo không được lớn hơn 5";
+            }
+        }
+
+        if(commentDTO==null){
+            err="Không được để nội dung comment trống";
+        }else{
+            if(commentDTO.getUserID()==null){
+                err="Người dùng không tồn tại";
+            }else{
+                Optional<User> userOP = this.userRepository.findById(commentDTO.getUserID());
+                if(userOP.isEmpty()){
+                    err="Người dùng không tồn tại";
+                }
+            }
+
+            if(commentDTO.getProductID()==null){
+                err="Không tồn tại sản phẩm này";
+            }else{
+                Optional<Product> productOP = this.productRepository.findById(commentDTO.getProductID());
+                if(productOP.isEmpty()){
+                    err="Không tồn tại sản phẩm này";
+                }
+            }
+
+            if(commentDTO.getUserID()!= null && commentDTO.getProductID()!=null){
+                OrderDetail orderDetailList = this.orderDetailRepository.findListOrderCompleteByProductAndUser(commentDTO.getUserID(), commentDTO.getProductID(), commentDTO.getOrderDetailID());
+                if(orderDetailList==null){
+                    err="Bạn chưa đặt sản phẩm này";
+                }
+
+            }
+
+
+        }
+        return err;
     }
 
     public String validationOrder(OrdersDTO ordersDTO){

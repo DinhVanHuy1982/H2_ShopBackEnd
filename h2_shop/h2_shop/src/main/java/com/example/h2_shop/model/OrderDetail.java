@@ -25,6 +25,24 @@ public class OrderDetail {
     @Column(name = "price")
     private Long price;// giá của mỗi sản phẩm
 
+    @Column(name = "comment")
+    private String comment;
+    @Column(name = "rating")
+    private Integer rating;
+
+    @Column(name = "reply_comment")
+    private String replyComment;
+
+    public OrderDetail(Long id, Long quantity, Orders orders, ProductDetail productDetail, Long price, String comment, Integer rating, String replyComment) {
+        this.id = id;
+        this.quantity = quantity;
+        this.orders = orders;
+        this.productDetail = productDetail;
+        this.price = price;
+        this.comment = comment;
+        this.rating = rating;
+        this.replyComment = replyComment;
+    }
 
     public OrderDetail() {
     }
@@ -89,5 +107,29 @@ public class OrderDetail {
 
     public void setProductDetail(ProductDetail productDetail) {
         this.productDetail = productDetail;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public Integer getRating() {
+        return rating;
+    }
+
+    public void setRating(Integer rating) {
+        this.rating = rating;
+    }
+
+    public String getReplyComment() {
+        return replyComment;
+    }
+
+    public void setReplyComment(String replyComment) {
+        this.replyComment = replyComment;
     }
 }

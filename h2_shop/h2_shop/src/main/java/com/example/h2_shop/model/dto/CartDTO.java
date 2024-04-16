@@ -1,38 +1,24 @@
-package com.example.h2_shop.model;
+package com.example.h2_shop.model.dto;
 
-import jakarta.persistence.*;
+import com.example.h2_shop.model.ProductDetail;
+import com.example.h2_shop.model.User;
 
 import java.time.Instant;
 
-@Entity
-@Table(name = "carts")
-public class Carts {
-    @Id
-    @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class CartDTO {
     private Long id;
 
-    @Column(name="quantity")
     private Long quantity;
 
-    @ManyToOne
-    @JoinColumn(name = "product_detail_id")
     private ProductDetail productDetail;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(name="create_time")
     private Instant createTime;
 
-    @Column(name="update_time")// thời gian cập nhật số lượng trong giỏ hàng
     private Instant updateTime;
 
-    public Carts() {
-    }
-
-    public Carts(Long id, Long quantity, ProductDetail productDetail, User user, Instant createTime, Instant updateTime) {
+    public CartDTO(Long id, Long quantity, ProductDetail productDetail, User user, Instant createTime, Instant updateTime) {
         this.id = id;
         this.quantity = quantity;
         this.productDetail = productDetail;

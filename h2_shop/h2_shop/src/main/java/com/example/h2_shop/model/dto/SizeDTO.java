@@ -15,17 +15,10 @@ public class SizeDTO {
     private String createName;
     private String updateName;
 
-    private Product product;
+
 
     private Integer position; // vị trí trong danh sách truyền vào
 
-    public Product getProduct() {
-        return product;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
-    }
 
     public SizeDTO() {
     }
