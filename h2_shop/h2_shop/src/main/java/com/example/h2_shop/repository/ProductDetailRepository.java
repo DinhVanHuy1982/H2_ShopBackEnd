@@ -18,4 +18,7 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, Lo
 
     @Query(value = "select * from product_detail pd where pd.type_product_id = ?1  and pd.size_id = ?2 and pd.product_id = ?3",nativeQuery = true)
     Optional<ProductDetail> findByTypeIdSizeIdProductId(Long typeId, Long sizeId, Long productId );
+
+    @Query(value = "select * from product_detail pd where (?1 is null or pd.type_product_id = ?1)  and ( ?2 is null or pd.size_id = ?2) and (?3 is null or pd.product_id = ?3)",nativeQuery = true)
+    Optional<ProductDetail> findByTypeIdSizeIdProductIdWithNull(Long typeId, Long sizeId, Long productId );
 }

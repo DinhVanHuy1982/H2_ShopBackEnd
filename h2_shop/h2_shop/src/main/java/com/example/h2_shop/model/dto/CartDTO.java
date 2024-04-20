@@ -18,6 +18,12 @@ public class CartDTO {
 
     private Instant updateTime;
 
+    private Long userId;
+
+    private Long typeProductId;
+    private Long sizeProductId;
+    private Long productId;
+
     public CartDTO(Long id, Long quantity, ProductDetail productDetail, User user, Instant createTime, Instant updateTime) {
         this.id = id;
         this.quantity = quantity;
@@ -73,5 +79,37 @@ public class CartDTO {
 
     public void setUpdateTime(Instant updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Long getTypeProductId() {
+        return typeProductId;
+    }
+
+    public void setTypeProductId(Long typeProductId) {
+        this.typeProductId = typeProductId;
+    }
+
+    public Long getSizeProductId() {
+        return sizeProductId;
+    }
+
+    public Long getProductId() {
+        return productId;
+    }
+
+    public void setProductId(Long productId) {
+        this.productId = productId;
+    }
+
+    public void setSizeProductId(Long sizeProductId) {
+        this.sizeProductId = sizeProductId;
     }
 }
