@@ -1,6 +1,7 @@
 package com.example.h2_shop.model.dto;
 
 import com.example.h2_shop.model.Roles;
+import jakarta.persistence.Column;
 import lombok.Data;
 
 import java.time.Instant;
@@ -21,6 +22,9 @@ public class UserDto {
     private Long isActive;
     private Instant createTime;
     private Long status;
+    private Integer resetCount;
+    private Long codeReset;
+    private Instant resetDate;
 
     private Long roleId;
     private FileDto fileDto;
@@ -136,6 +140,29 @@ public class UserDto {
 
     public void setFileDto(FileDto fileDto) {
         this.fileDto = fileDto;
+    }
+    public Integer getResetCount() {
+        return resetCount;
+    }
+
+    public void setResetCount(Integer resetCount) {
+        this.resetCount = resetCount;
+    }
+
+    public Long getCodeReset() {
+        return codeReset;
+    }
+
+    public void setCodeReset(Long codeReset) {
+        this.codeReset = codeReset;
+    }
+
+    public Instant getResetDate() {
+        return resetDate;
+    }
+
+    public void setResetDate(Instant resetDate) {
+        this.resetDate = resetDate;
     }
 
 

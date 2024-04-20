@@ -40,6 +40,12 @@ public class User {
 
     @Column(name="status")
     private Long status;
+    @Column(name = "reset_count")
+    private Integer resetCount;
+    @Column(name = "code_reset")
+    private Long codeReset;
+    @Column(name = "reset_date")
+    private Instant resetDate;
 
     public Roles getRoles() {
         return roles;
@@ -153,5 +159,29 @@ public class User {
 
     public void setStatus(Long status) {
         this.status = status;
+    }
+
+    public Integer getResetCount() {
+        return resetCount;
+    }
+
+    public void setResetCount(Integer resetCount) {
+        this.resetCount = resetCount;
+    }
+
+    public Long getCodeReset() {
+        return codeReset;
+    }
+
+    public void setCodeReset(Long codeReset) {
+        this.codeReset = codeReset;
+    }
+
+    public Instant getResetDate() {
+        return resetDate;
+    }
+
+    public void setResetDate(Instant resetDate) {
+        this.resetDate = resetDate;
     }
 }
