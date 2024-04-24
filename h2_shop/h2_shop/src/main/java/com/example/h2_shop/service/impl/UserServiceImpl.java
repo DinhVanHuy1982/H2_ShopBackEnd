@@ -16,6 +16,7 @@ import com.example.h2_shop.service.FileService;
 import com.example.h2_shop.service.MailService;
 import com.example.h2_shop.service.ServiceResult;
 import com.example.h2_shop.service.UserService;
+import io.micrometer.common.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -116,6 +117,38 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public ServiceResult<UserDto> createUserClient(UserDto userDto, MultipartFile file) {
+        ServiceResult<UserDto> serviceResultUser = this.validateUserClient(userDto); // validate tạo tài khoản vlient
+        if(serviceResultUser.getData()!=null){
+            UserDto userDtoVali = serviceResultUser.getData();
+            User user = this.userMapper.toEntity(userDtoVali);
+            user.setCreateTime(Instant.now());
+            user.setStatus(0L);
+
+            FileDto fileDto = new FileDto();
+            if(file!=null){ // kiểm tra có upload file ảnh đại diện hay không
+                ServiceResult<FileDto> fileDtoServiceResult = this.fileService.createFile(file);
+                if(fileDtoServiceResult.getStatus()==HttpStatus.OK){
+                    user.setAvatar(fileDtoServiceResult.getData().getFileName());
+                    fileDto = fileDtoServiceResult.getData();
+                }
+            }
+
+            user = this.userRepository.save(user);
+            UserDto userDtoReturn = this.userMapper.toDto(user);
+            userDtoReturn.setFileDto(fileDto);
+
+            ServiceResult<UserDto> userDtoServiceResult = new ServiceResult<>();
+            userDtoServiceResult.setStatus(HttpStatus.OK);
+            userDtoServiceResult.setMessage("Lưu thành công");
+            userDtoServiceResult.setData(userDtoReturn);
+            return userDtoServiceResult;
+        }else{
+            return serviceResultUser;
+        }
+    }
+
+    @Override
     public ServiceResult<NotifyDTO> forgotPassword(UserDto userDto) throws MessagingException {
 
         ServiceResult<NotifyDTO> serviceResult = new ServiceResult<>();
@@ -149,7 +182,7 @@ public class UserServiceImpl implements UserService {
                         }else{
                             user.setResetDate(Instant.now());
                             int count = user.getResetCount();
-                            user.setResetCount(count++);
+                            user.setResetCount(++count);
                         }
                     }else{
                         user.setResetCount(1);
@@ -244,6 +277,31 @@ public class UserServiceImpl implements UserService {
         return serviceResult;
     }
 
+    @Override
+    public ServiceResult<UserDto> loginUser(UserDto userDto) {
+
+        ServiceResult<UserDto> serviceResult = new ServiceResult<>();
+        if(StringUtils.isEmpty(userDto.getUsername())){
+            serviceResult.setMessage("Không được để trống tên đăng nhập");
+            serviceResult.setStatus(HttpStatus.BAD_REQUEST);
+        } else if (StringUtils.isEmpty(userDto.getPassword())) {
+            serviceResult.setStatus(HttpStatus.BAD_REQUEST);
+            serviceResult.setMessage("Mật khẩu không được để trống");
+        }else{
+            Optional<User> userOP = this.userRepository.findByUsernameAndPassword(userDto.getUsername(),userDto.getPassword());
+            if (userOP.isPresent()){
+                userDto = this.userMapper.toDto(userOP.get());
+                serviceResult.setMessage("Đăng nhập thành công");
+                serviceResult.setStatus(HttpStatus.OK);
+                serviceResult.setData(userDto);
+            }else{
+                serviceResult.setStatus(HttpStatus.BAD_REQUEST);
+                serviceResult.setMessage("Tên tài khoản hoặc mật khẩu không chính xác");
+            }
+        }
+        return serviceResult;
+    }
+
     public String generatePassword() {
         String uppercaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         String lowercaseChars = "abcdefghijklmnopqrstuvwxyz";
@@ -285,6 +343,67 @@ public class UserServiceImpl implements UserService {
             characters[randomIndex] = temp;
         }
         return new String(characters);
+    }
+
+    public ServiceResult<UserDto> validateUserClient(UserDto userDto){
+
+        ServiceResult<UserDto> userServiceResult = new ServiceResult<>();
+        StringBuilder messError = new StringBuilder();
+
+        //UserName
+        if(StringUtils.isEmpty( userDto.getUsername())){
+            messError.append("Username không được để trống");
+            userServiceResult.setStatus(HttpStatus.BAD_REQUEST);
+        }else{
+            Optional<User> userCheckUserName = this.userRepository.findByUsername(userDto.getUsername());
+            if(userCheckUserName.isPresent()){
+                messError.append("Username đã tồn tại");
+                userServiceResult.setStatus(HttpStatus.BAD_REQUEST);
+            }
+        }
+
+        //email
+        if(StringUtils.isEmpty(userDto.getEmail())){
+            userServiceResult.setStatus(HttpStatus.BAD_REQUEST);
+            messError.append(" Email không được để trống ");
+        }else{
+            // validate định dạng email
+        }
+
+        // roleid
+//        if(userDto.getRoleId()==null){
+//            userServiceResult.setStatus(HttpStatus.BAD_REQUEST);
+//            messError.append(" Không được để trống trường role ");
+//        }else{
+//            Optional<Roles> roles = this.rolesRepository.findById(userDto.getRoleId());
+//            if(roles.isEmpty()){
+//                userServiceResult.setStatus(HttpStatus.BAD_REQUEST);
+//                messError.append(" Mã role không tồn tại ");
+//            }else{
+//                userDto.setRoles(roles.get());
+//            }
+//        }
+
+        //password
+        if(StringUtils.isEmpty(userDto.getPassword())){
+            userServiceResult.setStatus(HttpStatus.BAD_REQUEST);
+            messError.append(" Mật khẩu Không được để trống");
+        }else{
+            if(userDto.getPassword().length()<=6){
+                userServiceResult.setStatus(HttpStatus.BAD_REQUEST);
+                messError.append(" Mật khẩu phải nhiều hơn 6 kí tự ");
+            }
+        }
+
+        if(userServiceResult.getStatus()!= HttpStatus.BAD_REQUEST){
+            userServiceResult.setStatus(HttpStatus.OK);
+            userServiceResult.setData(userDto);
+        }else{
+            userServiceResult.setData(null);
+            userServiceResult.setMessage(messError.toString());
+        }
+
+        return userServiceResult;
     }
 
     public ServiceResult<UserDto> validateUser(UserDto userDto){

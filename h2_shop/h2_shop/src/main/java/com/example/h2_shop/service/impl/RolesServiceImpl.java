@@ -1,11 +1,13 @@
 package com.example.h2_shop.service.impl;
 
+import com.example.h2_shop.commons.ReflectorUtil;
 import com.example.h2_shop.model.Function;
 import com.example.h2_shop.model.Roles;
 import com.example.h2_shop.model.RolesDetails;
 import com.example.h2_shop.model.dto.FunctionsDTO;
 import com.example.h2_shop.model.dto.RolesDTO;
 import com.example.h2_shop.model.dto.RolesDetailsDTO;
+import com.example.h2_shop.model.dto.RolesSearchDTO;
 import com.example.h2_shop.model.mapper.FunctionMapper;
 import com.example.h2_shop.model.mapper.RolesDetailsMapper;
 import com.example.h2_shop.model.mapper.RolesMapper;
@@ -16,6 +18,10 @@ import com.example.h2_shop.repository.customRepo.RoleRepositoryCustom;
 import com.example.h2_shop.service.RolesService;
 import com.example.h2_shop.service.ServiceResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +29,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -50,6 +58,19 @@ public class RolesServiceImpl implements RolesService {
     @Override
     public List<RolesDTO> getAllRole() {
         return roleRepositoryCustom.getSearchAllRoleWithNoPage();
+    }
+
+    @Override
+    public Page<RolesDTO> getRoleWithPage(RolesSearchDTO rolesSearchDTO) {
+        Pageable pageable = PageRequest.of(rolesSearchDTO.getPage()-1,10);
+
+        Page<Map<String,Object>> pageRole = this.rolesRepository.findRoleWithPage(pageable, rolesSearchDTO.getRoleSearchName(),rolesSearchDTO.getStatus());
+
+        List<RolesDTO> rolesDTOList = pageRole.getContent().stream().map(role -> ReflectorUtil.mapToDTO(role,RolesDTO.class)).collect(Collectors.toList());
+
+        Page<RolesDTO> pageUpdate = new PageImpl<>(rolesDTOList,pageable,pageRole.getTotalElements());
+
+        return pageUpdate;
     }
 
     @Override

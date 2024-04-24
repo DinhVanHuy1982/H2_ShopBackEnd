@@ -14,6 +14,8 @@ public interface UserService {
 
     public ServiceResult<UserDto> createUserNotAvatar(UserDto userDto);
     public ServiceResult<UserDto> createUser(UserDto userDto, MultipartFile avatar);
+    public ServiceResult<UserDto> createUserClient(UserDto userDto, MultipartFile avatar);
     public ServiceResult<NotifyDTO> forgotPassword(UserDto userDto) throws MessagingException;
     public ServiceResult<?> confirmPassWord(UserDto userDto);
+    public ServiceResult<UserDto> loginUser(UserDto userDto);
 }

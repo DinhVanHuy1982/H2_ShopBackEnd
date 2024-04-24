@@ -15,6 +15,8 @@ public class RolesDTO{
 
     private String roleName;
     private String roleCode;
+    private Integer status;
+    private Long userUse;
 
     private List<FunctionsDTO> listFunction;
 
@@ -23,7 +25,7 @@ public class RolesDTO{
     public RolesDTO() {
     }
 
-    public RolesDTO(Long id, String roleName, String roleCode, Instant createTime, Instant updateTime, String createName, String updateName, String description, List<FunctionsDTO> listFunction, List<RolesDetailsDTO> listRolesDetailsDTO) {
+    public RolesDTO(Long id, String roleName, String roleCode, Instant createTime, Instant updateTime, String createName, String updateName, String description, List<FunctionsDTO> listFunction, List<RolesDetailsDTO> listRolesDetailsDTO,Long userUse) {
         this.id = id;
         this.roleName = roleName;
         this.roleCode = roleCode;
@@ -34,6 +36,7 @@ public class RolesDTO{
         this.description = description;
         this.listFunction = listFunction;
         this.listRolesDetailsDTO = listRolesDetailsDTO;
+        this.userUse = userUse;
     }
 
 
@@ -117,4 +120,19 @@ public class RolesDTO{
         this.description = description;
     }
 
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public Long getUserUse() {
+        return userUse;
+    }
+
+    public void setUserUse(Long userUse) {
+        this.userUse = userUse;
+    }
 }

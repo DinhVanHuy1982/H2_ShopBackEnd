@@ -27,10 +27,13 @@ public class Roles {
     @Column(name="role_code")
     private String roleCode;
 
+    @Column(name = "status")
+    private Integer status;
+
     public Roles() {
     }
 
-    public Roles(Long id, String roleName, String roleCode, Instant createTime, Instant updateTime, String createName, String updateName, String description) {
+    public Roles(Long id, String roleName, String roleCode, Instant createTime, Instant updateTime, String createName, String updateName, String description,Integer status) {
         this.id = id;
         this.roleName = roleName;
         this.roleCode = roleCode;
@@ -39,6 +42,7 @@ public class Roles {
         this.createName = createName;
         this.updateName = updateName;
         this.description = description;
+        this.status=status;
     }
 
     public Long getId() {
@@ -103,5 +107,13 @@ public class Roles {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 }

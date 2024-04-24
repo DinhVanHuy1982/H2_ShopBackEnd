@@ -60,6 +60,27 @@ public class UserController {
             return serviceResult;
         }
     }
+    @PostMapping(value = "/user/createUserClient")
+    public ServiceResult<?> createUserClient(@RequestPart(value = "avatar", required = false)MultipartFile avatar, @RequestPart("userDto") UserDto userDto){
+        ServiceResult<UserDto> serviceResult = this.userService.createUserClient(userDto,avatar);
+        if(serviceResult.getStatus()== HttpStatus.OK){
+//            UserDto userDto1 = serviceResult.getData();
+//            ServiceResult<FileDto> fileDtoServiceResult = new ServiceResult<>();
+//            if(avatar!=null){
+//                fileDtoServiceResult = this.fileService.createFile(avatar);
+//            }
+//
+//            if(fileDtoServiceResult.getStatus() == HttpStatus.OK){
+//                userDto1.setFileDto(fileDtoServiceResult.getData());
+//                serviceResult.setData(userDto1);
+//            }
+            return serviceResult;
+
+        }else{
+            return serviceResult;
+        }
+    }
+
 
     @PostMapping("/user/forgotPassword")
     public ServiceResult<NotifyDTO> forgotPassword(@RequestBody UserDto userDto) throws MessagingException {
@@ -70,5 +91,10 @@ public class UserController {
     @PostMapping("/user/confirmResetPass")
     public ServiceResult<?> confirmResetPass(@RequestBody UserDto userDto){
         return this.userService.confirmPassWord(userDto);
+    }
+
+    @PostMapping("/user/login")
+    public ServiceResult<UserDto> loginUser(@RequestBody UserDto userDto){
+        return this.userService.loginUser(userDto);
     }
 }
