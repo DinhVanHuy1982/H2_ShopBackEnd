@@ -60,7 +60,7 @@ public class FileServiceImpl implements FileService {
                     long fileSize = listFileAvatar.get(i).getSize();
                     fileDto.setFileSize(fileSize);
                     fileDto.setFileId(id);
-                    fileDto.setFileName(id+fileName);
+                    fileDto.setFileName(id+"_"+fileName);
 
                     OutputStream opt = new FileOutputStream(fileIMG);
                     opt.write(listFileAvatar.get(i).getBytes());

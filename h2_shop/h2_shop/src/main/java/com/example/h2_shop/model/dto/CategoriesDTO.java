@@ -14,6 +14,7 @@ public class CategoriesDTO {
     private Instant createTime;
     private String description;
     private String status;
+    private String keySearch;
 
     private List<CategoriesDTO> children = new ArrayList<>();;
 
@@ -83,5 +84,13 @@ public class CategoriesDTO {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getKeySearch() {
+        return keySearch;
+    }
+
+    public void setKeySearch(String keySearch) {
+        this.keySearch = keySearch;
     }
 }

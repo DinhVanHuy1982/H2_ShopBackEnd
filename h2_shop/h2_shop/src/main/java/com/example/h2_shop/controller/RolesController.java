@@ -1,5 +1,7 @@
 package com.example.h2_shop.controller;
 
+import com.example.h2_shop.model.dto.FunctionsDTO;
+import com.example.h2_shop.model.dto.RoleDetailReturnDTO;
 import com.example.h2_shop.model.dto.RolesDTO;
 import com.example.h2_shop.model.dto.RolesSearchDTO;
 import com.example.h2_shop.service.RolesService;
@@ -37,5 +39,32 @@ public class RolesController {
     public ServiceResult<?> createNewRole(@RequestBody RolesDTO rolesDTO){
         ServiceResult<?> serviceResult = this.rolesService.createRole(rolesDTO);
         return serviceResult;
+    }
+
+    /**
+     * lấy ra role và chi tiết các chức năng của nó
+     *
+     * @param id : id của role cần lấy thông tin
+     * @return
+     * @throws
+     * @author admin
+     * @since 4/25/2024
+     * @modifiedBy
+     * @modifiedDate
+     * @vesion 1.0
+     */
+    @GetMapping("/get-detail-role-byId/{id}")
+    public ServiceResult<RoleDetailReturnDTO> getDetailRoleById(@PathVariable Long id){
+        return this.rolesService.getDetailRole(id);
+    }
+
+    @PostMapping("/update-role")
+    public ServiceResult<?> updateRole(@RequestBody RolesDTO rolesDTO){
+        return this.rolesService.updateRole(rolesDTO);
+    }
+
+    @GetMapping("delete-role/{id}")
+    public ServiceResult<?> deleteRoleById(@PathVariable Long id){
+        return this.rolesService.deleteRoleById(id);
     }
 }

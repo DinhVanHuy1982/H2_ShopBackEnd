@@ -165,6 +165,14 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public ServiceResult<OrdersDTO> getAllOrder(Long userId) {
+
+
+
+        return null;
+    }
+
+    @Override
     public ServiceResult<CommentDTO> createComment(List<MultipartFile> filesComment, CommentDTO commentDTO) {
 
         String err = this.validatorComment(filesComment,commentDTO);

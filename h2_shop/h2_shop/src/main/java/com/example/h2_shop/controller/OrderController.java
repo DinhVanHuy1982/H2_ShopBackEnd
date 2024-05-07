@@ -26,6 +26,11 @@ public class OrderController {
         return serviceResult;
     }
 
+    @GetMapping("/get-all-order/{userId}")
+    public ServiceResult<OrdersDTO> getOrderByUser(@PathVariable Long userId){
+        return null;
+    }
+
     /**
      * Description of the method
      *

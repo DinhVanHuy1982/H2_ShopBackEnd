@@ -75,7 +75,7 @@ public class ReflectorUtil {
                         String simpleName = type.getSimpleName();
 
                         if ("Integer".equals(simpleName)) {
-                            method.invoke(t, (Integer) value);
+                            method.invoke(t, Integer.valueOf( value.toString()));
                             return;
                         }
 
@@ -108,7 +108,9 @@ public class ReflectorUtil {
                         method.invoke(t, value);
 
                     }
-                } catch (Exception e) { }
+                } catch (Exception e) {
+                    log.error(e.getMessage(),e);
+                }
             });
             return t;
         } catch (Exception e) {

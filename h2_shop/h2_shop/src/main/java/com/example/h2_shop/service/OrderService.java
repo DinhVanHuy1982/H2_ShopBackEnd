@@ -9,5 +9,6 @@ import java.util.List;
 public interface OrderService {
 
     public ServiceResult<OrdersDTO> createOrder(OrdersDTO ordersDTOList);
+    public ServiceResult<OrdersDTO> getAllOrder(Long userId);
     public ServiceResult<CommentDTO> createComment(List<MultipartFile> filesComment, CommentDTO commentDTO);
 }

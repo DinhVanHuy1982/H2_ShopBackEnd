@@ -16,6 +16,8 @@ public class FunctionsDTO implements Serializable {
     private String createName;
     private String description;
 
+    private List<Long> listIdAction;
+    private Boolean checkApplyFunction;
     private Long parentId;
 
     private List<ActionsDTO> listActionDTO;
@@ -86,4 +88,19 @@ public class FunctionsDTO implements Serializable {
         this.parentId = parentId;
     }
 
+    public Boolean getCheckApplyFunction() {
+        return checkApplyFunction;
+    }
+
+    public void setCheckApplyFunction(Boolean checkApplyFunction) {
+        this.checkApplyFunction = checkApplyFunction;
+    }
+
+    public List<Long> getListIdAction() {
+        return listIdAction;
+    }
+
+    public void setListIdAction(List<Long> listIdAction) {
+        this.listIdAction = listIdAction;
+    }
 }

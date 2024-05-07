@@ -21,4 +21,6 @@ public interface BrandRepository extends JpaRepository<Brands,Long> {
             "or (b.brand_name like concat( '%',?1,'%') or ?1 is null) ) and (?2 = b.status or ?2 is null)",nativeQuery = true)
     public Page<Brands> searchBrand(Pageable pageable,String search,Long status);
 
+    List<Brands> findByStatus(Long status);
+
 }

@@ -3,9 +3,11 @@ package com.example.h2_shop.repository;
 import com.example.h2_shop.model.OrderDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public interface OrderDetailRepository extends JpaRepository<OrderDetail,Long> {
@@ -19,4 +21,38 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail,Long> {
             "order by od.order_id asc " +
             "limit 1", nativeQuery = true)
     public OrderDetail findListOrderCompleteByProductAndUser(Long userId, Long productId,Long orderDetailId);
+
+    @Query(value = "SELECT od.* FROM product_detail pd RIGHT JOIN order_detail od ON od.product_detail_id = pd.id WHERE pd.product_id = ?1", nativeQuery = true)
+    List<OrderDetail> getOrderByIdProduct( Long productId);
+
+    @Query(value = "SELECT \n" +
+            "    u.id AS userId,\n" +
+            "    u.full_name AS fullName,\n" +
+            "    u.avatar AS avatar,\n" +
+            "    od.rating,\n" +
+            "    od.comment,\n" +
+            "    od.reply_comment\n" +
+            "FROM \n" +
+            "    order_detail od \n" +
+            "JOIN \n" +
+            "    orders o ON o.id = od.order_id \n" +
+            "JOIN \n" +
+            "    `user` u ON u.id = o.user_id \n" +
+            "WHERE \n" +
+            "    od.id = :orderDetailId \n" +
+            "    AND od.rating >= 1", nativeQuery = true)
+    Map<String,Object> detaiCommentByUser(@Param("orderDetailId") Long orderDetailId);
+
+    @Query(value = "SELECT \n" +
+            "    pi2.file_name,\n" +
+            "    pi2.`type`\n" +
+            "FROM \n" +
+            "    order_detail od \n" +
+            "JOIN \n" +
+            "    orders o ON od.order_id = o.id \n" +
+            "JOIN \n" +
+            "    product_img pi2 ON pi2.order_detail_id = od.id \n" +
+            "WHERE \n" +
+            "    od.id = :orderDetailId", nativeQuery = true)
+    List<Map<String,Object>> getImgCommentAndRepply(@Param("orderDetailId") Long ordeDetailId);
 }

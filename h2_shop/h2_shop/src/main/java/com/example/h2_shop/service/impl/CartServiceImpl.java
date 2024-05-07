@@ -1,5 +1,6 @@
 package com.example.h2_shop.service.impl;
 
+import com.example.h2_shop.commons.ReflectorUtil;
 import com.example.h2_shop.model.*;
 import com.example.h2_shop.model.dto.CartDTO;
 import com.example.h2_shop.model.mapper.CartMapper;
@@ -12,7 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -72,6 +76,14 @@ public class CartServiceImpl implements CartService {
             serviceResult.setMessage("Thêm vào giỏ hàng thành công");
             return serviceResult;
         }
+    }
+
+    @Override
+    public ServiceResult<List<CartDTO>> getCartByUser(Long userId) {
+        List<Map<String, Object>> mapLst = this.cartRepository.getAllCartOfUser(userId);
+        List<CartDTO> cartDTOS = mapLst.stream().map(item -> ReflectorUtil.mapToDTO(item,CartDTO.class) ).collect(Collectors.toList());
+
+        return new ServiceResult<>(cartDTOS, HttpStatus.OK,"OK");
     }
 
 

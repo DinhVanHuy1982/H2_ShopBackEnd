@@ -17,8 +17,19 @@ public class User {
     private String password;
     @Column(name="email")
     private String email;
+
+    @Column(name="province_id")
+    private Long  provinceID;
+
+    @Column(name="district_id")
+    private Long districtID;
+
+    @Column(name="ward_code")
+    private String wardCode;
+
     @Column(name="address")
     private String address;
+
     @Column(name="phoneNumber")
     private String phoneNumber;
 
@@ -46,6 +57,9 @@ public class User {
     private Long codeReset;
     @Column(name = "reset_date")
     private Instant resetDate;
+
+    @Column(name="full_name")
+    private String fullName;
 
     public Roles getRoles() {
         return roles;
@@ -183,5 +197,13 @@ public class User {
 
     public void setResetDate(Instant resetDate) {
         this.resetDate = resetDate;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 }

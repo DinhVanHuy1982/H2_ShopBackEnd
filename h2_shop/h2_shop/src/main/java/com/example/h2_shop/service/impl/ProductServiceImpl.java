@@ -1,5 +1,7 @@
 package com.example.h2_shop.service.impl;
 
+import com.example.h2_shop.commons.DataUtil;
+import com.example.h2_shop.commons.ReflectorUtil;
 import com.example.h2_shop.model.*;
 import com.example.h2_shop.model.dto.*;
 import com.example.h2_shop.model.mapper.*;
@@ -10,6 +12,10 @@ import com.example.h2_shop.service.ProductService;
 import com.example.h2_shop.service.ServiceResult;
 import io.micrometer.common.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +27,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -48,8 +55,10 @@ public class ProductServiceImpl implements ProductService {
     private final TypeProductRepository typeProductRepository;
     private final ProductDetailMapper productDetailMapper;
     private final ProductDetailRepository productDetailRepository;
+    private final OrderDetailMapper orderDetailMapper;
+    private final OrderDetailRepository orderDetailRepository;
 
-    public ProductServiceImpl(TypeProductMapper typeProductMapper,ProductDetailRepository productDetailRepository,ProductDetailMapper productDetailMapper,TypeProductRepository typeProductRepository,SizeRepository sizeRepository, BrandRepository brandRepository,BrandProductMapper brandProductMapper,BrandProductRepository brandProductRepository,ProductImgMapper productImgMapper,ProductImgRepository productImgRepository,CategoriesRepository categoriesRepository,ProductRepository productRepository,CategoriesService categoriesService){
+    public ProductServiceImpl(TypeProductMapper typeProductMapper,OrderDetailRepository orderDetailRepository, OrderDetailMapper orderDetailMapper,ProductDetailRepository productDetailRepository,ProductDetailMapper productDetailMapper,TypeProductRepository typeProductRepository,SizeRepository sizeRepository, BrandRepository brandRepository,BrandProductMapper brandProductMapper,BrandProductRepository brandProductRepository,ProductImgMapper productImgMapper,ProductImgRepository productImgRepository,CategoriesRepository categoriesRepository,ProductRepository productRepository,CategoriesService categoriesService){
         this.productRepository=productRepository;
         this.categoriesService=categoriesService;
         this.brandRepository=brandRepository;
@@ -63,6 +72,8 @@ public class ProductServiceImpl implements ProductService {
         this.typeProductRepository = typeProductRepository;
         this.productDetailMapper = productDetailMapper;
         this.productDetailRepository=productDetailRepository;
+        this.orderDetailMapper=orderDetailMapper;
+        this.orderDetailRepository=orderDetailRepository;
     }
 
 
@@ -389,5 +400,231 @@ public class ProductServiceImpl implements ProductService {
             }
 
         }
+    }
+
+    @Override
+    public ServiceResult<Page<ProductResponseDTO>> getPageProduct(ProductRequestDTO productRequestDTO) {
+
+        Pageable pageable = PageRequest.of(productRequestDTO.getPage()-1,productRequestDTO.getPageSize());
+
+        Page<Map<String,Object>> pageMap = this.productRepository.getPageProductView(pageable, productRequestDTO.getNameSearch(), productRequestDTO.getBrandId() , productRequestDTO.getCategoriesId());
+
+        List<Map<String,Object>> map = pageMap.getContent();
+        List<ProductResponseDTO> productResponseDTOList = map.stream().map(item -> ReflectorUtil.mapToDTO(item,ProductResponseDTO.class)).collect(Collectors.toList());
+
+        Page<ProductResponseDTO> pageReturn = new PageImpl<>(productResponseDTOList, pageable, pageMap.getTotalElements());
+
+        return new ServiceResult<>(pageReturn,HttpStatus.OK,"Success");
+    }
+
+    @Override
+    public ServiceResult<ProductDetailResponseDTO> detailProductById(Long id) {
+        Optional<Product> productOP = this.productRepository.findById(id);
+        if(productOP.isPresent()){
+
+            ProductDTO productDTO = this.productMapper.toDto(productOP.get());
+            List<ProductDetail> productDetailList = this.productDetailRepository.findAllByProductId(productDTO.getId());
+            productDTO.setListProductDetail(this.productDetailMapper.toDto(productDetailList));
+
+            ProductDetailResponseDTO productDetailResponseDTO = new ProductDetailResponseDTO();
+
+            // set thông tin chung
+            productDetailResponseDTO.setProductCode(productDTO.getProductCode());
+            productDetailResponseDTO.setProductName(productDTO.getProductName());
+            productDetailResponseDTO.setId(productDTO.getId());
+            productDetailResponseDTO.setDescription(productDTO.getDescription());
+            productDetailResponseDTO.setPrice(productDTO.getPrice());
+            productDetailResponseDTO.setCategoriesId(productDTO.getCategories().getId());
+            productDetailResponseDTO.setBrandId(productDTO.getBrandId());
+
+            // lấy danh sách đường dẫn ảnh
+            List<ProductImg> productImgList = this.productImgRepository.findByProductId(productDTO.getId());
+            List<ProductImgDTO> productImgDTOList = this.productImgMapper.toDto(productImgList);
+            List<String> fileNameLst = new ArrayList<>();
+            productImgList.forEach(item -> fileNameLst.add(item.getFileName()));
+            productDetailResponseDTO.setPathImg(fileNameLst);
+            productDetailResponseDTO.setLstProductIMG(productImgDTOList);
+
+            // lấy danh sách size
+            List<SizeDTO> lstSizeDTO = this.sizeMapper.toDto(this.sizeRepository.getSizeOfProduct(productDTO.getId()));
+            productDetailResponseDTO.setSizeDTOS(lstSizeDTO);
+
+            // lấy danh sách các type
+            List<TypeProductDTO> lstTypeProduct = this.typeProductMapper.toDto(this.typeProductRepository.getTypeOfProduct(productDTO.getId()));
+            productDetailResponseDTO.setTypeProductDTOS(lstTypeProduct);
+
+            // lấy ra typeSize
+            List<Map<String , Object>> map = this.typeProductRepository.getSizeTypeDTO(productDTO.getId());
+            List<TypeSizeDTO> typeSizeDTOList = map.stream().map(item -> ReflectorUtil.mapToDTO(item,TypeSizeDTO.class)).collect(Collectors.toList());
+            for(int i=0;i<lstSizeDTO.size();i++){
+                for(int j=0;j<lstTypeProduct.size();j++){
+                    int finalI = i;
+                    int finalJ = j;
+                    typeSizeDTOList.forEach(item -> {
+                        if(item.getSizeId()==lstSizeDTO.get(finalI).getId() && item.getTypeId()==lstTypeProduct.get(finalJ).getId()){
+                            item.setPositionSize(Long.parseLong((finalI+1) +""));
+                            item.setPositionType(Long.parseLong((finalJ+1)+""));
+                        }
+                    });
+                }
+            }
+            productDetailResponseDTO.setTypeSizeDTOS(typeSizeDTOList);
+
+            return new ServiceResult<>(productDetailResponseDTO,HttpStatus.OK,"Success");
+        }else{
+            return null;
+        }
+    }
+
+    @Override
+    public ServiceResult<ProductDetailForClientDTO> detailProductForHome(Long id) {
+        Optional<Product> productOP = this.productRepository.findById(id);
+        if(productOP.isPresent()){
+
+            ProductDTO productDTO = this.productMapper.toDto(productOP.get());
+            List<ProductDetail> productDetailList = this.productDetailRepository.findAllByProductId(productDTO.getId());
+            productDTO.setListProductDetail(this.productDetailMapper.toDto(productDetailList));
+
+            ProductDetailForClientDTO productDetailResponseDTO = new ProductDetailForClientDTO();
+
+            // set thông tin chung
+            productDetailResponseDTO.setProductCode(productDTO.getProductCode());
+            productDetailResponseDTO.setProductName(productDTO.getProductName());
+            productDetailResponseDTO.setId(productDTO.getId());
+            productDetailResponseDTO.setDescription(productDTO.getDescription());
+            productDetailResponseDTO.setPrice(productDTO.getPrice());
+            productDetailResponseDTO.setCategoriesId(productDTO.getCategories().getId());
+            productDetailResponseDTO.setBrandId(productDTO.getBrandId());
+
+            // lấy danh sách đường dẫn ảnh
+            List<ProductImg> productImgList = this.productImgRepository.findByProductId(productDTO.getId());
+            List<ProductImgDTO> productImgDTOList = this.productImgMapper.toDto(productImgList);
+            List<String> fileNameLst = new ArrayList<>();
+            productImgList.forEach(item -> fileNameLst.add(item.getFileName()));
+            productDetailResponseDTO.setPathImg(fileNameLst);
+            productDetailResponseDTO.setLstProductIMG(productImgDTOList);
+
+            // lấy danh sách size
+            List<SizeDTO> lstSizeDTO = this.sizeMapper.toDto(this.sizeRepository.getSizeOfProduct(productDTO.getId()));
+            productDetailResponseDTO.setSizeDTOS(lstSizeDTO);
+
+            // lấy danh sách các type
+            List<TypeProductDTO> lstTypeProduct = this.typeProductMapper.toDto(this.typeProductRepository.getTypeOfProduct(productDTO.getId()));
+            productDetailResponseDTO.setTypeProductDTOS(lstTypeProduct);
+
+            // lấy ra typeSize
+            List<Map<String , Object>> map = this.typeProductRepository.getSizeTypeDTO(productDTO.getId());
+            List<TypeSizeDTO> typeSizeDTOList = map.stream().map(item -> ReflectorUtil.mapToDTO(item,TypeSizeDTO.class)).collect(Collectors.toList());
+            for(int i=0;i<lstSizeDTO.size();i++){
+                for(int j=0;j<lstTypeProduct.size();j++){
+                    int finalI = i;
+                    int finalJ = j;
+                    typeSizeDTOList.forEach(item -> {
+                        if(item.getSizeId()==lstSizeDTO.get(finalI).getId() && item.getTypeId()==lstTypeProduct.get(finalJ).getId()){
+                            item.setPositionSize(Long.parseLong((finalI+1) +""));
+                            item.setPositionType(Long.parseLong((finalJ+1)+""));
+                        }
+                    });
+                }
+            }
+            productDetailResponseDTO.setTypeSizeDTOS(typeSizeDTOList);
+
+            productDetailResponseDTO.setCommentResponseDTO(getDetailComment(id).getData());
+
+//            // lấy sao đánh giá cho sản phẩm
+            List<OrderDetail> lstObj = this.orderDetailRepository.getOrderByIdProduct(id);
+            Long totalSold=0l;
+//            int rate1=0;
+//            int rate2=0;
+//            int rate3=0;
+//            int rate4=0;
+//            int rate5=0;
+//            Integer totalRate=0;
+//            int count=0;
+            for(OrderDetail o : lstObj){
+                totalSold+=o.getQuantity();
+//                if(lstObj.get(i).getRating()!=null){
+//                    totalRate += lstObj.get(i).getRating();
+//                    count++;
+//                    if (lstObj.get(i).getRating() == 1){
+//                        rate1++;
+//                    } else if (lstObj.get(i).getRating()==2) {
+//                        rate2++;
+//                    } else if (lstObj.get(i).getRating()==3) {
+//                        rate3++;
+//                    } else if (lstObj.get(i).getRating()==4) {
+//                        rate4++;
+//                    } else if (lstObj.get(i).getRating()==5) {
+//                        rate5++;
+//                    }
+//                }
+            }
+//            if(count!=0){
+//                productDetailResponseDTO.setAvgRate((double)totalRate/count);
+//            }
+//            productDetailResponseDTO.setRate1(rate1);
+//            productDetailResponseDTO.setRate2(rate2);
+//            productDetailResponseDTO.setRate3(rate3);
+//            productDetailResponseDTO.setRate4(rate4);
+//            productDetailResponseDTO.setRate5(rate5);
+//            List<OrderDetailDTO> orderDetailDTO= this.orderDetailMapper.toDto(lstObj);
+//            for(int i=0;i<orderDetailDTO.size();i++){
+//                List<ProductImg> productImgComment = this.productImgRepository.findByOrderDetailId(orderDetailDTO.get(i).getId());
+//                orderDetailDTO.get(i).setListImgComment(this.productImgMapper.toDto(productImgComment));
+//                orderDetailDTO.get(i).setOrders(null);
+//                orderDetailDTO.get(i).setProductDetail(null);
+//
+//            }
+//            productDetailResponseDTO.setLstOrderDetail(orderDetailDTO);
+
+            productDetailResponseDTO.setTotalSold(totalSold);
+            return new ServiceResult<>(productDetailResponseDTO,HttpStatus.OK,"Success");
+        }else{
+            return null;
+        }
+    }
+
+    @Override
+    public ServiceResult<List<ProductBestSellerDTO>> getListBestSeller() {
+        List<Map<String,Object>> mapStrObj = this.productRepository.getListBestSeller();
+        List<ProductBestSellerDTO> lst = mapStrObj.stream().map(item -> ReflectorUtil.mapToDTO(item,ProductBestSellerDTO.class)).collect(Collectors.toList());
+        return new ServiceResult<>(lst,HttpStatus.OK,"Thành công");
+    }
+
+    @Override
+    public ServiceResult<CommentResponseDTO> getDetailComment(Long id) {
+        Map<String,Object> map = this.productRepository.getInforCommentProduct(id);
+        CommentResponseDTO commentResponseDTO = ReflectorUtil.mapToDTO(map,CommentResponseDTO.class);
+
+        // lấy danh sách những đơn mua mua sản phẩm có id đc truyền vào
+        List<OrderDetail> orderDetailList = this.orderDetailRepository.getOrderByIdProduct(id);
+
+        Long sumRate = 0L;
+
+        List<CommentByUser> commentByUserList = new ArrayList<>();
+        for(OrderDetail orderDetail:orderDetailList){
+            List<String> imgCommentLst = new ArrayList<>();
+            List<String> imgRepplyLst = new ArrayList<>();
+            CommentByUser commentByUser = new CommentByUser();
+            commentByUser = ReflectorUtil.mapToDTO(orderDetailRepository.detaiCommentByUser(orderDetail.getId()), CommentByUser.class);
+            List<Map<String,Object>> lstMapImg = orderDetailRepository.getImgCommentAndRepply(orderDetail.getId());
+            for(Map<String,Object> mapItem: lstMapImg){
+                if(mapItem.get("type").toString().equals("IMGCMT")){
+                    imgCommentLst.add(mapItem.get("file_name").toString());
+                }else{
+                    imgRepplyLst.add(mapItem.get("file_name").toString());
+                }
+            }
+            if(commentByUser!=null){
+                commentByUser.setImgComment(imgCommentLst);
+                commentByUser.setImgCommentRepply(imgRepplyLst);
+            }
+            sumRate+=commentByUser.getRating();
+            commentByUserList.add(commentByUser);
+        }
+        commentResponseDTO.setAvgRate((double) sumRate/commentResponseDTO.getTotalRate());
+        commentResponseDTO.setUserComment(commentByUserList);
+
+        return new ServiceResult<>(commentResponseDTO, HttpStatus.OK, "success");
     }
 }

@@ -5,6 +5,8 @@ import com.example.h2_shop.model.Product;
 import com.example.h2_shop.model.ProductDetail;
 import jakarta.persistence.Column;
 
+import java.util.List;
+
 public class OrderDetailDTO {
     private Long id;
 
@@ -24,6 +26,7 @@ public class OrderDetailDTO {
     private String comment;
     private Integer rating;
     private String replyComment;
+    private List<ProductImgDTO> listImgComment;
 
     public OrderDetailDTO(Long id, Long quantity, Long orderId, Orders orders, Long productId, ProductDetail productDetail, Float price, Long typeProductId, Long sizeProductId, String comment, Integer rating, String replyComment) {
         this.id = id;
@@ -38,6 +41,10 @@ public class OrderDetailDTO {
         this.comment = comment;
         this.rating = rating;
         this.replyComment = replyComment;
+    }
+
+    public OrderDetailDTO() {
+
     }
 
     public Long getId() {
@@ -137,5 +144,13 @@ public class OrderDetailDTO {
 
     public void setReplyComment(String replyComment) {
         this.replyComment = replyComment;
+    }
+
+    public List<ProductImgDTO> getListImgComment() {
+        return listImgComment;
+    }
+
+    public void setListImgComment(List<ProductImgDTO> listImgComment) {
+        this.listImgComment = listImgComment;
     }
 }

@@ -12,10 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Transactional
@@ -35,9 +32,54 @@ public class CategoriesServiceImpl implements CategoriesService {
 
 
     @Override
-    public ServiceResult<List<CategoriesDTO>> getTreeCategories() {
+    public ServiceResult<List<CategoriesDTO>> getTreeCategories(CategoriesDTO categoriesDTO) {
+        List<CategoriesDTO> lst = this.categoriesRepositoryCustome.getAllCategoriesActive(categoriesDTO);
+        List<CategoriesDTO> tree = this.makeTree(lst);
 
-        List<CategoriesDTO> categoriesDTOList = this.makeTree(this.categoriesRepositoryCustome.getAllCategoriesActive());
+
+        if(categoriesDTO.getId()!=null){
+            removeCategoryAndDescendants(tree,categoriesDTO.getId());
+            List<CategoriesDTO> returnLst = new ArrayList<>();
+            tree.forEach(item -> returnLst.addAll(flatten(item)));
+            return new ServiceResult<>(returnLst,HttpStatus.OK,"Thành công");
+        }
+
+        return new ServiceResult<>(tree,HttpStatus.OK,"Thành công");
+    }
+
+    public void removeCategoryAndDescendants(List<CategoriesDTO> categories, Long targetId) {
+        Iterator<CategoriesDTO> iterator = categories.iterator();
+        while (iterator.hasNext()) {
+            CategoriesDTO category = iterator.next();
+            if (category.getId() == targetId) {
+                iterator.remove();
+                continue;
+            }
+            if(category.getChildren()!=null){
+                removeCategoryAndDescendants(category.getChildren(), targetId);
+            }
+        }
+    }
+
+    public List<CategoriesDTO> flatten(CategoriesDTO root) {
+        List<CategoriesDTO> flattenedList = new ArrayList<>();
+        if (root == null) {
+            return flattenedList;
+        }
+        flattenedList.add(root); // Thêm nút hiện tại vào danh sách
+
+        if (root.getChildren() != null) {
+            for (CategoriesDTO child : root.getChildren()) {
+                flattenedList.addAll(flatten(child)); // Thêm tất cả các nút con vào danh sách
+            }
+        }
+
+        return flattenedList;
+    }
+
+    @Override
+    public ServiceResult<List<CategoriesDTO>> getNoTreeCategories() {
+        List<CategoriesDTO> categoriesDTOList = this.categoriesMapper.toDto(this.categoriesRepository.findAllByOrderByCategoriCode());
         return new ServiceResult<>(categoriesDTOList,HttpStatus.OK,"Thành công");
     }
 
@@ -62,6 +104,42 @@ public class CategoriesServiceImpl implements CategoriesService {
             serviceResult.setStatus(HttpStatus.BAD_REQUEST);
         }
         return serviceResult;
+    }
+
+    @Override
+    public ServiceResult<CategoriesDTO> updateCategories(CategoriesDTO categoriesDTO) {
+        ServiceResult<CategoriesDTO> serviceResult = new ServiceResult<>();
+        if(categoriesDTO.getId()!=null){
+            Optional<Categories> categoriesOP = categoriesRepository.findById(categoriesDTO.getId());
+            if(categoriesOP.isPresent()){
+                Categories categories = categoriesOP.get();
+                categories = this.categoriesMapper.toEntity(categoriesDTO);
+                categories = this.categoriesRepository.save(categories);
+                serviceResult.setData(this.categoriesMapper.toDto(categories));
+                serviceResult.setMessage("Cập nhật thành công");
+                serviceResult.setStatus(HttpStatus.OK);
+            }else{
+                serviceResult.setData(null);
+                serviceResult.setMessage("Không tồn tại danh mục này");
+                serviceResult.setStatus(HttpStatus.BAD_REQUEST);
+            }
+        }else{
+            serviceResult.setData(null);
+            serviceResult.setMessage("Không tồn tại danh mục này");
+            serviceResult.setStatus(HttpStatus.BAD_REQUEST);
+        }
+        return serviceResult;
+    }
+
+    @Override
+    public ServiceResult<CategoriesDTO> getById(Long id) {
+        Optional<Categories> categoriesOP = this.categoriesRepository.findById(id);
+        if(categoriesOP.isPresent()){
+            return new ServiceResult<>(this.categoriesMapper.toDto(categoriesOP.get()),HttpStatus.OK,"Thành công");
+        }else{
+            return new ServiceResult<>(null,HttpStatus.OK,"Không tồn tại danh mục này");
+
+        }
     }
 
 

@@ -2,12 +2,11 @@ package com.example.h2_shop.controller;
 
 import com.example.h2_shop.model.Size;
 import com.example.h2_shop.model.TypeProduct;
-import com.example.h2_shop.model.dto.ProductDTO;
-import com.example.h2_shop.model.dto.SizeDTO;
-import com.example.h2_shop.model.dto.TypeProductDTO;
+import com.example.h2_shop.model.dto.*;
 import com.example.h2_shop.service.ProductService;
 import com.example.h2_shop.service.ServiceResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -56,10 +55,35 @@ public class ProductController {
         return  serviceResult;
     }
 
-//    @CrossOrigin(origins = "http://localhost:4211")
+    @PostMapping("/product/get-page-product")
+    public ServiceResult<Page<ProductResponseDTO>> getPageProduct(@RequestBody ProductRequestDTO productRequestDTO){
+        return this.productService.getPageProduct(productRequestDTO);
+    }
+
+    @GetMapping("/product/get-detail/{id}")
+    public ServiceResult<ProductDetailResponseDTO> getDeatilProduct(@PathVariable Long id){
+        return this.productService.detailProductById(id);
+    }
+
+    @GetMapping("/product/get-detail-for-client/{id}")
+    public ServiceResult<ProductDetailForClientDTO> getDeatilProductHome(@PathVariable Long id){
+        return this.productService.detailProductForHome(id);
+    }
+
+    @GetMapping("/product/best-seller")
+    public ServiceResult<List<ProductBestSellerDTO>> getBestSeller(){
+        return this.productService.getListBestSeller();
+    }
+
+
     @GetMapping(value ="/product/testAPI")
     public ResponseEntity<ServiceResult<?>> testAPI(){
         ServiceResult<?> stringServiceResult = new ServiceResult<>(new ArrayList<>(), HttpStatus.BAD_GATEWAY, "ok");
         return ResponseEntity.ok(stringServiceResult);
+    }
+
+    @GetMapping("/product/get-lst-comment/{id}")
+    public ServiceResult<CommentResponseDTO> getDetailComment(@PathVariable Long id){
+        return this.productService.getDetailComment(id);
     }
 }

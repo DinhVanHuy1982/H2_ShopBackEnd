@@ -16,9 +16,14 @@ public class CategoriesController {
         this.categoriesService=categoriesService;
     }
 
-    @GetMapping("/getCategories")
-    public ServiceResult<List<CategoriesDTO>> getAllCategoriesTree(){
-        return this.categoriesService.getTreeCategories();
+    @PostMapping("/getCategories")
+    public ServiceResult<List<CategoriesDTO>> getAllCategoriesTree(@RequestBody CategoriesDTO categoriesDTO){
+        return this.categoriesService.getTreeCategories(categoriesDTO);
+    }
+
+    @GetMapping("/get-categories-no-tree")
+    public ServiceResult<List<CategoriesDTO>> getNoTree(){
+        return this.categoriesService.getNoTreeCategories();
     }
 
     /**
@@ -36,5 +41,14 @@ public class CategoriesController {
     @PostMapping("/createCategories")
     public ServiceResult<CategoriesDTO> createCategories(@RequestBody CategoriesDTO categoriesDTO){
         return this.categoriesService.createCategories(categoriesDTO);
+    }
+
+    @PostMapping("/update-categories")
+    public ServiceResult<CategoriesDTO> updateCategories(@RequestBody CategoriesDTO categoriesDTO){
+        return this.categoriesService.updateCategories(categoriesDTO);
+    }
+    @GetMapping("/get-by-id/{id}")
+    public ServiceResult<CategoriesDTO> getById(@PathVariable Long id){
+        return  this.categoriesService.getById(id);
     }
 }

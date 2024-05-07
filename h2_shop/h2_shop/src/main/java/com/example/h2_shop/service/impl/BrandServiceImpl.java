@@ -16,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -37,7 +39,7 @@ public class BrandServiceImpl implements BrandService {
     @Override
     public ServiceResult<BrandsDTO> createBrand(MultipartFile avatar, BrandsDTO brandsDTO) {
 
-        String errVali = this.validateBrand(brandsDTO);
+        String errVali = this.validateBrand(brandsDTO,true);
         ServiceResult<BrandsDTO> serviceResult = new ServiceResult<>();
         if(errVali.isEmpty()){
 
@@ -64,6 +66,45 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
+    public ServiceResult<BrandsDTO> updateBrand(MultipartFile avatar, BrandsDTO brandsDTO) throws IOException {
+
+        String errVali = this.validateBrand(brandsDTO,false);
+        ServiceResult<BrandsDTO> serviceResult = new ServiceResult<>();
+        if(errVali.isEmpty()){
+
+            Optional<Brands> brandsDBOP = this.brandRepository.findById(brandsDTO.getId());
+            Brands brands = this.brandMapper.toEntity(brandsDTO);
+
+            if(brandsDBOP.isPresent()){
+                Brands brandsDB = brandsDBOP.get();
+                brands.setAvatar(brandsDB.getAvatar());
+                if(avatar!=null){
+                    if(!brandsDB.getAvatar().isEmpty()){
+                        this.fileService.deleteFileByName(brandsDB.getAvatar());
+                    }
+                    ServiceResult<FileDto> fileDtoServiceResult = this.fileService.createFile(avatar);
+                    brands.setAvatar(fileDtoServiceResult.getData().getFileName());
+                }
+                brands.setCreateTime(Instant.now());
+                brands= this.brandRepository.save(brands);
+                brandsDTO = this.brandMapper.toDto(brands);
+
+
+                serviceResult.setData(brandsDTO);
+                serviceResult.setStatus(HttpStatus.OK);
+                serviceResult.setMessage("Cập nhật nhãn hàng thành công");
+            }
+
+        }else{
+            serviceResult.setStatus(HttpStatus.BAD_REQUEST);
+            serviceResult.setMessage(errVali);
+        }
+
+
+        return serviceResult;
+    }
+
+    @Override
     public Page<BrandsDTO> getBrandWithPage(BrandsDTO brandsDTO, Pageable pageable) {
         Page<Brands> brandsPage = this.brandRepository.searchBrand(pageable, brandsDTO.getSearchBrand(), brandsDTO.getStatus());
 
@@ -73,7 +114,28 @@ public class BrandServiceImpl implements BrandService {
         return new PageImpl<>(this.brandMapper.toDto(brandsList),pageable,totalRecord);
     }
 
-    public String validateBrand(BrandsDTO brandsDTO){
+    @Override
+    public List<BrandsDTO> getListBrand() {
+        List<Brands> lstBrand = this.brandRepository.findByStatus(1L);
+        return this.brandMapper.toDto(lstBrand);
+    }
+
+    @Override
+    public ServiceResult<BrandsDTO> detailBrandById(Long id) {
+        Optional<Brands> brandsOP = this.brandRepository.findById(id);
+        ServiceResult<BrandsDTO> serviceResult = new ServiceResult<>();
+        if(brandsOP.isPresent()){
+            BrandsDTO brandsDTO = this.brandMapper.toDto(brandsOP.get());
+            serviceResult.setData(brandsDTO);
+            serviceResult.setStatus(HttpStatus.OK);
+        }else{
+            serviceResult.setStatus(HttpStatus.BAD_REQUEST);
+            serviceResult.setMessage("Không tồn tại nhãn hàng này");
+        }
+        return serviceResult;
+    }
+
+    public String validateBrand(BrandsDTO brandsDTO, Boolean isCreate){
         StringBuilder err = new StringBuilder();
 
         // code
@@ -82,9 +144,11 @@ public class BrandServiceImpl implements BrandService {
         }else if(brandsDTO.getBrandCode().isEmpty()){
             err.append(" Mã nhãn hiệu không được để trống ");
         } else{
-            Optional<Brands> brandsOptional = this.brandRepository.findByBrandCode(brandsDTO.getBrandCode());
-            if(brandsOptional.isPresent()){
-                err.append(" Mã nhãn hiệu đã tồn tại ");
+            if(isCreate){
+                Optional<Brands> brandsOptional = this.brandRepository.findByBrandCode(brandsDTO.getBrandCode());
+                if(brandsOptional.isPresent()){
+                    err.append(" Mã nhãn hiệu đã tồn tại ");
+                }
             }
         }
 
