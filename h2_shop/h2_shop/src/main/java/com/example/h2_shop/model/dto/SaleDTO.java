@@ -4,22 +4,25 @@ import com.example.h2_shop.model.Product;
 import jakarta.persistence.*;
 
 import java.time.Instant;
+import java.util.List;
 
 public class SaleDTO {
 
     private Long id;
+    private String code;
+    private String name;
     private Long quantity;
     private String description;
     private Instant startTime;
     private Instant endTime;
     private Instant applyDate;
-
     private String type;
     private Long minPrice;
     private Long maxPrice;
     private Long maxDiscount;
     private float maxPurchase;
     private Product product;
+    private List<Long> productIdLst;
 
     public Product getProduct() {
         return product;
@@ -117,5 +120,30 @@ public class SaleDTO {
 
     public void setMaxPurchase(float maxPurchase) {
         this.maxPurchase = maxPurchase;
+    }
+
+    public List<Long> getProductIdLst() {
+        return productIdLst;
+    }
+
+    public void setProductIdLst(List<Long> productIdLst) {
+        this.productIdLst = productIdLst;
+    }
+
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

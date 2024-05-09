@@ -30,6 +30,7 @@ public class ProductDTO {
     private Long brandId;
 
     private Long categoriesID;
+    private boolean selected;
 
     private List<ProductImgDTO> productImgDTOList;
 
@@ -197,5 +198,13 @@ public class ProductDTO {
 
     public void setTypeProductDTOList(List<TypeProductDTO> typeProductDTOList) {
         this.typeProductDTOList = typeProductDTOList;
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
     }
 }

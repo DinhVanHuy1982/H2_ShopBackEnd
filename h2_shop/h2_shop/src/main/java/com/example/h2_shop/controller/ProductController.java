@@ -36,6 +36,11 @@ public class ProductController {
         return ResponseEntity.ok(stringServiceResult);
     }
 
+    @GetMapping("/product/getAll")
+    public ServiceResult<List<ProductDTO>> getAll(){
+        return this.productService.getAllProduct();
+    }
+
     /**
      * Description of the method
      *
@@ -86,4 +91,7 @@ public class ProductController {
     public ServiceResult<CommentResponseDTO> getDetailComment(@PathVariable Long id){
         return this.productService.getDetailComment(id);
     }
+
+    @PostMapping("/product/search-by-client")
+    public ServiceResult<>
 }

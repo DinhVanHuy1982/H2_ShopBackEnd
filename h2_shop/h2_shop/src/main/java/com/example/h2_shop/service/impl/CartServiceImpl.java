@@ -59,8 +59,19 @@ public class CartServiceImpl implements CartService {
 
             carts=this.cartRepository.findByUserIdAndProductDetail(cartDTO.getUserId(),productDetailOptional.get().getId());
             if(carts != null){ // cập nhật
-                carts.setQuantity(cartDTO.getQuantity());
-                carts.setUpdateTime(Instant.now());
+                if(carts.getQuantity()>30){
+                    serviceResult.setMessage("Đã quá số lượng giới hạn thêm vào giỏ hàng");
+                    serviceResult.setStatus(HttpStatus.BAD_REQUEST);
+                    return serviceResult;
+                }else if(carts.getQuantity()+cartDTO.getQuantity()>30){
+                    carts.setQuantity(30L);
+                    carts.setUpdateTime(Instant.now());
+                }
+                else{
+                    carts.setQuantity(carts.getQuantity()+cartDTO.getQuantity());
+                    carts.setUpdateTime(Instant.now());
+                }
+
             }else{// thêm mới
                 carts = new Carts();
                 carts.setUser(user);

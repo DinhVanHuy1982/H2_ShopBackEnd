@@ -28,6 +28,7 @@ public interface CartRepository extends JpaRepository<Carts,Long> {
             "    pd.quantity AS residualQuantity,\n" +
             "    pd.product_id AS productId,\n" +
             "    p.product_name AS productName,\n" +
+            "    p.price AS price,\n" +
             "    pi2.file_name AS fileName\n" +
             "FROM\n" +
             "    carts c\n" +

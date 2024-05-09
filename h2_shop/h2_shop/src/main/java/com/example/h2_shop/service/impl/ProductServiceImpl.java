@@ -418,6 +418,21 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public ServiceResult<List<ProductDTO>> getAllProduct() {
+        List<Product> lstProduct= this.productRepository.findAllByOrderByProductCodeAsc();
+        List<ProductDTO> productDTOList = this.productMapper.toDto(lstProduct);
+        for (int i=0;i<productDTOList.size();i++){
+            if(productDTOList.get(i).getCategories()!=null){
+                productDTOList.get(i).setCategoriesID(productDTOList.get(i).getCategories().getId());
+                productDTOList.get(i).setCategories(null);
+            }
+
+        }
+        return new ServiceResult<>(productDTOList,HttpStatus.OK,"");
+    }
+
+
+    @Override
     public ServiceResult<ProductDetailResponseDTO> detailProductById(Long id) {
         Optional<Product> productOP = this.productRepository.findById(id);
         if(productOP.isPresent()){
@@ -605,8 +620,7 @@ public class ProductServiceImpl implements ProductService {
         for(OrderDetail orderDetail:orderDetailList){
             List<String> imgCommentLst = new ArrayList<>();
             List<String> imgRepplyLst = new ArrayList<>();
-            CommentByUser commentByUser = new CommentByUser();
-            commentByUser = ReflectorUtil.mapToDTO(orderDetailRepository.detaiCommentByUser(orderDetail.getId()), CommentByUser.class);
+            CommentByUser commentByUser = ReflectorUtil.mapToDTO(orderDetailRepository.detaiCommentByUser(orderDetail.getId()), CommentByUser.class);
             List<Map<String,Object>> lstMapImg = orderDetailRepository.getImgCommentAndRepply(orderDetail.getId());
             for(Map<String,Object> mapItem: lstMapImg){
                 if(mapItem.get("type").toString().equals("IMGCMT")){
@@ -615,14 +629,16 @@ public class ProductServiceImpl implements ProductService {
                     imgRepplyLst.add(mapItem.get("file_name").toString());
                 }
             }
-            if(commentByUser!=null){
+            if(commentByUser.getUserId()!=null){
                 commentByUser.setImgComment(imgCommentLst);
                 commentByUser.setImgCommentRepply(imgRepplyLst);
+                sumRate+=commentByUser.getRating();
+                commentByUserList.add(commentByUser);
             }
-            sumRate+=commentByUser.getRating();
-            commentByUserList.add(commentByUser);
         }
-        commentResponseDTO.setAvgRate((double) sumRate/commentResponseDTO.getTotalRate());
+        if(commentResponseDTO.getTotalRate()!=0){
+            commentResponseDTO.setAvgRate((double) sumRate/commentResponseDTO.getTotalRate());
+        }
         commentResponseDTO.setUserComment(commentByUserList);
 
         return new ServiceResult<>(commentResponseDTO, HttpStatus.OK, "success");

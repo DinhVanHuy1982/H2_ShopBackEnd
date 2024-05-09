@@ -12,6 +12,12 @@ public class Sale {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "code")
+    private String code;
+
+    @Column(name = "name")
+    private String name;
     @Column(name = "quantity")
     private Long quantity;
     @Column(name = "description")
@@ -45,6 +51,23 @@ public class Sale {
         this.product = product;
     }
     public Sale() {
+    }
+
+    public Sale(Long id, String code, String name, Long quantity, String description, Instant startTime, Instant endTime, Instant applyDate, String type, Long minPrice, Long maxPrice, Long maxDiscount, float maxPurchase, Product product) {
+        this.id = id;
+        this.code = code;
+        this.name = name;
+        this.quantity = quantity;
+        this.description = description;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.applyDate = applyDate;
+        this.type = type;
+        this.minPrice = minPrice;
+        this.maxPrice = maxPrice;
+        this.maxDiscount = maxDiscount;
+        this.maxPurchase = maxPurchase;
+        this.product = product;
     }
 
     public Long getId() {
@@ -133,5 +156,21 @@ public class Sale {
 
     public void setQuantity(Long quantity) {
         this.quantity = quantity;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

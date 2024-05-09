@@ -17,7 +17,7 @@ public class CartController {
     private static final Logger log = LoggerFactory.getLogger(CartController.class);
     @Autowired
     CartService cartService;
-    @PostMapping("/create/cart")
+    @PostMapping("/cart/create/cart")
     public ServiceResult<CartDTO> addToCart(@RequestBody  CartDTO cartDTO){
         log.info("Create or add cart ");
         ServiceResult<CartDTO> serviceResult = new ServiceResult<>();

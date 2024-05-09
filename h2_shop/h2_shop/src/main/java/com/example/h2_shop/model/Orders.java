@@ -61,6 +61,12 @@ public class Orders {
     @JoinColumn(name="user_id")
     private User user;
 
+
+    @ManyToOne
+    @JoinColumn(name = "sale_id")
+    private Sale sale;
+
+
 //    @ManyToOne
 //    @JoinColumn(name="product_id")
 //    private Product product;
@@ -213,5 +219,13 @@ public class Orders {
 
     public void setOrderCode(String orderCode) {
         this.orderCode = orderCode;
+    }
+
+    public Sale getSale() {
+        return sale;
+    }
+
+    public void setSale(Sale sale) {
+        this.sale = sale;
     }
 }

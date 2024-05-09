@@ -10,6 +10,8 @@ public class CartDTO {
     private Long id;
 
     private Long quantity;
+    @Getter
+    private Long price;
 
     private ProductDetail productDetail;
 
@@ -199,5 +201,13 @@ public class CartDTO {
 
     public String getFileName() {
         return fileName;
+    }
+
+    public void setPrice(Long price) {
+        this.price = price;
+    }
+
+    public Long getPrice() {
+        return price;
     }
 }

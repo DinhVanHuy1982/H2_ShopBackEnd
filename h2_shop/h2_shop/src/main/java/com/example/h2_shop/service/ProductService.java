@@ -12,6 +12,7 @@ public interface ProductService {
 
     public ServiceResult<ProductDTO> getProductById(Long productId);
     public ServiceResult<Page<ProductResponseDTO>> getPageProduct(ProductRequestDTO productRequestDTO);
+    public ServiceResult<List<ProductDTO>> getAllProduct();
     public ServiceResult<ProductDetailResponseDTO> detailProductById(Long id);
     public ServiceResult<ProductDetailForClientDTO> detailProductForHome(Long id);
     public ServiceResult<List<ProductBestSellerDTO>> getListBestSeller();
