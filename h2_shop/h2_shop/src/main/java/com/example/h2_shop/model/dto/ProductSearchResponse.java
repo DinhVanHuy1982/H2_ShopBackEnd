@@ -5,8 +5,9 @@ public class ProductSearchResponse {
     private String productCode;
     private String productName;
     private Double price;
+    private Double priceSale;
     private String fileName;
-    private Long purchase;
+    private Double purchase;
     private Long buyQuantity;
     private Double avgRating;
 
@@ -53,13 +54,7 @@ public class ProductSearchResponse {
         this.fileName = fileName;
     }
 
-    public Long getPurchase() {
-        return purchase;
-    }
 
-    public void setPurchase(Long purchase) {
-        this.purchase = purchase;
-    }
 
     public Long getBuyQuantity() {
         return buyQuantity;
@@ -75,5 +70,21 @@ public class ProductSearchResponse {
 
     public void setAvgRating(Double avgRating) {
         this.avgRating = avgRating;
+    }
+
+    public Double getPriceSale() {
+        return priceSale;
+    }
+
+    public void setPriceSale(Double priceSale) {
+        this.priceSale = priceSale;
+    }
+
+    public Double getPurchase() {
+        return purchase;
+    }
+
+    public void setPurchase(Double purchase) {
+        this.purchase = purchase;
     }
 }

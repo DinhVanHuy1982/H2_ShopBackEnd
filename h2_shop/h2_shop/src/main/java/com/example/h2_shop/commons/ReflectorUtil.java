@@ -109,7 +109,7 @@ public class ReflectorUtil {
 
                     }
                 } catch (Exception e) {
-                    log.error(e.getMessage(),e);
+//                    log.error(e.getMessage(),e);
                 }
             });
             return t;

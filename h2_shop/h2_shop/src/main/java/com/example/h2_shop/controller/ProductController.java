@@ -93,5 +93,7 @@ public class ProductController {
     }
 
     @PostMapping("/product/search-by-client")
-    public ServiceResult<>
+    public ServiceResult<Page<ProductSearchResponse>> searchProductDorClient(@RequestBody ProductRequestDTO productRequestDTO){
+        return productService.searchProductForUser(productRequestDTO);
+    }
 }

@@ -6,6 +6,7 @@ import com.example.h2_shop.model.*;
 import com.example.h2_shop.model.dto.*;
 import com.example.h2_shop.model.mapper.*;
 import com.example.h2_shop.repository.*;
+import com.example.h2_shop.repository.customRepo.ProductCustomeRepository;
 import com.example.h2_shop.service.CategoriesService;
 import com.example.h2_shop.service.FileService;
 import com.example.h2_shop.service.ProductService;
@@ -57,8 +58,24 @@ public class ProductServiceImpl implements ProductService {
     private final ProductDetailRepository productDetailRepository;
     private final OrderDetailMapper orderDetailMapper;
     private final OrderDetailRepository orderDetailRepository;
+    private final ProductCustomeRepository productCustomeRepository;
 
-    public ProductServiceImpl(TypeProductMapper typeProductMapper,OrderDetailRepository orderDetailRepository, OrderDetailMapper orderDetailMapper,ProductDetailRepository productDetailRepository,ProductDetailMapper productDetailMapper,TypeProductRepository typeProductRepository,SizeRepository sizeRepository, BrandRepository brandRepository,BrandProductMapper brandProductMapper,BrandProductRepository brandProductRepository,ProductImgMapper productImgMapper,ProductImgRepository productImgRepository,CategoriesRepository categoriesRepository,ProductRepository productRepository,CategoriesService categoriesService){
+    public ProductServiceImpl(TypeProductMapper typeProductMapper,
+                              OrderDetailRepository orderDetailRepository,
+                              OrderDetailMapper orderDetailMapper,
+                              ProductDetailRepository productDetailRepository,
+                              ProductDetailMapper productDetailMapper,
+                              TypeProductRepository typeProductRepository,
+                              SizeRepository sizeRepository,
+                              BrandRepository brandRepository,
+                              BrandProductMapper brandProductMapper,
+                              BrandProductRepository brandProductRepository,
+                              ProductImgMapper productImgMapper,
+                              ProductImgRepository productImgRepository,
+                              CategoriesRepository categoriesRepository,
+                              ProductRepository productRepository,
+                              CategoriesService categoriesService,
+                              ProductCustomeRepository productCustomeRepository){
         this.productRepository=productRepository;
         this.categoriesService=categoriesService;
         this.brandRepository=brandRepository;
@@ -74,6 +91,7 @@ public class ProductServiceImpl implements ProductService {
         this.productDetailRepository=productDetailRepository;
         this.orderDetailMapper=orderDetailMapper;
         this.orderDetailRepository=orderDetailRepository;
+        this.productCustomeRepository = productCustomeRepository;
     }
 
 
@@ -642,5 +660,10 @@ public class ProductServiceImpl implements ProductService {
         commentResponseDTO.setUserComment(commentByUserList);
 
         return new ServiceResult<>(commentResponseDTO, HttpStatus.OK, "success");
+    }
+
+    @Override
+    public ServiceResult<Page<ProductSearchResponse>> searchProductForUser(ProductRequestDTO productRequestDTO) {
+        return new ServiceResult<>(this.productCustomeRepository.searchProduct(productRequestDTO), HttpStatus.OK,"");
     }
 }

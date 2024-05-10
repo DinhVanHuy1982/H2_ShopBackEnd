@@ -38,7 +38,7 @@ public class Sale {
     @Column(name = "max_discount")
     private Long maxDiscount;
     @Column(name = "max_purchase")
-    private float maxPurchase;
+    private Float maxPurchase;
     @ManyToOne
     @JoinColumn(name="product_id")
     private Product product;
@@ -53,7 +53,7 @@ public class Sale {
     public Sale() {
     }
 
-    public Sale(Long id, String code, String name, Long quantity, String description, Instant startTime, Instant endTime, Instant applyDate, String type, Long minPrice, Long maxPrice, Long maxDiscount, float maxPurchase, Product product) {
+    public Sale(Long id, String code, String name, Long quantity, String description, Instant startTime, Instant endTime, Instant applyDate, String type, Long minPrice, Long maxPrice, Long maxDiscount, Float maxPurchase, Product product) {
         this.id = id;
         this.code = code;
         this.name = name;
@@ -142,11 +142,11 @@ public class Sale {
         this.maxDiscount = maxDiscount;
     }
 
-    public float getMaxPurchase() {
+    public Float getMaxPurchase() {
         return maxPurchase;
     }
 
-    public void setMaxPurchase(float maxPurchase) {
+    public void setMaxPurchase(Float maxPurchase) {
         this.maxPurchase = maxPurchase;
     }
 

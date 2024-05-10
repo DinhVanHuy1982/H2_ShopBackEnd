@@ -1,9 +1,15 @@
 package com.example.h2_shop.model.dto;
 
 
+import java.util.List;
+
 public class ProductRequestDTO {
     private Long id;
     private String nameSearch;
+    private Double fromPrice;
+    private Double toPrice;
+    private String propertySort;
+    private List<Integer> star;
     private Long categoriesId;
     private Long brandId;
 
@@ -56,5 +62,37 @@ public class ProductRequestDTO {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Double getFromPrice() {
+        return fromPrice;
+    }
+
+    public void setFromPrice(Double fromPrice) {
+        this.fromPrice = fromPrice;
+    }
+
+    public Double getToPrice() {
+        return toPrice;
+    }
+
+    public void setToPrice(Double toPrice) {
+        this.toPrice = toPrice;
+    }
+
+    public String getPropertySort() {
+        return propertySort;
+    }
+
+    public void setPropertySort(String propertySort) {
+        this.propertySort = propertySort;
+    }
+
+    public List<Integer> getStar() {
+        return star;
+    }
+
+    public void setStar(List<Integer> star) {
+        this.star = star;
     }
 }

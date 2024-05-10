@@ -17,4 +17,5 @@ public interface ProductService {
     public ServiceResult<ProductDetailForClientDTO> detailProductForHome(Long id);
     public ServiceResult<List<ProductBestSellerDTO>> getListBestSeller();
     public ServiceResult<CommentResponseDTO> getDetailComment(Long id);
+    public ServiceResult<Page<ProductSearchResponse>> searchProductForUser(ProductRequestDTO productRequestDTO);
 }

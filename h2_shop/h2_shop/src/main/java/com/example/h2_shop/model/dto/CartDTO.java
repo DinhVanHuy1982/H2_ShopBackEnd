@@ -10,7 +10,7 @@ public class CartDTO {
     private Long id;
 
     private Long quantity;
-    @Getter
+
     private Long price;
 
     private ProductDetail productDetail;
@@ -32,6 +32,7 @@ public class CartDTO {
     private boolean isSlected;
     private String productName;
     private String fileName;
+    private Float maxPurchase;
     public CartDTO() {
     }
 
@@ -210,4 +211,13 @@ public class CartDTO {
     public Long getPrice() {
         return price;
     }
+
+    public Float getMaxPurchase() {
+        return maxPurchase;
+    }
+
+    public void setMaxPurchase(Float maxPurchase) {
+        this.maxPurchase = maxPurchase;
+    }
+
 }

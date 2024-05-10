@@ -29,7 +29,8 @@ public interface CartRepository extends JpaRepository<Carts,Long> {
             "    pd.product_id AS productId,\n" +
             "    p.product_name AS productName,\n" +
             "    p.price AS price,\n" +
-            "    pi2.file_name AS fileName\n" +
+            "    pi2.file_name AS fileName,\n" +
+            "    sale.max_purchase maxPurchase\n" +
             "FROM\n" +
             "    carts c\n" +
             "JOIN product_detail pd ON\n" +
@@ -42,6 +43,9 @@ public interface CartRepository extends JpaRepository<Carts,Long> {
             "    p.id = pd.product_id\n" +
             "LEFT JOIN product_img pi2 ON\n" +
             "    pi2.product_id = p.id\n" +
+            "left join (\n" +
+            "\tselect * from sales s2 where (now() between s2.start_time and s2.end_time ) and s2.`type` =0\n" +
+            ") sale on sale.product_id = p.id\n" +
             "WHERE\n" +
             "    c.user_id = :userId\n" +
             "    AND pi2.avatar = true",nativeQuery = true)
