@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api")
 public class SaleController {
@@ -30,6 +32,11 @@ public class SaleController {
     @GetMapping("/search-detail/sale/{code}")
     public ServiceResult<SaleSearchResponseDTO> searchSale(@PathVariable String code){
         return this.saleService.getDetailSale(code);
+    }
+
+    @GetMapping("/search/sale-bill")
+    public ServiceResult<List<SaleDTO>> searchSaleBill(){
+        return this.saleService.searchSaleBill();
     }
 
     @PostMapping("/update/sale")

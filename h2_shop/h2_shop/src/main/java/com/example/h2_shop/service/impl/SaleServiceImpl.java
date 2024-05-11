@@ -176,4 +176,12 @@ public class SaleServiceImpl implements SaleService {
         }
         return serviceResult;
     }
+
+    @Override
+    public ServiceResult<List<SaleDTO>> searchSaleBill() {
+
+        List<Sale> lstSale = this.saleRepository.searchSaleForBill();
+
+        return new ServiceResult<>(this.saleMapper.toDto(lstSale),HttpStatus.OK,"");
+    }
 }

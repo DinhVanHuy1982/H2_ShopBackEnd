@@ -4,6 +4,8 @@ import com.example.h2_shop.model.dto.SaleDTO;
 import com.example.h2_shop.model.dto.SaleSearchResponseDTO;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+
 public interface SaleService {
     ServiceResult<SaleDTO> createSale(SaleDTO saleDTO);
 
@@ -11,4 +13,5 @@ public interface SaleService {
 
     ServiceResult<SaleSearchResponseDTO> getDetailSale(String code);
     ServiceResult<SaleDTO> updateSale(SaleDTO saleDTO);
+    ServiceResult<List<SaleDTO>>  searchSaleBill();
 }

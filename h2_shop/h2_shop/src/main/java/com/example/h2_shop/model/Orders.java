@@ -15,12 +15,23 @@ public class Orders {
     @Column(name = "order_code")
     private String orderCode;
 
+    @Column(name="full_name")
+    private String fullName;
+
     @Column(name="order_date")
     private Instant orderDate;
 
     @Column(name="payment_method")
     private Integer paymentMethod;//type_apparams PAYMENT
 
+    @Column(name="district_id")
+    private Long provinceId;
+
+    @Column(name="province_id")
+    private Long districtId;
+
+    @Column(name="ward")
+    private String ward;
 
     @Column(name="phone_number")
     private String phoneNumber;
@@ -51,7 +62,7 @@ public class Orders {
 
 
     @Column(name="shipping_unit")
-    private String shippingUnit; // type_apparams SHIPUNIT
+    private Long shippingUnit; // type_apparams SHIPUNIT
 
     @Column(name="ship_price")
     private float shipPrice;
@@ -197,11 +208,11 @@ public class Orders {
         this.rating = rating;
     }
 
-    public String getShippingUnit() {
+    public Long getShippingUnit() {
         return shippingUnit;
     }
 
-    public void setShippingUnit(String shippingUnit) {
+    public void setShippingUnit(Long shippingUnit) {
         this.shippingUnit = shippingUnit;
     }
 
@@ -227,5 +238,37 @@ public class Orders {
 
     public void setSale(Sale sale) {
         this.sale = sale;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public Long getProvinceId() {
+        return provinceId;
+    }
+
+    public void setProvinceId(Long provinceId) {
+        this.provinceId = provinceId;
+    }
+
+    public Long getDistrictId() {
+        return districtId;
+    }
+
+    public void setDistrictId(Long districtId) {
+        this.districtId = districtId;
+    }
+
+    public String getWard() {
+        return ward;
+    }
+
+    public void setWard(String ward) {
+        this.ward = ward;
     }
 }

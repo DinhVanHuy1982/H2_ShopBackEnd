@@ -19,6 +19,10 @@ public class OrdersDTO {
     private String recipientAddress;
 
     private String buyerAddress;
+    private Long provinceId;
+    private Long districtId;
+    private String ward;
+    private String fullName;
 
     private Long quantity;
 
@@ -31,7 +35,7 @@ public class OrdersDTO {
     private String estimatePickUp;
 
     private Long rating;
-    private String shippingUnit; // type_apparams SHIPUNIT
+    private Long shippingUnit; // type_apparams SHIPUNIT
 
     private float shipPrice;
 
@@ -165,11 +169,11 @@ public class OrdersDTO {
     }
 
 
-    public String getShippingUnit() {
+    public Long getShippingUnit() {
         return shippingUnit;
     }
 
-    public void setShippingUnit(String shippingUnit) {
+    public void setShippingUnit(Long shippingUnit) {
         this.shippingUnit = shippingUnit;
     }
 
@@ -220,6 +224,36 @@ public class OrdersDTO {
     public void setSaleId(Long saleId) {
         this.saleId = saleId;
     }
+    public String getFullName() {
+        return fullName;
+    }
 
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public Long getProvinceId() {
+        return provinceId;
+    }
+
+    public void setProvinceId(Long provinceId) {
+        this.provinceId = provinceId;
+    }
+
+    public Long getDistrictId() {
+        return districtId;
+    }
+
+    public void setDistrictId(Long districtId) {
+        this.districtId = districtId;
+    }
+
+    public String getWard() {
+        return ward;
+    }
+
+    public void setWard(String ward) {
+        this.ward = ward;
+    }
 
 }

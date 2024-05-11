@@ -119,19 +119,20 @@ public class OrderServiceImpl implements OrderService {
                 String errSale = "";
                 if(sale.isPresent()){
                     Sale sale1 = sale.get();
-                    float priceDiscount = totalPriceOrder * (sale1.getMaxPurchase()/100);
+                    float priceDiscount = totalPriceOrder * (sale1.getMaxPurchase()/100); // số tiền giảm giá
                     Instant timeNow = Instant.now();
                     if(timeNow.isAfter(sale1.getStartTime()) && timeNow.isBefore(sale1.getEndTime()) && sale1.getQuantity()>0){
-
-                        if(totalPriceOrder < sale1.getMinPrice()){ // nếu có điều kiện cho giá hóa đơn thấp nhất
-                            errSale = "Tổng giá của hóa đơn không phù hợp để áp dụng";
-                        }
-
-                        if(sale1.getMaxDiscount()!=null){ // nếu mã giảm giá giới hạn số tiền giảm giá
-                            if (priceDiscount > sale1.getMaxDiscount()){
-                                priceDiscount = totalPriceOrder - sale1.getMaxDiscount();
-                            }
-                        }
+                        sale1.setQuantity(sale1.getQuantity()-1);
+                        this.saleRepository.save(sale1);
+//                        if(totalPriceOrder < sale1.getMinPrice()){ // nếu có điều kiện cho giá hóa đơn thấp nhất
+//                            errSale = "Tổng giá của hóa đơn không phù hợp để áp dụng";
+//                        }
+//
+//                        if(sale1.getMaxDiscount()!=null){ // nếu mã giảm giá giới hạn số tiền giảm giá
+//                            if (priceDiscount > sale1.getMaxDiscount()){
+//                                priceDiscount = totalPriceOrder - sale1.getMaxDiscount();
+//                            }
+//                        }
                     }else{
                         errSale = "Mã giảm giá đã quá hạn hoặc không còn đủ số lượng";
                     }
@@ -141,7 +142,7 @@ public class OrderServiceImpl implements OrderService {
                         errSale = "Mã giảm giá không đúng";
                     }
 
-                    if(errSale.isEmpty()){
+                    if(!errSale.isEmpty()){
                         serviceResult.setMessage(errSale);
                         serviceResult.setStatus(HttpStatus.BAD_REQUEST);
                         serviceResult.setData(null);
@@ -149,9 +150,16 @@ public class OrderServiceImpl implements OrderService {
                     }
 
                 }
-                orders.setPrice(totalPriceOrder+tax);
+
+
+            }
+            if(ordersDTO.getShipPrice()!=0){
+                totalPriceOrder = totalPriceOrder + orders.getShipPrice();
+                orders.setShipPrice(ordersDTO.getShipPrice());
             }
 
+            orders.setPrice(totalPriceOrder);//+tax
+            this.orderRepository.save(orders);
 //            orders = this.orderRepository.save(orders);
             productDetailList = this.productDetailRepository.saveAll(productDetailList);
             ordersDTO = this.orderMapper.toDto(orders);
@@ -334,7 +342,7 @@ public class OrderServiceImpl implements OrderService {
 
 
         // recipientAddress
-        if(StringUtils.isEmpty(ordersDTO.getRecipientAddress())){
+        if(ordersDTO.getProvinceId()==null || ordersDTO.getDistrictId()==null || ordersDTO.getWard()==null){
             messErr="Địa chỉ người nhận không được để trống";
             return messErr;
         }
@@ -353,7 +361,6 @@ public class OrderServiceImpl implements OrderService {
                 Optional<Product> product = this.productRepository.findById(orderDetailDTOS.get(i).getProductId()); // lấy ra sản phầm đặt hàng
                 if(product.isPresent()){
                     Optional<Sale> saleOp = this.saleRepository.findByProductID(product.get().getId());
-//                    orderDetailDTOS.get(i).setProduct(product.get());
                     if(saleOp.isPresent()){// lấy giá sản phẩm sau khi đã discount sau khi sản phẩm giảm giá
                         orderDetailDTOS.get(i).setPrice(product.get().getPrice()*((100-(saleOp.get().getMaxPurchase()))/100)); // lấy giá của 1 sản phẩm sau khi đã có giảm giá cho sản phẩm0
                         totalPriceOrder += product.get().getPrice()*((100-(saleOp.get().getMaxPurchase()))/100)*orderDetailDTOS.get(i).getQuantity(); // giá của 1 sản phầm nhân với sô lượng ỏdder
@@ -369,15 +376,15 @@ public class OrderServiceImpl implements OrderService {
                 float priceDiscount = totalPriceOrder * (sale1.getMaxPurchase() / 100);
                 Instant timeNow = Instant.now();
                 if (timeNow.isAfter(sale1.getStartTime()) && timeNow.isBefore(sale1.getEndTime()) && sale1.getQuantity() > 0) {
-                    if (totalPriceOrder < sale1.getMinPrice()) { // nếu có điều kiện cho giá hóa đơn thấp nhất
-                        messErr = "Tổng giá của hóa đơn không phù hợp để áp dụng";
-                    }
-
-                    if (sale1.getMaxDiscount() != null) { // nếu mã giảm giá giới hạn số tiền giảm giá
-                        if (priceDiscount > sale1.getMaxDiscount()) {
-                            priceDiscount = totalPriceOrder - sale1.getMaxDiscount();
-                        }
-                    }
+//                    if (totalPriceOrder < sale1.getMinPrice()) { // nếu có điều kiện cho giá hóa đơn thấp nhất
+//                        messErr = "Tổng giá của hóa đơn không phù hợp để áp dụng";
+//                    }
+//
+//                    if (sale1.getMaxDiscount() != null) { // nếu mã giảm giá giới hạn số tiền giảm giá
+//                        if (priceDiscount > sale1.getMaxDiscount()) {
+//                            priceDiscount = totalPriceOrder - sale1.getMaxDiscount();
+//                        }
+//                    }
                 } else {
                     messErr = "Mã giảm giá đã quá hạn hoặc không còn đủ số lượng";
                 }

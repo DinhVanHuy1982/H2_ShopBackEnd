@@ -46,6 +46,9 @@ public interface SaleRepository extends JpaRepository<Sale,Long> {
             "    AND FIND_IN_SET(s.product_id, REPLACE(:lstProductId, \" \", \"\")) > 0", nativeQuery = true)
     List<Sale> findDupplicateSale(@Param("startTime")Instant startTime, @Param("endTime")Instant endTime, @Param("lstProductId")String lstProductId);
 
+    @Query(value = "select s.* from sales s where s.`type` = 1 and (now() between s.start_time and s.end_time)",nativeQuery = true)
+    List<Sale> searchSaleForBill();
+
     List<Sale> findByCode(String code);
 
     @Query(value = "select s.code, s.name,s.`type` , s.start_time startTime, s.end_time endTime, s.description , s.quantity ,s.max_purchase maxPurchase,GROUP_CONCAT(s.product_id SEPARATOR ',') lstProductStr\n" +
