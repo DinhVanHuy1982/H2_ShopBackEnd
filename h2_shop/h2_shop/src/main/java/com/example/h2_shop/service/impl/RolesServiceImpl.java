@@ -189,9 +189,6 @@ public class RolesServiceImpl implements RolesService {
             serviceResult.setStatus(HttpStatus.BAD_REQUEST);
             serviceResult.setMessage("Roles không tồn tại");
         }
-
-
-
         return serviceResult;
     }
 

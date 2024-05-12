@@ -17,6 +17,9 @@ import java.util.Optional;
 @Transactional
 public interface ProductDetailRepository extends JpaRepository<ProductDetail, Long> {
 
+//    @Query(value = "select * from product_detail where id in :lstProductId")
+    List<ProductDetail> findAllByIdIn(@Param("lstProductId") List<Long> lstProductId);
+
     List<ProductDetail> findAllByProductId(Long productId);
 
     @Query(value = "select * from product_detail pd where pd.type_product_id = ?1  and pd.size_id = ?2 and pd.product_id = ?3",nativeQuery = true)

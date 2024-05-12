@@ -23,6 +23,7 @@ public class OrdersDTO {
     private Long districtId;
     private String ward;
     private String fullName;
+    private Long payStatus;
 
     private Long quantity;
 
@@ -254,6 +255,13 @@ public class OrdersDTO {
 
     public void setWard(String ward) {
         this.ward = ward;
+    }
+    public Long getPayStatus() {
+        return payStatus;
+    }
+
+    public void setPayStatus(Long payStatus) {
+        this.payStatus = payStatus;
     }
 
 }

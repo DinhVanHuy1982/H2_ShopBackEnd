@@ -1,5 +1,6 @@
 package com.example.h2_shop.service.impl;
 
+import com.example.h2_shop.commons.ReflectorUtil;
 import com.example.h2_shop.model.*;
 import com.example.h2_shop.model.dto.*;
 import com.example.h2_shop.model.mapper.OrderDetailMapper;
@@ -10,6 +11,10 @@ import com.example.h2_shop.service.FileService;
 import com.example.h2_shop.service.OrderService;
 import com.example.h2_shop.service.ServiceResult;
 import io.micrometer.common.util.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,10 +23,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -89,8 +92,10 @@ public class OrderServiceImpl implements OrderService {
                     Product product = this.productRepository.findById(productDTOP.get().getProduct().getId()).get(); // chắc chắn tồn tại id sản phẩm rồi
 
                     ProductDetail productDetail = productDTOP.get();
-                    productDetail.setQuantity( productDetail.getQuantity() - orderDetailDTOS.get(i).getQuantity());
-                    productDetailList.add(productDetail); // thêm sản phẩm để cập nhật số lượng sau khi mua
+
+                    // đổi nghiệp vụ => khi phê duyệt đơn hàng thì mới giảm số lượng sản phẩm
+                          // productDetail.setQuantity( productDetail.getQuantity() - orderDetailDTOS.get(i).getQuantity());
+                          //  productDetailList.add(productDetail); // thêm sản phẩm để cập nhật số lượng sau khi mua
 
                     orderDetailDTOS.get(i).setProductDetail(productDetail);
 
@@ -119,6 +124,7 @@ public class OrderServiceImpl implements OrderService {
                 String errSale = "";
                 if(sale.isPresent()){
                     Sale sale1 = sale.get();
+                    orders.setSale(sale1);
                     float priceDiscount = totalPriceOrder * (sale1.getMaxPurchase()/100); // số tiền giảm giá
                     Instant timeNow = Instant.now();
                     if(timeNow.isAfter(sale1.getStartTime()) && timeNow.isBefore(sale1.getEndTime()) && sale1.getQuantity()>0){
@@ -161,7 +167,9 @@ public class OrderServiceImpl implements OrderService {
             orders.setPrice(totalPriceOrder);//+tax
             this.orderRepository.save(orders);
 //            orders = this.orderRepository.save(orders);
-            productDetailList = this.productDetailRepository.saveAll(productDetailList);
+
+
+//            productDetailList = this.productDetailRepository.saveAll(productDetailList); // đổi nghiệp vụ giảm số lượng sản phẩm khi đặt hàng
             ordersDTO = this.orderMapper.toDto(orders);
             ordersDTO.setOrderDetailDTOList(orderDetailDTOS);
             serviceResult.setData(ordersDTO);
@@ -178,6 +186,34 @@ public class OrderServiceImpl implements OrderService {
 
 
         return null;
+    }
+
+    @Override
+    public ServiceResult<Page<OrderRequestDTO>> searchOrder(OrderRequestDTO orderRequestDTO) {
+        Pageable pageable = PageRequest.of(orderRequestDTO.getPage()-1,orderRequestDTO.getPageSize());
+        Page<Map<String,Object>> page = this.orderRepository.searchOrder(pageable, orderRequestDTO.getStatus(),orderRequestDTO.getKeySearch());
+
+        List<Map<String,Object>> map = page.getContent();
+        List<OrderRequestDTO> lst = map.stream().map(item -> ReflectorUtil.mapToDTO(item , OrderRequestDTO.class)).collect(Collectors.toList());
+
+        Page<OrderRequestDTO> pageReturn = new PageImpl<>(lst, pageable,page.getTotalElements());
+
+        return new ServiceResult<>(pageReturn,HttpStatus.OK,"");
+    }
+
+    @Override
+    public ServiceResult<OrderViewDetailDTO> detailOrder(Long id) {
+
+        Map<String,Object> map = this.orderRepository.detailOrder(id);
+
+        OrderViewDetailDTO orderViewDetailDTO = ReflectorUtil.mapToDTO(map,OrderViewDetailDTO.class);
+
+        List<Map<String,Object>> odMap = this.orderRepository.getListOrderDetailOfOrder(orderViewDetailDTO.getOrderDetailConcat());
+        List<OrderDetailForCartDTO> orderDetailForCartDTOS = odMap.stream().map(item -> ReflectorUtil.mapToDTO(item, OrderDetailForCartDTO.class)).collect(Collectors.toList());
+
+        orderViewDetailDTO.setOrderDetailForCartDTOS(orderDetailForCartDTOS);
+
+        return new ServiceResult<>(orderViewDetailDTO,HttpStatus.OK,"");
     }
 
     @Override
@@ -233,6 +269,46 @@ public class OrderServiceImpl implements OrderService {
             serviceResult.setData(commentDTOReturn);
             return serviceResult;
 
+        }
+    }
+
+    @Override
+    public ServiceResult<?> updateOrder(OrderViewDetailDTO orderViewDetailDTO) {
+
+        List<Map<String,Object>> map = this.orderRepository.getListOrderDetailOfOrder(orderViewDetailDTO.getOrderDetailConcat());
+
+
+
+        List<OrderDetailForCartDTO> orderDetailForCartDTOS =map.stream().map(item->ReflectorUtil.mapToDTO(item,OrderDetailForCartDTO.class)).collect(Collectors.toList());
+//        List<OrderDetailForCartDTO> orderDetailForCartDTOS = orderViewDetailDTO.getOrderDetailForCartDTOS();
+
+
+        String err = "";
+        List<Long> productDetailIdLst=new ArrayList<>();
+        for(OrderDetailForCartDTO item :orderDetailForCartDTOS){
+            productDetailIdLst.add(item.getProductDetailId());
+            if(item.getQuantity()>item.getQuantityHave()){
+                err = "Số lượng hàng còn lại không đủ để dặt hàng";
+            }
+        }
+
+        if(StringUtils.isBlank(err)){
+            List<ProductDetail> productDetailList = this.productDetailRepository.findAllByIdIn(productDetailIdLst);
+            if(orderViewDetailDTO.getStatus()==1){
+                for (int i =0 ;i<productDetailList.size();i++){
+                    productDetailList.get(i).setQuantity(productDetailList.get(i).getQuantity() - orderDetailForCartDTOS.get(i).getQuantity()); // cập nhật lại số lượng sản phẩm
+                }
+            }else if(orderViewDetailDTO.getStatus()==4){
+                for (int i =0 ;i<productDetailList.size();i++){
+                    productDetailList.get(i).setQuantity(productDetailList.get(i).getQuantity() + orderDetailForCartDTOS.get(i).getQuantity()); // cập nhật lại số lượng sản phẩm
+                }
+            }
+            this.productDetailRepository.saveAll(productDetailList);
+            Optional<Orders> ordersOP = this.orderRepository.findById(orderViewDetailDTO.getId());
+            ordersOP.get().setStatus(orderViewDetailDTO.getStatus());
+            return new ServiceResult<>(null,HttpStatus.OK,"");
+        }else{
+            return new ServiceResult<>(null, HttpStatus.BAD_REQUEST,err);
         }
     }
 

@@ -24,10 +24,10 @@ public class Orders {
     @Column(name="payment_method")
     private Integer paymentMethod;//type_apparams PAYMENT
 
-    @Column(name="district_id")
+    @Column(name="province_id")
     private Long provinceId;
 
-    @Column(name="province_id")
+    @Column(name="district_id")
     private Long districtId;
 
     @Column(name="ward")
@@ -51,6 +51,9 @@ public class Orders {
     @Column(name="comment")
     private String comment;
 
+    @Column(name="note")
+    private String note;
+
     @Column(name="price")
     private Float price;// giá của tổng hóa đơn
 
@@ -67,6 +70,9 @@ public class Orders {
     @Column(name="ship_price")
     private float shipPrice;
 
+
+    @Column(name = "pay_status")
+    private Long payStatus;
 
     @ManyToOne
     @JoinColumn(name="user_id")
@@ -270,5 +276,21 @@ public class Orders {
 
     public void setWard(String ward) {
         this.ward = ward;
+    }
+
+    public Long getPayStatus() {
+        return payStatus;
+    }
+
+    public void setPayStatus(Long payStatus) {
+        this.payStatus = payStatus;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 }
