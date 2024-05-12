@@ -19,13 +19,13 @@ public class User {
     private String email;
 
     @Column(name="province_id")
-    private Long  provinceID;
+    private Long  provinceId;
 
     @Column(name="district_id")
-    private Long districtID;
+    private Long districtId;
 
-    @Column(name="ward_code")
-    private String wardCode;
+    @Column(name="ward")
+    private String ward;
 
     @Column(name="address")
     private String address;
@@ -49,6 +49,12 @@ public class User {
     @Column(name="create_time")
     private Instant createTime;
 
+    @Column(name="current_login")
+    private Instant currentLogin;
+
+    @Column(name="description")
+    private String description;
+
     @Column(name="status")
     private Long status;
     @Column(name = "reset_count")
@@ -61,23 +67,17 @@ public class User {
     @Column(name="full_name")
     private String fullName;
 
-    public Roles getRoles() {
-        return roles;
+    public User() {
     }
 
-    public void setRoles(Roles roles) {
-        this.roles = roles;
-    }
-
-    public User(){
-
-    }
-
-    public User(Long id, String username, String password, String email, String address, String phoneNumber, String avatar, String fileId, Roles roles, Long isActive, Instant createTime, Long status) {
+    public User(Long id, String username, String password, String email, Long provinceId, Long districtId, String ward, String address, String phoneNumber, String avatar, String fileId, Roles roles, Long isActive, Instant createTime, Instant currentLogin, String description, Long status, Integer resetCount, Long codeReset, Instant resetDate, String fullName) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.email = email;
+        this.provinceId = provinceId;
+        this.districtId = districtId;
+        this.ward = ward;
         this.address = address;
         this.phoneNumber = phoneNumber;
         this.avatar = avatar;
@@ -85,15 +85,13 @@ public class User {
         this.roles = roles;
         this.isActive = isActive;
         this.createTime = createTime;
+        this.currentLogin = currentLogin;
+        this.description = description;
         this.status = status;
-    }
-
-    public String getFileId() {
-        return fileId;
-    }
-
-    public void setFileId(String fileId) {
-        this.fileId = fileId;
+        this.resetCount = resetCount;
+        this.codeReset = codeReset;
+        this.resetDate = resetDate;
+        this.fullName = fullName;
     }
 
     public Long getId() {
@@ -128,6 +126,30 @@ public class User {
         this.email = email;
     }
 
+    public Long getProvinceId() {
+        return provinceId;
+    }
+
+    public void setProvinceId(Long provinceId) {
+        this.provinceId = provinceId;
+    }
+
+    public Long getDistrictId() {
+        return districtId;
+    }
+
+    public void setDistrictId(Long districtId) {
+        this.districtId = districtId;
+    }
+
+    public String getWard() {
+        return ward;
+    }
+
+    public void setWard(String ward) {
+        this.ward = ward;
+    }
+
     public String getAddress() {
         return address;
     }
@@ -152,6 +174,22 @@ public class User {
         this.avatar = avatar;
     }
 
+    public String getFileId() {
+        return fileId;
+    }
+
+    public void setFileId(String fileId) {
+        this.fileId = fileId;
+    }
+
+    public Roles getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Roles roles) {
+        this.roles = roles;
+    }
+
     public Long getIsActive() {
         return isActive;
     }
@@ -163,8 +201,25 @@ public class User {
     public Instant getCreateTime() {
         return createTime;
     }
+
     public void setCreateTime(Instant createTime) {
         this.createTime = createTime;
+    }
+
+    public Instant getCurrentLogin() {
+        return currentLogin;
+    }
+
+    public void setCurrentLogin(Instant currentLogin) {
+        this.currentLogin = currentLogin;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public Long getStatus() {

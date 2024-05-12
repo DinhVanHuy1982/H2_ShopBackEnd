@@ -1,15 +1,16 @@
 package com.example.h2_shop.service.impl;
 
 import com.example.h2_shop.Constant;
+import com.example.h2_shop.commons.ReflectorUtil;
 import com.example.h2_shop.model.Notify;
+import com.example.h2_shop.model.Orders;
 import com.example.h2_shop.model.Roles;
 import com.example.h2_shop.model.User;
-import com.example.h2_shop.model.dto.FileDto;
-import com.example.h2_shop.model.dto.NotifyDTO;
-import com.example.h2_shop.model.dto.UserDto;
+import com.example.h2_shop.model.dto.*;
 import com.example.h2_shop.model.mapper.NotifyMapper;
 import com.example.h2_shop.model.mapper.UserMapper;
 import com.example.h2_shop.repository.NotifyRepository;
+import com.example.h2_shop.repository.OrderRepository;
 import com.example.h2_shop.repository.RolesRepository;
 import com.example.h2_shop.repository.UserRepository;
 import com.example.h2_shop.service.FileService;
@@ -17,7 +18,12 @@ import com.example.h2_shop.service.MailService;
 import com.example.h2_shop.service.ServiceResult;
 import com.example.h2_shop.service.UserService;
 import io.micrometer.common.util.StringUtils;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,14 +35,19 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class UserServiceImpl implements UserService {
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    OrderRepository orderRepository;
 
     @Autowired
     FileService fileService;
@@ -57,6 +68,40 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> getAllUser() {
         return this.userRepository.findAllUsers();
+    }
+
+    @Override
+    public Page<UserResponseDTO> searchUser(SearchFormDTO searchFormDTO) {
+
+        Pageable pageable = PageRequest.of(searchFormDTO.getPage()-1, searchFormDTO.getPageSize());
+
+        Page<Map<String,Object>> map = this.userRepository.searchUser(pageable,searchFormDTO.getKeySearch(), searchFormDTO.getStatus());
+        List<UserResponseDTO> lst = map.getContent().stream().map(item -> ReflectorUtil.mapToDTO(item , UserResponseDTO.class)).collect(Collectors.toList());
+
+        Page<UserResponseDTO> pageReturn = new PageImpl<>(lst,pageable,map.getTotalElements());
+
+        return pageReturn;
+    }
+
+    @Override
+    public UserDto detailUser(Long id) {
+
+        Map<String,Object> map = this.userRepository.detailInforUser(id);
+        UserDto userDto = ReflectorUtil.mapToDTO(map,UserDto.class);
+
+        return userDto;
+    }
+
+    @Override
+    public ServiceResult<?> deleteUser(Long id) {
+
+        List<Orders> ordersOP = this.orderRepository.findByUserId(id);
+        if(ordersOP.isEmpty()){
+            this.userRepository.deleteById(id);
+            return new ServiceResult<>("",HttpStatus.OK,"Xóa thành công");
+        }else{
+            return new ServiceResult<>("",HttpStatus.BAD_REQUEST,"Tài khoản đã mua hàng, không được xóa");
+        }
     }
 
     @Override
@@ -90,8 +135,16 @@ public class UserServiceImpl implements UserService {
         if(serviceResultUser.getData()!=null){
             UserDto userDtoVali = serviceResultUser.getData();
             User user = this.userMapper.toEntity(userDtoVali);
-            user.setCreateTime(Instant.now());
-            user.setStatus(0L);
+            user.setFullName(userDto.getFullName());
+            if(userDto.getIsCreate()==1) {
+                user.setCreateTime(Instant.now());
+                String md5Hex = DigestUtils.md5Hex(userDtoVali.getPassword());
+                user.setPassword(md5Hex);
+            }
+
+            if(user.getStatus()==null){
+                user.setStatus(0L);
+            }
 
             FileDto fileDto = new FileDto();
             if(file!=null){ // kiểm tra có upload file ảnh đại diện hay không
@@ -288,7 +341,8 @@ public class UserServiceImpl implements UserService {
             serviceResult.setStatus(HttpStatus.BAD_REQUEST);
             serviceResult.setMessage("Mật khẩu không được để trống");
         }else{
-            Optional<User> userOP = this.userRepository.findByUsernameAndPassword(userDto.getUsername(),userDto.getPassword());
+            String md5Hex = DigestUtils.md5Hex(userDto.getPassword());
+            Optional<User> userOP = this.userRepository.findByUsernameAndPassword(userDto.getUsername(),md5Hex);
             if (userOP.isPresent()){
                 userDto = this.userMapper.toDto(userOP.get());
                 serviceResult.setMessage("Đăng nhập thành công");
@@ -416,10 +470,21 @@ public class UserServiceImpl implements UserService {
             messError.append("Username không được để trống");
             userServiceResult.setStatus(HttpStatus.BAD_REQUEST);
         }else{
-            Optional<User> userCheckUserName = this.userRepository.findByUsername(userDto.getUsername());
-            if(userCheckUserName.isPresent()){
-                messError.append("Username đã tồn tại");
-                userServiceResult.setStatus(HttpStatus.BAD_REQUEST);
+            if(userDto.getIsCreate()==1){
+                Optional<User> userCheckUserName = this.userRepository.findByUsername(userDto.getUsername());
+                if(userCheckUserName.isPresent()){
+                    messError.append("Username đã tồn tại");
+                    userServiceResult.setStatus(HttpStatus.BAD_REQUEST);
+                }
+            }else{
+                Optional<User> userCheckUserName = this.userRepository.findByUsername(userDto.getUsername());
+
+                if(!userCheckUserName.isPresent()){
+                    messError.append("Username không tồn tồn tại");
+                    userServiceResult.setStatus(HttpStatus.BAD_REQUEST);
+                }else{
+                    userDto.setPassword(userCheckUserName.get().getPassword());
+                }
             }
         }
 
@@ -446,13 +511,15 @@ public class UserServiceImpl implements UserService {
         }
 
         //password
-        if(userDto.getPassword().isEmpty()){
-            userServiceResult.setStatus(HttpStatus.BAD_REQUEST);
-            messError.append(" Mật khẩu Không được để trống");
-        }else{
-            if(userDto.getPassword().length()<=6){
+        if(userDto.getIsCreate()==1){
+            if(StringUtils.isBlank(userDto.getPassword())){
                 userServiceResult.setStatus(HttpStatus.BAD_REQUEST);
-                messError.append(" Mật khẩu phải nhiều hơn 6 kí tự ");
+                messError.append(" Mật khẩu Không được để trống");
+            }else{
+                if(userDto.getPassword().length()<=6){
+                    userServiceResult.setStatus(HttpStatus.BAD_REQUEST);
+                    messError.append(" Mật khẩu phải nhiều hơn 6 kí tự ");
+                }
             }
         }
 

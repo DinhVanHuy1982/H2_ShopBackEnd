@@ -149,4 +149,6 @@ public interface OrderRepository extends JpaRepository<Orders,Long> {
             "WHERE\n" +
             "    FIND_IN_SET(od.id, :orderDetailIdConcat) > 0;\n",nativeQuery = true)
     List<Map<String,Object>> getListOrderDetailOfOrder(@Param("orderDetailIdConcat")String orderDetailIdlst);
+
+    List<Orders> findByUserId(Long userId);
 }

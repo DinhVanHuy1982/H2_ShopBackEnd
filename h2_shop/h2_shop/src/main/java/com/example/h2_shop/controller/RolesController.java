@@ -63,6 +63,11 @@ public class RolesController {
         return this.rolesService.updateRole(rolesDTO);
     }
 
+    @GetMapping("/get-all")
+    public ServiceResult<?> searchAllRole(){
+        return new ServiceResult<>(this.rolesService.getAllRole(),HttpStatus.OK,"");
+    }
+
     @GetMapping("delete-role/{id}")
     public ServiceResult<?> deleteRoleById(@PathVariable Long id){
         return this.rolesService.deleteRoleById(id);

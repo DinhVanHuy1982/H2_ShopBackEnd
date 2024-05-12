@@ -7,15 +7,14 @@ import lombok.Data;
 import java.time.Instant;
 //import org.springframework.security.core.GrantedAuthority;
 
-@Data
 public class UserDto {
     private Long id;
     private String username;
+    private String fullName;
     private String password;
     private String email;
     private String address;
     private String phoneNumber;
-
     private String avatar;
     private String fileId;
     private Roles roles;
@@ -25,14 +24,20 @@ public class UserDto {
     private Integer resetCount;
     private Long codeReset;
     private Instant resetDate;
+    private Instant currentLogin;
+    private String description;
+    private Long  provinceId;
+    private Long districtId;
+    private String ward;
+    private Integer isCreate;
 
     private Long roleId;
     private FileDto fileDto;
 
-//    private GrantedAuthority grantedAuthority;
+    public UserDto() {
+    }
 
-
-    public UserDto(Long id, String username, String password, String email, String address, String phoneNumber, String avatar, String fileId, Roles roles, Long isActive, Instant createTime, Long status) {
+    public UserDto(Long id, String username, String password, String email, String address, String phoneNumber, String avatar, String fileId, Roles roles, Long isActive, Instant createTime, Long status, Integer resetCount, Long codeReset, Instant resetDate, Instant currentLogin, String description, Long provinceId, Long districtId, String ward, Integer isCreate, Long roleId, FileDto fileDto) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -45,6 +50,17 @@ public class UserDto {
         this.isActive = isActive;
         this.createTime = createTime;
         this.status = status;
+        this.resetCount = resetCount;
+        this.codeReset = codeReset;
+        this.resetDate = resetDate;
+        this.currentLogin = currentLogin;
+        this.description = description;
+        this.provinceId = provinceId;
+        this.districtId = districtId;
+        this.ward = ward;
+        this.isCreate = isCreate;
+        this.roleId = roleId;
+        this.fileDto = fileDto;
     }
 
     public Long getId() {
@@ -103,6 +119,14 @@ public class UserDto {
         this.avatar = avatar;
     }
 
+    public String getFileId() {
+        return fileId;
+    }
+
+    public void setFileId(String fileId) {
+        this.fileId = fileId;
+    }
+
     public Roles getRoles() {
         return roles;
     }
@@ -111,12 +135,12 @@ public class UserDto {
         this.roles = roles;
     }
 
-    public Long getRoleId() {
-        return roleId;
+    public Long getIsActive() {
+        return isActive;
     }
 
-    public void setRoleId(Long roleId) {
-        this.roleId = roleId;
+    public void setIsActive(Long isActive) {
+        this.isActive = isActive;
     }
 
     public Instant getCreateTime() {
@@ -126,6 +150,7 @@ public class UserDto {
     public void setCreateTime(Instant createTime) {
         this.createTime = createTime;
     }
+
     public Long getStatus() {
         return status;
     }
@@ -134,13 +159,6 @@ public class UserDto {
         this.status = status;
     }
 
-    public FileDto getFileDto() {
-        return fileDto;
-    }
-
-    public void setFileDto(FileDto fileDto) {
-        this.fileDto = fileDto;
-    }
     public Integer getResetCount() {
         return resetCount;
     }
@@ -165,12 +183,75 @@ public class UserDto {
         this.resetDate = resetDate;
     }
 
+    public Instant getCurrentLogin() {
+        return currentLogin;
+    }
 
-//    public GrantedAuthority getGrantedAuthority() {
-//        return grantedAuthority;
-//    }
-//
-//    public void setGrantedAuthority(GrantedAuthority grantedAuthority) {
-//        this.grantedAuthority = grantedAuthority;
-//    }
+    public void setCurrentLogin(Instant currentLogin) {
+        this.currentLogin = currentLogin;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Long getProvinceId() {
+        return provinceId;
+    }
+
+    public void setProvinceId(Long provinceId) {
+        this.provinceId = provinceId;
+    }
+
+    public Long getDistrictId() {
+        return districtId;
+    }
+
+    public void setDistrictId(Long districtId) {
+        this.districtId = districtId;
+    }
+
+    public String getWard() {
+        return ward;
+    }
+
+    public void setWard(String ward) {
+        this.ward = ward;
+    }
+
+    public Integer getIsCreate() {
+        return isCreate;
+    }
+
+    public void setIsCreate(Integer isCreate) {
+        this.isCreate = isCreate;
+    }
+
+    public Long getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(Long roleId) {
+        this.roleId = roleId;
+    }
+
+    public FileDto getFileDto() {
+        return fileDto;
+    }
+
+    public void setFileDto(FileDto fileDto) {
+        this.fileDto = fileDto;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
 }

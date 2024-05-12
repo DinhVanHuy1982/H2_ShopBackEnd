@@ -16,12 +16,30 @@ import java.util.Optional;
 @Transactional
 public interface RolesRepository extends JpaRepository<Roles, Long> {
 
-    @Query(value = "select r.id, r.create_name createName, r.create_time createTime, r.description description,r.role_code roleCode,\n" +
-            " r.role_name roleName, r.update_name updateName, r.update_time updateTime  , count(u.role_id) as UserUse , rd.function_id, rd.role_id, rd.action\n" +
-            "from roles r \n" +
-            " join role_details rd on rd.role_id = r.id  \n" +
-            " left join `user` u on u.role_id = r.id \n" +
-            " group by r.id, rd.function_id", nativeQuery = true)
+    @Query(value = "select\n" +
+            "\tr.id,\n" +
+            "\tr.create_name createName,\n" +
+            "\tr.create_time createTime,\n" +
+            "\tr.description description,\n" +
+            "\tr.role_code roleCode,\n" +
+            "\tr.role_name roleName,\n" +
+            "\tr.update_name updateName,\n" +
+            "\tr.update_time updateTime ,\n" +
+            "\tcount(u.role_id) as UserUse\n" +
+            "from\n" +
+            "\troles r\n" +
+            "left join `user` u \n" +
+            "on\n" +
+            "\tu.role_id = r.id\n" +
+            "group by\n" +
+            "\tr.id,\n" +
+            "\tr.create_name,\n" +
+            "\tr.create_time,\n" +
+            "\tr.description,\n" +
+            "\tr.role_code,\n" +
+            "\tr.role_name,\n" +
+            "\tr.update_name,\n" +
+            "\tr.update_time", nativeQuery = true)
     public List<Map<String,Object>> getAllRoles();
 
     public Optional<Roles> findByRoleCode(String roleCode);
