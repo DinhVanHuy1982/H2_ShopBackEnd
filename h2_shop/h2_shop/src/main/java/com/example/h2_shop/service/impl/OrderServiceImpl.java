@@ -172,6 +172,10 @@ public class OrderServiceImpl implements OrderService {
 //            productDetailList = this.productDetailRepository.saveAll(productDetailList); // đổi nghiệp vụ giảm số lượng sản phẩm khi đặt hàng
             ordersDTO = this.orderMapper.toDto(orders);
             ordersDTO.setOrderDetailDTOList(orderDetailDTOS);
+
+
+            // thêm thông báo tới cho người dùng
+
             serviceResult.setData(ordersDTO);
             serviceResult.setStatus(HttpStatus.OK);
             serviceResult.setMessage("Lưu thành công");

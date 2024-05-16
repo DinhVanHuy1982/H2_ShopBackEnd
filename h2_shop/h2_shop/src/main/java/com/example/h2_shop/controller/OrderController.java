@@ -57,7 +57,7 @@ public class OrderController {
     }
 
     /**
-     * Lấy danh sách order của khách hàng: phần trang
+     * Lấy danh sách order của khách hàng: phần trang  phía admin
      *
      * @param
      * @return

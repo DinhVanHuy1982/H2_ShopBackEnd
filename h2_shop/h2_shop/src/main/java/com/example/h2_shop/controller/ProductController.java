@@ -30,6 +30,16 @@ public class ProductController {
         return ResponseEntity.ok(stringServiceResult);
     }
 
+    @PostMapping(value ="/product/updateProduct", consumes = {"multipart/form-data"})
+    public ResponseEntity<ServiceResult<?>> updateProduct(@RequestPart(value = "file",required = false) List<MultipartFile> fileAvatar,
+                                                          @RequestPart(value="productDTO") ProductDTO productDTO,
+                                                          @RequestPart(value = "sizeList",required = false)List<SizeDTO> sizeDTOList,
+                                                          @RequestPart(value = "typeProductList",required = false)List<TypeProductDTO> typeProductDTOList){
+        ServiceResult<?> stringServiceResult = this.productService.updateProduct(fileAvatar, productDTO,sizeDTOList, typeProductDTOList);
+        return ResponseEntity.ok(stringServiceResult);
+    }
+
+
     @PostMapping(value ="/product/comment", consumes = {"multipart/form-data"})
     public ResponseEntity<ServiceResult<?>> createComment(@RequestPart(value = "file",required = false) List<MultipartFile> fileAvatar){
         ServiceResult<?> stringServiceResult = this.productService.createComment(fileAvatar);

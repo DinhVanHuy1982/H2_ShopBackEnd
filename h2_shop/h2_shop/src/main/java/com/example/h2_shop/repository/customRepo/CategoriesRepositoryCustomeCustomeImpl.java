@@ -35,7 +35,7 @@ public class CategoriesRepositoryCustomeCustomeImpl implements CategoriesReposit
         String sql = "WITH RECURSIVE cte (id, parent_id) AS (\n" +
                 "    SELECT ct.id, ct.parent_id\n" +
                 "    FROM categories ct" +
-                "    where 1=1 and (:status is null or ct.status=:status) and (upper(ct.categori_name) like (:search) or upper(ct.categori_code) like (:search) or :search is null)\n" +
+                "    where 1=1 and (:status is null or ct.status=:status) and (upper(ct.categori_name) like concat('%',:search,'%') or upper(ct.categori_code) like concat('%',:search,'%') or :search is null)\n" +
                 "    UNION \n" +
                 "    SELECT ct2.id, ct2.parent_id\n" +
                 "    FROM categories ct2\n" +

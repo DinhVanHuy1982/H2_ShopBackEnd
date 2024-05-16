@@ -152,6 +152,13 @@ public class ProductServiceImpl implements ProductService {
 
         product.setCreateTime(Instant.now());
         product = this.productRepository.save(product);
+        if(productDTO.getBrandId()!=null){
+            BrandProduct brandProduct = new BrandProduct();
+            Brands brands = new Brands();
+            brands.setId(productDTO.getBrandId());
+            brandProduct.setProduct(product);
+            brandProduct.setBrands(brands);
+        }
 
         // lấy ra danh sách các loại và kiểu chưa được xếp số lượng thì gán chúng bằng 0
         List<ProductDetailDTO> productDetailDTOS = new ArrayList<>(); // danh sách productDetail không có số lượng
@@ -216,30 +223,6 @@ public class ProductServiceImpl implements ProductService {
                 List<ProductImgDTO> productImgDTOList = this.productImgMapper.toDto(productImgList);
                 productDTOReturn.setProductImgDTOList(productImgDTOList);
             }
-//            for(int i = 0; i<listFileAvatar.size();i++){
-//                LocalDateTime currentTime = LocalDateTime.now();
-//                String id = currentTime.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-//
-//                String fileName = listFileAvatar.get(i).getOriginalFilename();
-//                String pathSaveImg = "D:\\IMG_SAVE\\"+id+"_"+fileName;
-//                File fileIMG = new File(pathSaveImg);
-//                try {
-//                    OutputStream opt = new FileOutputStream(fileIMG);
-//                    opt.write(listFileAvatar.get(i).getBytes());
-//                    Product product = this.productMapper.toEntity(productDTO);
-//                    Instant createTime = Instant.now();
-//                    product.setCreateTime(createTime);
-//
-//                    List<Size> listSize = this.sizeMapper.toEntity(productDTO.getSizeDTOList());
-//
-//
-//                    countSuccess++;
-//                } catch (FileNotFoundException e) {
-//                    throw new RuntimeException(e);
-//                } catch (IOException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }
         }
 
         if(productDTO.getBrandId()!=null){
@@ -251,6 +234,145 @@ public class ProductServiceImpl implements ProductService {
              BrandProductDTO brandProductDTO = this.brandProductMapper.toDto(brandProduct);
              brandProductDTO.setCategoryCode(productDTOReturn.getCategories().getCategoriCode());
              productDTOReturn.setBrandProductDTO(brandProductDTO);
+        }
+
+        serviceResult.setData(productDTOReturn);
+        serviceResult.setStatus(HttpStatus.OK);
+        serviceResult.setMessage("Luu thanh cong");
+        return serviceResult;
+    }
+
+    @Override
+    public ServiceResult<?> updateProduct(List<MultipartFile> listFileAvatar, ProductDTO productDTO, List<SizeDTO> sizeDTOList, List<TypeProductDTO> typeProductDTOList) {
+        int countSuccess = 0;
+        String errVali = this.validationProduct(productDTO,sizeDTOList,typeProductDTOList);
+        ServiceResult<ProductDTO> serviceResult = new ServiceResult<>();
+        if(errVali.length()>0){
+            serviceResult.setData(null);
+            serviceResult.setMessage(errVali);
+            serviceResult.setStatus(HttpStatus.BAD_REQUEST);
+
+            return serviceResult;
+        }
+
+        ProductDTO productDTOReturn = new ProductDTO();
+        Product product = this.productMapper.toEntity(productDTO);
+        if(productDTO.getCategoriesID()!=null){
+            Optional<Categories> categoriesOp = this.categoriesRepository.findById(productDTO.getCategoriesID());
+            if(categoriesOp.isPresent()){ // check xem có tôn tại categori này hay không
+                Optional<Categories> categoriesParent = this.categoriesRepository.findByParentId(productDTO.getCategoriesID());
+                if(categoriesParent.isEmpty()){  // check xem categori có là danh mục cha của 1 danh mục nào đó hay không
+                    product.setCategories(categoriesOp.get());
+                }
+            }
+        }
+
+        List<ProductDetailDTO> productDetailDTOList = productDTO.getListProductDetail();// sản phẩm có số lượng được thêm vào bảng
+        // size
+        List<Size> sizeList = new ArrayList<>();
+        if(sizeDTOList!=null){
+            sizeList = this.sizeMapper.toEntity(sizeDTOList);
+            for(int i=0;i<sizeList.size();i++){
+                sizeList.get(i).setCreateName(sizeList.get(i).getSizeName());
+                sizeList.get(i).setCreateTime(Instant.now());
+            }
+            sizeList = this.sizeRepository.saveAll(sizeList);
+
+            for(int i=0;i<productDetailDTOList.size();i++){
+                productDetailDTOList.get(i).setSize(sizeList.get(productDetailDTOList.get(i).getPositionSize()-1));
+            }
+        }
+        //typeProduct
+        List<TypeProduct> typeProductList = new ArrayList<>();
+        if(typeProductDTOList!=null){
+            typeProductList = this.typeProductMapper.toEntity(typeProductDTOList);
+            for(int i=0;i<typeProductList.size();i++){
+                typeProductList.get(i).setCreateTime(Instant.now());
+            }
+            typeProductList = this.typeProductRepository.saveAll(typeProductList);
+
+            for(int i=0;i<productDetailDTOList.size();i++){
+                productDetailDTOList.get(i).setTypeProduct(typeProductList.get(productDetailDTOList.get(i).getPositionType()-1));
+            }
+        }
+
+        product.setCreateTime(Instant.now());
+        product = this.productRepository.save(product);
+
+        // lấy ra danh sách các loại và kiểu chưa được xếp số lượng thì gán chúng bằng 0
+        List<ProductDetailDTO> productDetailDTOS = new ArrayList<>(); // danh sách productDetail không có số lượng
+        if(!sizeList.isEmpty() && !typeProductList.isEmpty()){
+
+            // lấy ra danh sách kết hợp tất cả các trường hợp có thể xảy ra khi kết hợp size và type
+            for(int i=0;i<sizeList.size();i++){
+                for (int j=0;j<typeProductList.size();j++){
+                    ProductDetailDTO productDetailDTO = new ProductDetailDTO();
+                    productDetailDTO.setSize(sizeList.get(i));
+                    productDetailDTO.setTypeProduct(typeProductList.get(j));
+                    productDetailDTO.setProduct(product);
+                    productDetailDTO.setQuantity(0L);
+                    productDetailDTOS.add(productDetailDTO);
+                }
+            }
+
+            // loại bỏ những bản ghi orderDeatil đã được lưu trước đó
+            for(int i=0;i<productDetailDTOS.size();i++){
+                for(int j=0;j<productDetailDTOList.size();j++){
+                    if(productDetailDTOS.get(i).getSize().getId() == productDetailDTOList.get(j).getSize().getId()
+                            && productDetailDTOS.get(i).getTypeProduct().getId() == productDetailDTOList.get(j).getTypeProduct().getId()){
+                        productDetailDTOS.remove(i);
+                        i--;break;
+                    }
+                }
+            }
+            List<ProductDetail> productDetails = this.productDetailMapper.toEntity(productDetailDTOS);
+            productDetails = this.productDetailRepository.saveAll(productDetails);
+        }
+
+        for (int i=0;i<productDetailDTOList.size();i++){
+            productDetailDTOList.get(i).setProduct(product);
+        }
+
+        List<ProductDetail> productDetailList = this.productDetailMapper.toEntity(productDetailDTOList);
+        productDetailList = this.productDetailRepository.saveAll(productDetailList);
+        productDetailDTOList = this.productDetailMapper.toDto(productDetailList);
+
+        productDTOReturn = this.productMapper.toDto(product);
+        productDTOReturn.setListProductDetail(productDetailDTOList);
+
+
+        if(listFileAvatar!=null){
+            ServiceResult<List<FileDto>> fileDtoServiceResult = this.fileService.createListFile(listFileAvatar);
+            List<ProductImg> productImgList = new ArrayList<>();
+            if(fileDtoServiceResult.getStatus()==HttpStatus.OK){
+                List<FileDto> fileDtos = fileDtoServiceResult.getData();
+                for(int i=0;i<fileDtos.size();i++){
+                    ProductImg productImg = new ProductImg();
+                    if(i==0){
+                        productImg.setAvatar(true);
+                    }
+                    productImg.setType("IMGPRODUCT");
+                    productImg.setProduct(product);
+                    productImg.setFileId(fileDtos.get(i).getFileId());
+                    productImg.setFileName(fileDtos.get(i).getFileName());
+                    productImg.setFileSize(fileDtos.get(i).getFileSize()+" byte");
+                    productImgList.add(productImg);
+                }
+                productImgList = this.productImgRepository.saveAll(productImgList);
+                List<ProductImgDTO> productImgDTOList = this.productImgMapper.toDto(productImgList);
+                productDTOReturn.setProductImgDTOList(productImgDTOList);
+            }
+        }
+
+        if(productDTO.getBrandId()!=null){
+            BrandProduct brandProduct = new BrandProduct();
+            brandProduct.setProduct(product);
+            brandProduct.setBrands(this.brandRepository.findById(productDTO.getBrandId()).get());
+            brandProduct.setImportDate(Instant.now());
+            brandProduct = this.brandProductRepository.save(brandProduct);
+            BrandProductDTO brandProductDTO = this.brandProductMapper.toDto(brandProduct);
+            brandProductDTO.setCategoryCode(productDTOReturn.getCategories().getCategoriCode());
+            productDTOReturn.setBrandProductDTO(brandProductDTO);
         }
 
         serviceResult.setData(productDTOReturn);
