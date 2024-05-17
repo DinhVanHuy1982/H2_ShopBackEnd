@@ -5,6 +5,7 @@ import java.util.List;
 public class RoleDetailReturnDTO {
     private Long id;
     private String roleName;
+    private String roleCode;
     private Integer status;
     private String description;
     private List<FunctionsDTO> lstFunction;
@@ -58,5 +59,13 @@ public class RoleDetailReturnDTO {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getRoleCode() {
+        return roleCode;
+    }
+
+    public void setRoleCode(String roleCode) {
+        this.roleCode = roleCode;
     }
 }

@@ -99,7 +99,7 @@ public class ProductServiceImpl implements ProductService {
     public ServiceResult<ProductDTO> createProduct(List<MultipartFile> listFileAvatar, ProductDTO productDTO, List<SizeDTO> sizeDTOList, List<TypeProductDTO> typeProductDTOList) {
 
         int countSuccess = 0;
-        String errVali = this.validationProduct(productDTO,sizeDTOList,typeProductDTOList);
+        String errVali = this.validationProduct(productDTO,sizeDTOList,typeProductDTOList, true);
         ServiceResult<ProductDTO> serviceResult = new ServiceResult<>();
         if(errVali.length()>0){
             serviceResult.setData(null);
@@ -243,103 +243,98 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ServiceResult<?> updateProduct(List<MultipartFile> listFileAvatar, ProductDTO productDTO, List<SizeDTO> sizeDTOList, List<TypeProductDTO> typeProductDTOList) {
-        int countSuccess = 0;
-        String errVali = this.validationProduct(productDTO,sizeDTOList,typeProductDTOList);
-        ServiceResult<ProductDTO> serviceResult = new ServiceResult<>();
-        if(errVali.length()>0){
-            serviceResult.setData(null);
-            serviceResult.setMessage(errVali);
-            serviceResult.setStatus(HttpStatus.BAD_REQUEST);
+    public ServiceResult<?> updateProduct(List<MultipartFile> listFileAvatar,ProductDetailResponseDTO productResponseDTO, List<SizeDTO> sizeDTOList, List<TypeProductDTO> typeProductDTOList) {
 
-            return serviceResult;
+        Optional<Product> productOP = this.productRepository.findById(productResponseDTO.getId());
+        Product product = new Product();
+        if(productOP.isPresent()){
+            product=productOP.get();
+            product.setId(productResponseDTO.getId());
+            product.setProductCode(product.getProductCode());
+            Categories categories = new Categories();
+            categories.setId(productResponseDTO.getCategoriesID());
+            product.setCategories(categories);
+            product.setPrice(productResponseDTO.getPrice());
+            product.setDescription(productResponseDTO.getDescription());
+            product.setProductName(productResponseDTO.getProductName());
+        }else{
+            return new ServiceResult<>(null, HttpStatus.BAD_REQUEST,"Sản phẩm không tồn tại");
         }
 
-        ProductDTO productDTOReturn = new ProductDTO();
-        Product product = this.productMapper.toEntity(productDTO);
-        if(productDTO.getCategoriesID()!=null){
-            Optional<Categories> categoriesOp = this.categoriesRepository.findById(productDTO.getCategoriesID());
-            if(categoriesOp.isPresent()){ // check xem có tôn tại categori này hay không
-                Optional<Categories> categoriesParent = this.categoriesRepository.findByParentId(productDTO.getCategoriesID());
-                if(categoriesParent.isEmpty()){  // check xem categori có là danh mục cha của 1 danh mục nào đó hay không
-                    product.setCategories(categoriesOp.get());
+        String err = this.validationProduct(this.productMapper.toDto(product),null,null,false);
+        if(!err.isBlank()){
+            return new ServiceResult<>(null,HttpStatus.BAD_REQUEST,err);
+        }
+
+        List<ProductDetail> productDetails = new ArrayList<>(); // lấy ra danh sách productdetail không bị ảnh hưởng bởi thay đổi trang thái
+        List<TypeSizeDTO> listTypeSize = productResponseDTO.getListProductDetail();
+        for(int i =0;i< listTypeSize.size();i++){
+            if(listTypeSize.get(i).getTypeId()!=null && listTypeSize.get(i).getSizeId()!=null){
+                Optional<ProductDetail> productDetailOP = this.productDetailRepository.findByTypeIdSizeIdProductId( listTypeSize.get(i).getTypeId(), listTypeSize.get(i).getSizeId(),productResponseDTO.getId());
+                if(productDetailOP.isPresent()){
+                    productDetails.add(productDetailOP.get());
                 }
             }
         }
 
-        List<ProductDetailDTO> productDetailDTOList = productDTO.getListProductDetail();// sản phẩm có số lượng được thêm vào bảng
-        // size
-        List<Size> sizeList = new ArrayList<>();
-        if(sizeDTOList!=null){
-            sizeList = this.sizeMapper.toEntity(sizeDTOList);
-            for(int i=0;i<sizeList.size();i++){
-                sizeList.get(i).setCreateName(sizeList.get(i).getSizeName());
-                sizeList.get(i).setCreateTime(Instant.now());
-            }
-            sizeList = this.sizeRepository.saveAll(sizeList);
+        List<ProductDetail> productDetailListAllOfProduct = this.productDetailRepository.findAllByProductId(productResponseDTO.getId());// lấy ra danh sách productdetail thuộc sản phẩm trước khi cập nhật
 
-            for(int i=0;i<productDetailDTOList.size();i++){
-                productDetailDTOList.get(i).setSize(sizeList.get(productDetailDTOList.get(i).getPositionSize()-1));
-            }
-        }
-        //typeProduct
-        List<TypeProduct> typeProductList = new ArrayList<>();
-        if(typeProductDTOList!=null){
-            typeProductList = this.typeProductMapper.toEntity(typeProductDTOList);
-            for(int i=0;i<typeProductList.size();i++){
-                typeProductList.get(i).setCreateTime(Instant.now());
-            }
-            typeProductList = this.typeProductRepository.saveAll(typeProductList);
-
-            for(int i=0;i<productDetailDTOList.size();i++){
-                productDetailDTOList.get(i).setTypeProduct(typeProductList.get(productDetailDTOList.get(i).getPositionType()-1));
+        // lấy ra danh sách productDetail cần xóa
+        List<ProductDetail> productDetailDelete = new ArrayList<>(productDetailListAllOfProduct);
+        productDetailDelete.removeAll(productDetails);
+        for(int i =0;i<productDetailDelete.size();i++){
+            if(productDetailDelete.get(i).getQuantity()!=0){
+                return new ServiceResult<>("",HttpStatus.BAD_REQUEST, "Loại hoặc kích cỡ xóa đang còn trong kho, không được xóa");
             }
         }
 
-        product.setCreateTime(Instant.now());
-        product = this.productRepository.save(product);
+        List<TypeProduct> lstNewType = this.typeProductMapper.toEntity(typeProductDTOList);
+        for(int i=0;i<lstNewType.size();i++){
+            if(StringUtils.isBlank(lstNewType.get(i).getTypeName())){
+                return  new ServiceResult<>("",HttpStatus.BAD_REQUEST,"Tên loại không được để trống");
+            }else{
+                lstNewType.get(i).setCreateTime(Instant.now());
+            }
+        }
 
-        // lấy ra danh sách các loại và kiểu chưa được xếp số lượng thì gán chúng bằng 0
-        List<ProductDetailDTO> productDetailDTOS = new ArrayList<>(); // danh sách productDetail không có số lượng
-        if(!sizeList.isEmpty() && !typeProductList.isEmpty()){
 
-            // lấy ra danh sách kết hợp tất cả các trường hợp có thể xảy ra khi kết hợp size và type
-            for(int i=0;i<sizeList.size();i++){
-                for (int j=0;j<typeProductList.size();j++){
-                    ProductDetailDTO productDetailDTO = new ProductDetailDTO();
-                    productDetailDTO.setSize(sizeList.get(i));
-                    productDetailDTO.setTypeProduct(typeProductList.get(j));
-                    productDetailDTO.setProduct(product);
-                    productDetailDTO.setQuantity(0L);
-                    productDetailDTOS.add(productDetailDTO);
+        List<Size> lstNewSize = this.sizeMapper.toEntity(sizeDTOList);
+        for(int i=0;i<lstNewSize.size();i++){
+            if(StringUtils.isBlank(lstNewSize.get(i).getSizeName())){
+                return  new ServiceResult<>("",HttpStatus.BAD_REQUEST,"Kích cỡ không được để trống");
+            }else{
+                lstNewSize.get(i).setCreateTime(Instant.now());
+            }
+        }
+
+
+
+        List<Size> sizeList = this.sizeRepository.saveAll(lstNewSize);
+        List<TypeProduct> typeProductList = this.typeProductRepository.saveAll(lstNewType);
+
+        List<ProductDetail> allPdUpdate = new ArrayList<>();
+        for(int i=0;i<sizeList.size();i++){
+            for(int j=0;j<typeProductList.size();j++){
+                ProductDetail productDetail = new ProductDetail();
+                productDetail.setTypeProduct(typeProductList.get(j));
+                productDetail.setSize(sizeList.get(i));
+                productDetail.setProduct(product);
+                productDetail.setQuantity(0L);
+                allPdUpdate.add(productDetail);
+            }
+        }
+
+        for(int i=0;i<allPdUpdate.size();i++){
+            for(int j=0;j<productDetails.size();j++){
+                if(allPdUpdate.get(i).getSize().getId() == productDetails.get(j).getSize().getId()
+                    && allPdUpdate.get(i).getTypeProduct().getId() == productDetails.get(j).getTypeProduct().getId()
+                ){
+                    allPdUpdate.remove(i);i--;break;
                 }
             }
-
-            // loại bỏ những bản ghi orderDeatil đã được lưu trước đó
-            for(int i=0;i<productDetailDTOS.size();i++){
-                for(int j=0;j<productDetailDTOList.size();j++){
-                    if(productDetailDTOS.get(i).getSize().getId() == productDetailDTOList.get(j).getSize().getId()
-                            && productDetailDTOS.get(i).getTypeProduct().getId() == productDetailDTOList.get(j).getTypeProduct().getId()){
-                        productDetailDTOS.remove(i);
-                        i--;break;
-                    }
-                }
-            }
-            List<ProductDetail> productDetails = this.productDetailMapper.toEntity(productDetailDTOS);
-            productDetails = this.productDetailRepository.saveAll(productDetails);
         }
-
-        for (int i=0;i<productDetailDTOList.size();i++){
-            productDetailDTOList.get(i).setProduct(product);
-        }
-
-        List<ProductDetail> productDetailList = this.productDetailMapper.toEntity(productDetailDTOList);
-        productDetailList = this.productDetailRepository.saveAll(productDetailList);
-        productDetailDTOList = this.productDetailMapper.toDto(productDetailList);
-
-        productDTOReturn = this.productMapper.toDto(product);
-        productDTOReturn.setListProductDetail(productDetailDTOList);
-
+        this.productDetailRepository.saveAll(allPdUpdate);
+        this.productDetailRepository.deleteAll(productDetailDelete);
 
         if(listFileAvatar!=null){
             ServiceResult<List<FileDto>> fileDtoServiceResult = this.fileService.createListFile(listFileAvatar);
@@ -358,58 +353,46 @@ public class ProductServiceImpl implements ProductService {
                     productImg.setFileSize(fileDtos.get(i).getFileSize()+" byte");
                     productImgList.add(productImg);
                 }
-                productImgList = this.productImgRepository.saveAll(productImgList);
-                List<ProductImgDTO> productImgDTOList = this.productImgMapper.toDto(productImgList);
-                productDTOReturn.setProductImgDTOList(productImgDTOList);
+                this.productImgRepository.saveAll(productImgList);
             }
         }
+        // xóa những file người dùng đã xóa
+        this.productImgRepository.deleteAllById(productResponseDTO.getImgDelete());
 
-        if(productDTO.getBrandId()!=null){
-            BrandProduct brandProduct = new BrandProduct();
-            brandProduct.setProduct(product);
-            brandProduct.setBrands(this.brandRepository.findById(productDTO.getBrandId()).get());
-            brandProduct.setImportDate(Instant.now());
-            brandProduct = this.brandProductRepository.save(brandProduct);
-            BrandProductDTO brandProductDTO = this.brandProductMapper.toDto(brandProduct);
-            brandProductDTO.setCategoryCode(productDTOReturn.getCategories().getCategoriCode());
-            productDTOReturn.setBrandProductDTO(brandProductDTO);
-        }
-
-        serviceResult.setData(productDTOReturn);
-        serviceResult.setStatus(HttpStatus.OK);
-        serviceResult.setMessage("Luu thanh cong");
-        return serviceResult;
+        return new ServiceResult<>("",HttpStatus.OK,"Cập nhật thành công");
     }
 
-    public String validationProduct(ProductDTO productDTO, List<SizeDTO> sizeDTOList, List<TypeProductDTO> typeProductDTOList){
+    public String validationProduct(ProductDTO productDTO, List<SizeDTO> sizeDTOList, List<TypeProductDTO> typeProductDTOList, boolean isCreate){
         StringBuilder err=new StringBuilder();
 
         //validation productDetail with size and type
-        List<ProductDetailDTO> productDetailDTOList = productDTO.getListProductDetail();
-        if(productDetailDTOList!=null && sizeDTOList!=null && typeProductDTOList!=null){
-            for(int i=0;i<productDetailDTOList.size();i++){
-                if(productDetailDTOList.get(i).getPositionSize()>sizeDTOList.size()){
-                    err.append("Thứ tự size sản phẩm không đúng");break;
-                }else if(productDetailDTOList.get(i).getPositionType()>typeProductDTOList.size()){
-                    err.append("Thứ tự loại sản phẩm không đúng");break;
+        if(isCreate){
+            List<ProductDetailDTO> productDetailDTOList = productDTO.getListProductDetail();
+            if(productDetailDTOList!=null && sizeDTOList!=null && typeProductDTOList!=null){
+                for(int i=0;i<productDetailDTOList.size();i++){
+                    if(productDetailDTOList.get(i).getPositionSize()>sizeDTOList.size()){
+                        err.append("Thứ tự size sản phẩm không đúng");break;
+                    }else if(productDetailDTOList.get(i).getPositionType()>typeProductDTOList.size()){
+                        err.append("Thứ tự loại sản phẩm không đúng");break;
+                    }
                 }
             }
-        }
 
-        //validation size
-        if(sizeDTOList!=null){
-            for (int i=0;i<sizeDTOList.size();i++){
-                if(StringUtils.isEmpty(sizeDTOList.get(i).getSizeName())){
-                    err.append("Size sản phẩm không được để trống");break;
+            //validation size
+            if(sizeDTOList!=null){
+                for (int i=0;i<sizeDTOList.size();i++){
+                    if(StringUtils.isEmpty(sizeDTOList.get(i).getSizeName())){
+                        err.append("Size sản phẩm không được để trống");break;
+                    }
                 }
             }
-        }
 
-        //validation typeProduct
-        if(typeProductDTOList!=null){
-            for(int i=0;i<typeProductDTOList.size();i++){
-                if(StringUtils.isEmpty(typeProductDTOList.get(i).getTypeName())){
-                    err.append("Loại sản phẩm không được để trống");break;
+            //validation typeProduct
+            if(typeProductDTOList!=null){
+                for(int i=0;i<typeProductDTOList.size();i++){
+                    if(StringUtils.isEmpty(typeProductDTOList.get(i).getTypeName())){
+                        err.append("Loại sản phẩm không được để trống");break;
+                    }
                 }
             }
         }
@@ -424,8 +407,14 @@ public class ProductServiceImpl implements ProductService {
             err.append(" Mã sản phẩm không được để trống ");
         }else{
             Optional<Product> product = this.productRepository.findByProductCode(productDTO.getProductCode());
-            if(product.isPresent()){
-                err.append(" Mã sản phẩm đã tồn tại ");
+            if(isCreate){
+                if(product.isPresent()){
+                    err.append(" Mã sản phẩm đã tồn tại ");
+                }
+            }else{
+                if(!product.isPresent()){
+                    err.append(" Không tồn tại sản phẩm này ");
+                }
             }
         }
 
@@ -576,6 +565,7 @@ public class ProductServiceImpl implements ProductService {
     public ServiceResult<ProductDetailResponseDTO> detailProductById(Long id) {
         Optional<Product> productOP = this.productRepository.findById(id);
         if(productOP.isPresent()){
+            Brands brands = this.brandRepository.getByProductId(id);
 
             ProductDTO productDTO = this.productMapper.toDto(productOP.get());
             List<ProductDetail> productDetailList = this.productDetailRepository.findAllByProductId(productDTO.getId());
@@ -589,8 +579,9 @@ public class ProductServiceImpl implements ProductService {
             productDetailResponseDTO.setId(productDTO.getId());
             productDetailResponseDTO.setDescription(productDTO.getDescription());
             productDetailResponseDTO.setPrice(productDTO.getPrice());
-            productDetailResponseDTO.setCategoriesId(productDTO.getCategories().getId());
+            productDetailResponseDTO.setCategoriesID(productDTO.getCategories().getId());
             productDetailResponseDTO.setBrandId(productDTO.getBrandId());
+            productDetailResponseDTO.setBrandId(brands.getId());
 
             // lấy danh sách đường dẫn ảnh
             List<ProductImg> productImgList = this.productImgRepository.findByProductId(productDTO.getId());
@@ -602,10 +593,16 @@ public class ProductServiceImpl implements ProductService {
 
             // lấy danh sách size
             List<SizeDTO> lstSizeDTO = this.sizeMapper.toDto(this.sizeRepository.getSizeOfProduct(productDTO.getId()));
+            for(int i =0;i< lstSizeDTO.size();i++){
+                lstSizeDTO.get(i).setPosition(i+1);
+            }
             productDetailResponseDTO.setSizeDTOS(lstSizeDTO);
 
             // lấy danh sách các type
             List<TypeProductDTO> lstTypeProduct = this.typeProductMapper.toDto(this.typeProductRepository.getTypeOfProduct(productDTO.getId()));
+            for(int i =0;i< lstTypeProduct.size();i++){
+                lstTypeProduct.get(i).setPosition(i+1);
+            }
             productDetailResponseDTO.setTypeProductDTOS(lstTypeProduct);
 
             // lấy ra typeSize

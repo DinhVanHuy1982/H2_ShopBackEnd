@@ -110,12 +110,18 @@ public class RolesServiceImpl implements RolesService {
             List<FunctionsDTO> lstFunctionAllDTO = this.functionMapper.toDto(this.functionRepository.findAll());// danh sách tất cả các function
             List<FunctionsDTO> listFunctionBeetwen = new ArrayList<>();// danh sách các function mà thuộc lstFunctionAllDTO mà không thuộc lstFunctionDTO
 
-            lstFunctionAllDTO.forEach(item -> {
-                if(!lstFunctionDTO.contains(item)){
-                    item.setCheckApplyFunction(false);
-                    listFunctionBeetwen.add(item);
+
+            for(int i=0;i<lstFunctionAllDTO.size();i++){
+                boolean check = false;
+                for(int j =0;j<lstFunctionDTO.size();j++){
+                    if(lstFunctionAllDTO.get(i).getFunctionCode().equals(lstFunctionDTO.get(j).getFunctionCode())){
+                        check=true;
+                    }
                 }
-            });
+                if(!check){
+                    listFunctionBeetwen.add(lstFunctionAllDTO.get(i));
+                }
+            }
 
             List<RolesDetailsDTO> rolesDetailsDTOList = this.rolesDetailsMapper.toDto(this.rolesDetailsRepository.getListByRoleId(id));
 
@@ -180,6 +186,7 @@ public class RolesServiceImpl implements RolesService {
 
             roleDetailReturnDTO.setId(rolesDTO.getId());
             roleDetailReturnDTO.setRoleName(rolesDTO.getRoleName());
+            roleDetailReturnDTO.setRoleCode(rolesDTO.getRoleCode());
             roleDetailReturnDTO.setDescription(rolesDTO.getDescription());
             roleDetailReturnDTO.setStatus(rolesDTO.getStatus());
             roleDetailReturnDTO.setLstFunction(lstFunctionDTOAdd);

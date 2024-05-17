@@ -7,7 +7,7 @@ public class ProductDetailResponseDTO {
     private String productCode;
     private String productName;
     private Long brandId;
-    private Long categoriesId;
+    private Long categoriesID;
     private Long price;
     private String description;
     private Double avgRate;
@@ -23,6 +23,8 @@ public class ProductDetailResponseDTO {
     private List<SizeDTO> sizeDTOS;
     private List<TypeProductDTO> typeProductDTOS;
     private List<TypeSizeDTO> typeSizeDTOS;
+    private List<TypeSizeDTO> listProductDetail;
+    private List<Long> imgDelete;
 
     public Long getId() {
         return id;
@@ -48,12 +50,12 @@ public class ProductDetailResponseDTO {
         this.brandId = brandId;
     }
 
-    public Long getCategoriesId() {
-        return categoriesId;
+    public Long getCategoriesID() {
+        return categoriesID;
     }
 
-    public void setCategoriesId(Long categoriesId) {
-        this.categoriesId = categoriesId;
+    public void setCategoriesID(Long categoriesID) {
+        this.categoriesID = categoriesID;
     }
 
     public Long getPrice() {
@@ -174,5 +176,21 @@ public class ProductDetailResponseDTO {
 
     public void setRate5(Integer rate5) {
         this.rate5 = rate5;
+    }
+
+    public List<TypeSizeDTO> getListProductDetail() {
+        return listProductDetail;
+    }
+
+    public void setListProductDetail(List<TypeSizeDTO> listProductDetail) {
+        this.listProductDetail = listProductDetail;
+    }
+
+    public List<Long> getImgDelete() {
+        return imgDelete;
+    }
+
+    public void setImgDelete(List<Long> imgDelete) {
+        this.imgDelete = imgDelete;
     }
 }

@@ -1,10 +1,12 @@
 package com.example.h2_shop.repository;
 
 import com.example.h2_shop.model.Brands;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.awt.*;
@@ -22,5 +24,8 @@ public interface BrandRepository extends JpaRepository<Brands,Long> {
     public Page<Brands> searchBrand(Pageable pageable,String search,Long status);
 
     List<Brands> findByStatus(Long status);
+
+    @Query(value = "select distinct b.* from brand b left join brand_product bp on b.id=bp.brand_id where bp.product_id =  :productId ",nativeQuery = true)
+    Brands getByProductId(@Param("productId")Long productId);
 
 }

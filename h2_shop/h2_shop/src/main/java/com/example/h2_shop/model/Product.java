@@ -17,8 +17,8 @@ public class Product {
     private String productName;
     @Column(name = "price")
     private Long price;
-    @Column(name = "quantity")
-    private Long quantity;
+//    @Column(name = "quantity")
+//    private Long quantity;
     @Column(name = "description")
     private String description;
     @Column(name = "create_time")
@@ -80,13 +80,13 @@ public class Product {
         this.price = price;
     }
 
-    public Long getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Long quantity) {
-        this.quantity = quantity;
-    }
+//    public Long getQuantity() {
+//        return quantity;
+//    }
+//
+//    public void setQuantity(Long quantity) {
+//        this.quantity = quantity;
+//    }
 
     public String getDescription() {
         return description;

@@ -16,7 +16,7 @@ import java.util.Objects;
 @Repository
 @Transactional
 public interface TypeProductRepository extends JpaRepository<TypeProduct, Long> {
-    @Query(value = "select distinct tp.* from type_product tp join product_detail pd on pd.size_id = tp.id where pd.product_id = :productId",nativeQuery = true)
+    @Query(value = "select distinct tp.* from type_product tp join product_detail pd on pd.type_product_id = tp.id where pd.product_id = :productId",nativeQuery = true)
     public List<TypeProduct> getTypeOfProduct(@Param("productId") Long productId);
 
     @Query(value="SELECT s.id AS sizeId, s.size_name AS sizeName, tp.id AS typeId, tp.type_name AS typeName, pd.quantity AS quantity\n" +

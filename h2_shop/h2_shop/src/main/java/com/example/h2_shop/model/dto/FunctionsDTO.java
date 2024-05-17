@@ -15,6 +15,12 @@ public class FunctionsDTO implements Serializable {
     private Instant createTime;
     private String createName;
     private String description;
+    private boolean isCreate;
+    private boolean isUpdate;
+    private boolean isDelete;
+    private boolean isExport;
+    private boolean isImport;
+    private boolean isSearch;
 
     private List<Long> listIdAction;
     private Boolean checkApplyFunction;
@@ -102,5 +108,53 @@ public class FunctionsDTO implements Serializable {
 
     public void setListIdAction(List<Long> listIdAction) {
         this.listIdAction = listIdAction;
+    }
+
+    public Boolean getCreate() {
+        return isCreate;
+    }
+
+    public void setCreate(Boolean create) {
+        isCreate = create;
+    }
+
+    public Boolean getUpdate() {
+        return isUpdate;
+    }
+
+    public void setUpdate(Boolean update) {
+        isUpdate = update;
+    }
+
+    public Boolean getDelete() {
+        return isDelete;
+    }
+
+    public void setDelete(Boolean delete) {
+        isDelete = delete;
+    }
+
+    public Boolean getExport() {
+        return isExport;
+    }
+
+    public void setExport(Boolean export) {
+        isExport = export;
+    }
+
+    public Boolean getImport() {
+        return isImport;
+    }
+
+    public void setImport(Boolean anImport) {
+        isImport = anImport;
+    }
+
+    public Boolean getSearch() {
+        return isSearch;
+    }
+
+    public void setSearch(Boolean search) {
+        isSearch = search;
     }
 }

@@ -5,6 +5,7 @@ import jakarta.persistence.Column;
 import lombok.Data;
 
 import java.time.Instant;
+import java.util.List;
 //import org.springframework.security.core.GrantedAuthority;
 
 public class UserDto {
@@ -33,6 +34,9 @@ public class UserDto {
 
     private Long roleId;
     private FileDto fileDto;
+
+    private RolesDTO rolesDTO;
+    private List<String> lstFunctionCode;
 
     public UserDto() {
     }
@@ -253,5 +257,21 @@ public class UserDto {
 
     public void setFullName(String fullName) {
         this.fullName = fullName;
+    }
+
+    public RolesDTO getRolesDTO() {
+        return rolesDTO;
+    }
+
+    public void setRolesDTO(RolesDTO rolesDTO) {
+        this.rolesDTO = rolesDTO;
+    }
+
+    public List<String> getLstFunctionCode() {
+        return lstFunctionCode;
+    }
+
+    public void setLstFunctionCode(List<String> lstFunctionCode) {
+        this.lstFunctionCode = lstFunctionCode;
     }
 }

@@ -39,17 +39,17 @@ public class Orders {
     @Column(name="recipient_address")
     private String recipientAddress;
 
-    @Column(name="buyerAddress")
-    private String buyerAddress;
+//    @Column(name="buyerAddress")
+//    private String buyerAddress;
 
-    @Column(name="quantity")
-    private Long quantity;
+//    @Column(name="quantity")
+//    private Long quantity;
 
     @Column(name="status")
     private Long status;
 
-    @Column(name="comment")
-    private String comment;
+//    @Column(name="comment")
+//    private String comment;
 
     @Column(name="note")
     private String note;
@@ -57,11 +57,11 @@ public class Orders {
     @Column(name="price")
     private Float price;// giá của tổng hóa đơn
 
-    @Column(name="estimatePickUp")
-    private String estimatePickUp;
+//    @Column(name="estimatePickUp")
+//    private String estimatePickUp;
 
-    @Column(name="rating")
-    private Long rating;
+//    @Column(name="rating")
+//    private Long rating;
 
 
     @Column(name="shipping_unit")
@@ -88,16 +88,16 @@ public class Orders {
 //    @JoinColumn(name="product_id")
 //    private Product product;
 
-    @Column(name="reply_comment")
-    private String replyComment;
+//    @Column(name="reply_comment")
+//    private String replyComment;
 
-    public String getReplyComment() {
-        return replyComment;
-    }
-
-    public void setReplyComment(String replyComment) {
-        this.replyComment = replyComment;
-    }
+//    public String getReplyComment() {
+//        return replyComment;
+//    }
+//
+//    public void setReplyComment(String replyComment) {
+//        this.replyComment = replyComment;
+//    }
 
     public User getUser() {
         return user;
@@ -158,21 +158,21 @@ public class Orders {
         this.recipientAddress = recipientAddress;
     }
 
-    public String getBuyerAddress() {
-        return buyerAddress;
-    }
-
-    public void setBuyerAddress(String buyerAddress) {
-        this.buyerAddress = buyerAddress;
-    }
-
-    public Long getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Long quantity) {
-        this.quantity = quantity;
-    }
+//    public String getBuyerAddress() {
+//        return buyerAddress;
+//    }
+//
+//    public void setBuyerAddress(String buyerAddress) {
+//        this.buyerAddress = buyerAddress;
+//    }
+//
+//    public Long getQuantity() {
+//        return quantity;
+//    }
+//
+//    public void setQuantity(Long quantity) {
+//        this.quantity = quantity;
+//    }
 
     public Long getStatus() {
         return status;
@@ -182,13 +182,13 @@ public class Orders {
         this.status = status;
     }
 
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
+//    public String getComment() {
+//        return comment;
+//    }
+//
+//    public void setComment(String comment) {
+//        this.comment = comment;
+//    }
 
     public Float getPrice() {
         return price;
@@ -198,21 +198,21 @@ public class Orders {
         this.price = price;
     }
 
-    public String getEstimatePickUp() {
-        return estimatePickUp;
-    }
+//    public String getEstimatePickUp() {
+//        return estimatePickUp;
+//    }
+//
+//    public void setEstimatePickUp(String estimatePickUp) {
+//        this.estimatePickUp = estimatePickUp;
+//    }
 
-    public void setEstimatePickUp(String estimatePickUp) {
-        this.estimatePickUp = estimatePickUp;
-    }
-
-    public Long getRating() {
-        return rating;
-    }
-
-    public void setRating(Long rating) {
-        this.rating = rating;
-    }
+//    public Long getRating() {
+//        return rating;
+//    }
+//
+//    public void setRating(Long rating) {
+//        this.rating = rating;
+//    }
 
     public Long getShippingUnit() {
         return shippingUnit;

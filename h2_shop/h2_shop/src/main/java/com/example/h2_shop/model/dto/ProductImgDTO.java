@@ -63,9 +63,6 @@ public class ProductImgDTO {
     }
 
 
-
-
-
     public String getFileSize() {
         return fileSize;
     }

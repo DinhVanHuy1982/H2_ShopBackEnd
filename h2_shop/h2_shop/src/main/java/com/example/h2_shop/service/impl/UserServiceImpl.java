@@ -2,17 +2,10 @@ package com.example.h2_shop.service.impl;
 
 import com.example.h2_shop.Constant;
 import com.example.h2_shop.commons.ReflectorUtil;
-import com.example.h2_shop.model.Notify;
-import com.example.h2_shop.model.Orders;
-import com.example.h2_shop.model.Roles;
-import com.example.h2_shop.model.User;
+import com.example.h2_shop.model.*;
 import com.example.h2_shop.model.dto.*;
-import com.example.h2_shop.model.mapper.NotifyMapper;
-import com.example.h2_shop.model.mapper.UserMapper;
-import com.example.h2_shop.repository.NotifyRepository;
-import com.example.h2_shop.repository.OrderRepository;
-import com.example.h2_shop.repository.RolesRepository;
-import com.example.h2_shop.repository.UserRepository;
+import com.example.h2_shop.model.mapper.*;
+import com.example.h2_shop.repository.*;
 import com.example.h2_shop.service.FileService;
 import com.example.h2_shop.service.MailService;
 import com.example.h2_shop.service.ServiceResult;
@@ -34,10 +27,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -56,14 +46,28 @@ public class UserServiceImpl implements UserService {
     MailService mailService;
 
     public final RolesRepository rolesRepository;
+    public final FunctionRepository functionRepository;
+    public final RolesDetailsRepository rolesDetailsRepository;
+    public final RolesDetailsMapper rolesDetailsMapper;
+    public final ActionRepository actionRepository;
+    public final ActionMapper actionMapper;
+    public final FunctionMapper functionMapper;
     public final NotifyRepository notifyRepository;
     public final UserMapper userMapper;
     public final NotifyMapper notifyMapper;
-    public UserServiceImpl(UserMapper userMapper,NotifyRepository notifyRepository,NotifyMapper notifyMapper, RolesRepository rolesRepository){
+    public final RolesMapper rolesMapper;
+    public UserServiceImpl(UserMapper userMapper,RolesDetailsRepository rolesDetailsRepository,RolesDetailsMapper rolesDetailsMapper,ActionRepository actionRepository,ActionMapper actionMapper,FunctionMapper functionMapper,FunctionRepository functionRepository,RolesMapper rolesMapper,NotifyRepository notifyRepository,NotifyMapper notifyMapper, RolesRepository rolesRepository){
         this.rolesRepository=rolesRepository;
         this.userMapper=userMapper;
         this.notifyMapper=notifyMapper;
+        this.actionMapper=actionMapper;
+        this.actionRepository=actionRepository;
         this.notifyRepository=notifyRepository;
+        this.rolesMapper=rolesMapper;
+        this.functionRepository=functionRepository;
+        this.functionMapper = functionMapper;
+        this.rolesDetailsRepository=rolesDetailsRepository;
+        this.rolesDetailsMapper=rolesDetailsMapper;
     }
     @Override
     public List<User> getAllUser() {
@@ -345,9 +349,56 @@ public class UserServiceImpl implements UserService {
             Optional<User> userOP = this.userRepository.findByUsernameAndPassword(userDto.getUsername(),md5Hex);
             if (userOP.isPresent()){
                 userDto = this.userMapper.toDto(userOP.get());
-                serviceResult.setMessage("Đăng nhập thành công");
-                serviceResult.setStatus(HttpStatus.OK);
-                serviceResult.setData(userDto);
+                if(userDto.getStatus()!=1){
+                    serviceResult.setMessage("Tài khoản không hoạt động");
+                }else if(userDto.getRoles()!=null){
+                    if(userDto.getRoles().getStatus()!=1){
+                        serviceResult.setMessage("Tài khoản không có quyền truy cập hệ thống");
+                    }else{
+                        RolesDTO rolesDTO = this.rolesMapper.toDto(userDto.getRoles());
+                        List<RolesDetails> lstRoleDetail = this.rolesDetailsRepository.getListByRoleId(rolesDTO.getId());
+                        List<Function> listFunction = this.functionRepository.getByRoleId(rolesDTO.getId());
+                        List<FunctionsDTO> lstFunctionDto = this.functionMapper.toDto(listFunction);
+                        List<String> lstFunctionCode = new ArrayList<>();
+                        for (int i =0 ;i<lstRoleDetail.size();i++){
+                            List<Action> lstAction = this.actionRepository.getActionByListId(lstRoleDetail.get(i).getAction());
+                            List<ActionsDTO> lstActionDto = this.actionMapper.toDto(lstAction);
+                            for(int j=0;j<lstActionDto.size();j++){
+                                if(lstActionDto.get(j).getCode().equals("create")){
+                                    lstFunctionDto.get(i).setCreate(true);
+                                }
+                                if(lstActionDto.get(j).getCode().equals("update")){
+                                    lstFunctionDto.get(i).setUpdate(true);
+                                }
+                                if(lstActionDto.get(j).getCode().equals("delete")){
+                                    lstFunctionDto.get(i).setDelete(true);
+                                }
+                                if(lstActionDto.get(j).getCode().equals("search")){
+                                    lstFunctionDto.get(i).setSearch(true);
+                                }
+                                if(lstActionDto.get(j).getCode().equals("export")){
+                                    lstFunctionDto.get(i).setExport(true);
+                                }
+                                if(lstActionDto.get(j).getCode().equals("import")){
+                                    lstFunctionDto.get(i).setImport(true);
+                                }
+                            }
+                            lstFunctionDto.get(i).setListActionDTO(lstActionDto);
+                            lstFunctionCode.add(lstFunctionDto.get(i).getFunctionCode());
+                        }
+                        rolesDTO.setListFunction(lstFunctionDto);
+                        userDto.setRolesDTO(rolesDTO);
+                        userDto.setLstFunctionCode(lstFunctionCode);
+                        serviceResult.setMessage("Đăng nhập thành công");
+                        serviceResult.setStatus(HttpStatus.OK);
+                        serviceResult.setData(userDto);
+                    }
+                }else{
+                    userDto.setRoles(null);
+                    serviceResult.setMessage("Đăng nhập thành công");
+                    serviceResult.setStatus(HttpStatus.OK);
+                    serviceResult.setData(userDto);
+                }
             }else{
                 serviceResult.setStatus(HttpStatus.BAD_REQUEST);
                 serviceResult.setMessage("Tên tài khoản hoặc mật khẩu không chính xác");

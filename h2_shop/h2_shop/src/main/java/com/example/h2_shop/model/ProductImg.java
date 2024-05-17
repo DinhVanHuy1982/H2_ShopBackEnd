@@ -41,7 +41,7 @@ public class ProductImg {
     public ProductImg() {
     }
 
-    public ProductImg(Long id, String fileId, String fileName, String type, String fileSize, Product product, boolean avatar) {
+    public ProductImg(Long id, String fileId, String fileName, String type, String fileSize, Product product, boolean avatar, OrderDetail orderDetail) {
         this.id = id;
         this.fileId = fileId;
         this.fileName = fileName;
@@ -49,30 +49,24 @@ public class ProductImg {
         this.fileSize = fileSize;
         this.product = product;
         this.avatar = avatar;
+        this.orderDetail = orderDetail;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public void setId(Long id) {
         this.id = id;
     }
 
-    public void setFileId(String fileId) {
-        this.fileId = fileId;
-    }
-
-    public OrderDetail getOrderDetail() {
-        return orderDetail;
-    }
-
-    public void setOrderDetail(OrderDetail orderDetail) {
-        this.orderDetail = orderDetail;
-    }
-
-
-
     public String getFileId() {
         return fileId;
     }
 
+    public void setFileId(String fileId) {
+        this.fileId = fileId;
+    }
 
     public String getFileName() {
         return fileName;
@@ -112,5 +106,13 @@ public class ProductImg {
 
     public void setAvatar(boolean avatar) {
         this.avatar = avatar;
+    }
+
+    public OrderDetail getOrderDetail() {
+        return orderDetail;
+    }
+
+    public void setOrderDetail(OrderDetail orderDetail) {
+        this.orderDetail = orderDetail;
     }
 }

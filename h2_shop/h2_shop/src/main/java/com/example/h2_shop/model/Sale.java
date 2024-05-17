@@ -29,14 +29,13 @@ public class Sale {
     @Column(name = "apply_date")
     private Instant applyDate;
     @Column(name = "type")
-
     private String type;
-    @Column(name = "minPrice")
-    private Long minPrice;
-    @Column(name = "maxPrice")
-    private Long maxPrice;
-    @Column(name = "max_discount")
-    private Long maxDiscount;
+//    @Column(name = "minPrice")
+//    private Long minPrice;
+//    @Column(name = "maxPrice")
+//    private Long maxPrice;
+//    @Column(name = "max_discount")
+//    private Long maxDiscount;
     @Column(name = "max_purchase")
     private Float maxPurchase;
     @ManyToOne
@@ -53,7 +52,7 @@ public class Sale {
     public Sale() {
     }
 
-    public Sale(Long id, String code, String name, Long quantity, String description, Instant startTime, Instant endTime, Instant applyDate, String type, Long minPrice, Long maxPrice, Long maxDiscount, Float maxPurchase, Product product) {
+    public Sale(Long id, String code, String name, Long quantity, String description, Instant startTime, Instant endTime, Instant applyDate, String type,  Float maxPurchase, Product product) {
         this.id = id;
         this.code = code;
         this.name = name;
@@ -63,9 +62,9 @@ public class Sale {
         this.endTime = endTime;
         this.applyDate = applyDate;
         this.type = type;
-        this.minPrice = minPrice;
-        this.maxPrice = maxPrice;
-        this.maxDiscount = maxDiscount;
+//        this.minPrice = minPrice;
+//        this.maxPrice = maxPrice;
+//        this.maxDiscount = maxDiscount;
         this.maxPurchase = maxPurchase;
         this.product = product;
     }
@@ -118,29 +117,29 @@ public class Sale {
         this.type = type;
     }
 
-    public Long getMinPrice() {
-        return minPrice;
-    }
-
-    public void setMinPrice(Long minPrice) {
-        this.minPrice = minPrice;
-    }
-
-    public Long getMaxPrice() {
-        return maxPrice;
-    }
-
-    public void setMaxPrice(Long maxPrice) {
-        this.maxPrice = maxPrice;
-    }
-
-    public Long getMaxDiscount() {
-        return maxDiscount;
-    }
-
-    public void setMaxDiscount(Long maxDiscount) {
-        this.maxDiscount = maxDiscount;
-    }
+//    public Long getMinPrice() {
+//        return minPrice;
+//    }
+//
+//    public void setMinPrice(Long minPrice) {
+//        this.minPrice = minPrice;
+//    }
+//
+//    public Long getMaxPrice() {
+//        return maxPrice;
+//    }
+//
+//    public void setMaxPrice(Long maxPrice) {
+//        this.maxPrice = maxPrice;
+//    }
+//
+//    public Long getMaxDiscount() {
+//        return maxDiscount;
+//    }
+//
+//    public void setMaxDiscount(Long maxDiscount) {
+//        this.maxDiscount = maxDiscount;
+//    }
 
     public Float getMaxPurchase() {
         return maxPurchase;

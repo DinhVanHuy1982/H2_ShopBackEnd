@@ -23,8 +23,8 @@ public class Function {
     @Column(name = "description")
     private String description;
 
-    @Column(name ="parent_id")
-    private Long parentId;
+//    @Column(name ="parent_id")
+//    private Long parentId;
 
     public Function(){}
 
@@ -76,11 +76,11 @@ public class Function {
         this.description = description;
     }
 
-    public Long getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(Long parentId) {
-        this.parentId = parentId;
-    }
+//    public Long getParentId() {
+//        return parentId;
+//    }
+//
+//    public void setParentId(Long parentId) {
+//        this.parentId = parentId;
+//    }
 }
