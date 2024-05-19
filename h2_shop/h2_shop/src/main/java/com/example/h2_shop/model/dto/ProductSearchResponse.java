@@ -7,6 +7,8 @@ public class ProductSearchResponse {
     private Double price;
     private Double priceSale;
     private String fileName;
+    private String categoriesName;
+    private String brandName;
     private Double purchase;
     private Long buyQuantity;
     private Double avgRating;
@@ -86,5 +88,21 @@ public class ProductSearchResponse {
 
     public void setPurchase(Double purchase) {
         this.purchase = purchase;
+    }
+
+    public String getCategoriesName() {
+        return categoriesName;
+    }
+
+    public void setCategoriesName(String categoriesName) {
+        this.categoriesName = categoriesName;
+    }
+
+    public String getBrandName() {
+        return brandName;
+    }
+
+    public void setBrandName(String brandName) {
+        this.brandName = brandName;
     }
 }

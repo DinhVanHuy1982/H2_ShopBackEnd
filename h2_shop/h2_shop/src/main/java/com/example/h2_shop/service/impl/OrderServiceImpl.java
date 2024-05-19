@@ -335,6 +335,14 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+    @Override
+    public ServiceResult<List<ViewOrderShipAndCompleteDTO>> getListOrderShipAndComplete(Long userId,int type) {
+        List<Map<String,Object>> map = this.orderRepository.getAllOrderShipping(userId,type);
+        List<ViewOrderShipAndCompleteDTO> lst = map.stream().map(item -> ReflectorUtil.mapToDTO(item,ViewOrderShipAndCompleteDTO.class)).collect(Collectors.toList());
+
+        return new ServiceResult<>(lst,HttpStatus.OK,"");
+    }
+
     public String validatorComment(List<MultipartFile> filesComment, CommentDTO commentDTO){
         String err = "";
         if(filesComment !=null){

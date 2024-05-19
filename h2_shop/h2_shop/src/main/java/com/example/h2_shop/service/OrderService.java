@@ -16,4 +16,6 @@ public interface OrderService {
 
     public ServiceResult<?> updateOrder(OrderViewDetailDTO orderViewDetailDTO);
     ServiceResult<OrderDetailDTO> checkAllowComment(Long userId, Long productId);
+
+    ServiceResult<List<ViewOrderShipAndCompleteDTO>> getListOrderShipAndComplete(Long userId, int type);
 }

@@ -102,6 +102,13 @@ public class OrderController {
     public ServiceResult<OrderDetailDTO> checkAllowComment(@PathVariable Long userId, @PathVariable Long productId){
         return this.orderService.checkAllowComment(userId,productId);
     }
+
+    @GetMapping("/order/get-list-order-ship-complete/{userId}/{type}")
+    public ServiceResult<List<ViewOrderShipAndCompleteDTO>> getListOrderShipAndComplete(@PathVariable Long userId, @PathVariable int type){
+
+        return this.orderService.getListOrderShipAndComplete(userId,type);
+    }
+
 //    @PostMapping("/order/create-comment")
 //    public ServiceResult<> createComment(@RequestPart(value = "filesComment", required = false)List<MultipartFile> lstImgCMT, @RequestPart("inforComment") )
 

@@ -153,4 +153,31 @@ public interface OrderRepository extends JpaRepository<Orders,Long> {
 
     List<Orders> findByUserId(Long userId);
     Optional<Orders> findByOrderCode(String orderCode);
+
+
+    @Query(value = "select\n" +
+            "\to.id,\n" +
+            "\to.order_date orderDate,\n" +
+            "\to.phone_number phoneNumber,\n" +
+            "\to.price price,\n" +
+            "\to.ship_price shipPrice,\n" +
+            "\to.status ,\n" +
+            "\to.payment_method paymentMethod,\n" +
+            "\to.pay_status payStatus\n" +
+            "from\n" +
+            "\torders o\n" +
+            "left join `user` u on\n" +
+            "\tu.id = o.user_id\n" +
+            "where\n" +
+            "\tu.id = :userId\n" +
+            "\tand if(:type = 1,\n" +
+            "\t(o.status = 0),\n" +
+            "\t(if(:type = 2,\n" +
+            "\to.status = 1\n" +
+            "\t\tor o.status = 2,\n" +
+            "\t\tif(:type = 3,\n" +
+            "\t\to.status = 3\n" +
+            "\t\t\tor o.status = 4,\n" +
+            "\t\t\tfalse))))", nativeQuery = true)
+    List<Map<String,Object>> getAllOrderShipping(@Param("userId")Long id, @Param("type")int type);
 }

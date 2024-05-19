@@ -93,11 +93,15 @@ public class ProductCustomeImplRepository implements ProductCustomeRepository {
                 "    (p.price * (100 - tblSale.max_purchase) / 100) AS priceSale,\n" +
                 "    tblSale.max_purchase AS purchase,\n" +
                 "    od.buyQuantity,\n" +
-                "    od.avgRating\n" +
+                "    od.avgRating,\n" +
+                "    c.categori_name AS categoriesName,\n" +
+                "    brand.brand_name AS brandName\n" +
                 "FROM\n" +
                 "    products p\n" +
-                "JOIN product_detail pd ON pd.product_id = p.id\n" +
-                "LEFT JOIN product_img pi2 ON pi2.product_id = p.id\n" +
+                "JOIN \n" +
+                "    product_detail pd ON pd.product_id = p.id\n" +
+                "LEFT JOIN \n" +
+                "    product_img pi2 ON pi2.product_id = p.id\n" +
                 "LEFT JOIN (\n" +
                 "    SELECT \n" +
                 "        p.id AS product_id,\n" +
@@ -105,12 +109,16 @@ public class ProductCustomeImplRepository implements ProductCustomeRepository {
                 "        AVG(od.rating) AS avgRating\n" +
                 "    FROM\n" +
                 "        order_detail od\n" +
-                "    LEFT JOIN orders o ON o.id = od.order_id\n" +
-                "    LEFT JOIN product_detail pd ON pd.id = od.product_detail_id\n" +
-                "    LEFT JOIN products p ON p.id = pd.product_id\n" +
+                "    LEFT JOIN \n" +
+                "        orders o ON o.id = od.order_id\n" +
+                "    LEFT JOIN \n" +
+                "        product_detail pd ON pd.id = od.product_detail_id\n" +
+                "    LEFT JOIN \n" +
+                "        products p ON p.id = pd.product_id\n" +
                 "    WHERE\n" +
                 "        o.status = 3\n" +
-                "    GROUP BY od.product_detail_id\n" +
+                "    GROUP BY \n" +
+                "        od.product_detail_id\n" +
                 ") od ON od.product_id = p.id\n" +
                 "LEFT JOIN (\n" +
                 "    SELECT \n" +
@@ -120,7 +128,7 @@ public class ProductCustomeImplRepository implements ProductCustomeRepository {
                 "        sales s\n" +
                 "    WHERE\n" +
                 "        (NOW() BETWEEN s.start_time AND s.end_time)\n" +
-                "        AND s.`type` = 0\n" +
+                "        AND s.type = 0\n" +
                 ") tblSale ON tblSale.productId = p.id\n" +
                 "LEFT JOIN (\n" +
                 "    SELECT \n" +
@@ -132,6 +140,20 @@ public class ProductCustomeImplRepository implements ProductCustomeRepository {
                 "        pi2.avatar = TRUE\n" +
                 "        AND pi2.type = 'IMGPRODUCT'\n" +
                 ") productIMG ON productIMG.product_id = p.id\n" +
+                "LEFT JOIN \n" +
+                "    categories c ON p.categories_id = c.id\n" +
+                "LEFT JOIN (\n" +
+                "    SELECT \n" +
+                "        bp.product_id, \n" +
+                "        b.id, \n" +
+                "        b.brand_name \n" +
+                "    FROM \n" +
+                "        brand b \n" +
+                "    LEFT JOIN \n" +
+                "        brand_product bp ON bp.brand_id = b.id\n" +
+                "    GROUP BY \n" +
+                "        bp.product_id\n" +
+                ") brand ON brand.product_id = p.id \n" +
                 "WHERE\n" +
                 "    1 = 1 \n");
         if(StringUtils.isNotBlank(productRequestDTO.getNameSearch())){
@@ -157,6 +179,10 @@ public class ProductCustomeImplRepository implements ProductCustomeRepository {
                 sql.append(joiner.toString());
                 sql.append(" )");
             }
+        }
+        if(productRequestDTO.getCategoriesId()!=null){
+            sql.append(" AND (p.categories_id =:categoriesId) ");
+            sqlCount.append(" AND (p.categories_id =:categoriesId) ");
         }
 
         if(productRequestDTO.getFromPrice()!=null){
@@ -218,6 +244,10 @@ public class ProductCustomeImplRepository implements ProductCustomeRepository {
             query.setParameter("toPrice", productRequestDTO.getToPrice());
             queryCount.setParameter("toPrice", productRequestDTO.getToPrice());
         }
+        if (productRequestDTO.getCategoriesId()!=null){
+            query.setParameter("categoriesId",productRequestDTO.getCategoriesId());
+            queryCount.setParameter("categoriesId",productRequestDTO.getCategoriesId());
+        }
 
         query.setFirstResult((int) pageable.getOffset());
         query.setMaxResults(pageable.getPageSize());
@@ -237,6 +267,8 @@ public class ProductCustomeImplRepository implements ProductCustomeRepository {
             productSearchResponse.setPurchase(DataUtil.safeToDouble(obj[6]));
             productSearchResponse.setBuyQuantity(DataUtil.safeToLong(obj[7]));
             productSearchResponse.setAvgRating(DataUtil.safeToDouble(obj[8]));
+            productSearchResponse.setCategoriesName(DataUtil.safeToString(obj[9]));
+            productSearchResponse.setBrandName(DataUtil.safeToString(obj[10]));
             lstReturn.add(productSearchResponse);
         }
         long countResult = DataUtil.safeToLong( queryCount.getSingleResult());
