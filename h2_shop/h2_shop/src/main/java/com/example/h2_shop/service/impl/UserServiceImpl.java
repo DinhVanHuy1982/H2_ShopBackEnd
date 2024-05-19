@@ -190,7 +190,8 @@ public class UserServiceImpl implements UserService {
                     fileDto = fileDtoServiceResult.getData();
                 }
             }
-
+            String md5Hex = DigestUtils.md5Hex(userDtoVali.getPassword());
+            user.setPassword(md5Hex);
             user = this.userRepository.save(user);
             UserDto userDtoReturn = this.userMapper.toDto(user);
             userDtoReturn.setFileDto(fileDto);
@@ -311,11 +312,17 @@ public class UserServiceImpl implements UserService {
 
                             } else {//Hai thời điểm không cách nhau quá 2 phút.
                                 String newPass = generatePassword();
-                                user.setPassword(newPass);
+                                String md5Hex = DigestUtils.md5Hex(newPass);
+                                user.setPassword(md5Hex);
                                 this.userRepository.save(user);
-                                serviceResult.setMessage("Lấy lại mật khẩu thành công");
+                                try{
+                                    this.mailService.sendMail(user.getEmail(),"Mật khẩu mới của quý khách là: ",newPass);
+                                }catch (Exception e){
+                                    System.out.println(e);
+                                }
+                                serviceResult.setMessage("Lấy lại mật khẩu thành công, vui lòng kiểm tra thư");
                                 serviceResult.setStatus(HttpStatus.OK);
-                                serviceResult.setData(newPass);
+                                serviceResult.setData(null);
 
                             }
                         }else{

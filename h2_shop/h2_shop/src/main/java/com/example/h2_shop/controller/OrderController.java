@@ -1,9 +1,6 @@
 package com.example.h2_shop.controller;
 
-import com.example.h2_shop.model.dto.CommentDTO;
-import com.example.h2_shop.model.dto.OrderRequestDTO;
-import com.example.h2_shop.model.dto.OrderViewDetailDTO;
-import com.example.h2_shop.model.dto.OrdersDTO;
+import com.example.h2_shop.model.dto.*;
 import com.example.h2_shop.service.OrderService;
 import com.example.h2_shop.service.ServiceResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,5 +97,13 @@ public class OrderController {
     public ServiceResult<?> updateOrder(@RequestBody OrderViewDetailDTO orderViewDetailDTO){
         return this.orderService.updateOrder(orderViewDetailDTO);
     }
+
+    @GetMapping("/order/check-comment-allow/{userId}/{productId}")
+    public ServiceResult<OrderDetailDTO> checkAllowComment(@PathVariable Long userId, @PathVariable Long productId){
+        return this.orderService.checkAllowComment(userId,productId);
+    }
+//    @PostMapping("/order/create-comment")
+//    public ServiceResult<> createComment(@RequestPart(value = "filesComment", required = false)List<MultipartFile> lstImgCMT, @RequestPart("inforComment") )
+
 }
 

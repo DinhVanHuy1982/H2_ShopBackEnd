@@ -42,8 +42,9 @@ public class OrderServiceImpl implements OrderService {
     private final FileService fileService;
     private final ProductImgRepository productImgRepository;
     private final ProductImgMapper productImgMapper;
+    private final CartRepository cartRepository;
 
-    public OrderServiceImpl(FileService fileService,ProductImgMapper productImgMapper, ProductImgRepository productImgRepository, UserRepository userRepository,ProductDetailRepository productDetailRepository,OrderDetailRepository orderDetailRepository, OrderDetailMapper orderDetailMapper,SaleRepository saleRepository,OrderRepository orderRepository,OrderMapper orderMapper, ProductRepository productRepository,ApparamsRepository apparamsRepository) {
+    public OrderServiceImpl(FileService fileService,ProductImgMapper productImgMapper,CartRepository cartRepository, ProductImgRepository productImgRepository, UserRepository userRepository,ProductDetailRepository productDetailRepository,OrderDetailRepository orderDetailRepository, OrderDetailMapper orderDetailMapper,SaleRepository saleRepository,OrderRepository orderRepository,OrderMapper orderMapper, ProductRepository productRepository,ApparamsRepository apparamsRepository) {
         this.productRepository = productRepository;
         this.apparamsRepository=apparamsRepository;
         this.userRepository=userRepository;
@@ -56,6 +57,7 @@ public class OrderServiceImpl implements OrderService {
         this.fileService=fileService;
         this.productImgRepository=productImgRepository;
         this.productImgMapper = productImgMapper;
+        this.cartRepository=cartRepository;
     }
 
     @Override
@@ -77,6 +79,7 @@ public class OrderServiceImpl implements OrderService {
             ordersDTO.setOrderCode("ORDER_"+currentTime.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")));
 
             Orders orders = this.orderMapper.toEntity(ordersDTO);
+            orders.setPayStatus(0L);
             orders = this.orderRepository.save(orders); // lưu cuối cùng
 
             float totalPriceOrder = 0;
@@ -173,6 +176,8 @@ public class OrderServiceImpl implements OrderService {
             ordersDTO = this.orderMapper.toDto(orders);
             ordersDTO.setOrderDetailDTOList(orderDetailDTOS);
 
+            List<Carts> listProductIncartOrder = this.cartRepository.getCartInOrder(ordersDTO.getUser().getId(),ordersDTO.getOrderCode());
+            this.cartRepository.deleteAll(listProductIncartOrder);
 
             // thêm thông báo tới cho người dùng
 
@@ -310,9 +315,23 @@ public class OrderServiceImpl implements OrderService {
             this.productDetailRepository.saveAll(productDetailList);
             Optional<Orders> ordersOP = this.orderRepository.findById(orderViewDetailDTO.getId());
             ordersOP.get().setStatus(orderViewDetailDTO.getStatus());
+            ordersOP.get().setPayStatus(orderViewDetailDTO.getPayStatus());
             return new ServiceResult<>(null,HttpStatus.OK,"");
         }else{
             return new ServiceResult<>(null, HttpStatus.BAD_REQUEST,err);
+        }
+    }
+
+    @Override
+    public ServiceResult<OrderDetailDTO> checkAllowComment(Long userId, Long productId) {
+        Optional<OrderDetail> orderDetailOP = this.orderDetailRepository.checkAllowComment(userId,productId);
+        if(orderDetailOP.isPresent()){
+            OrderDetailDTO orderDetailDTO = this.orderDetailMapper.toDto(orderDetailOP.get());
+            orderDetailDTO.setOrders(null);
+            orderDetailDTO.setProductDetail(null);
+            return new ServiceResult<>(orderDetailDTO, HttpStatus.OK,"");
+        }else{
+            return new ServiceResult<>(null, HttpStatus.BAD_REQUEST,"");
         }
     }
 

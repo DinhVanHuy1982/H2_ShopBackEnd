@@ -20,6 +20,9 @@ public class BrandProduct {
     @Column(name = "category_code")
     private String categoryCode;
 
+    @Column(name = "product_detail_id")
+    private Long productDetailId;
+
     @ManyToOne
     @JoinColumn(name="product_id")
     private Product product;
@@ -84,5 +87,13 @@ public class BrandProduct {
 
     public void setCategoryCode(String categoryCode) {
         this.categoryCode = categoryCode;
+    }
+
+    public Long getProductDetailId() {
+        return productDetailId;
+    }
+
+    public void setProductDetailId(Long productDetailId) {
+        this.productDetailId = productDetailId;
     }
 }

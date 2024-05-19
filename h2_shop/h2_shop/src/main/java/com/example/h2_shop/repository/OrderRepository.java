@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Orders,Long> {
@@ -151,4 +152,5 @@ public interface OrderRepository extends JpaRepository<Orders,Long> {
     List<Map<String,Object>> getListOrderDetailOfOrder(@Param("orderDetailIdConcat")String orderDetailIdlst);
 
     List<Orders> findByUserId(Long userId);
+    Optional<Orders> findByOrderCode(String orderCode);
 }

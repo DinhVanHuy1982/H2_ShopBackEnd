@@ -53,12 +53,12 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     @Query(value = "SELECT *\n" +
             "FROM (\n" +
             "    SELECT\n" +
-            "        DISTINCT p.id," +
-            "        pi.file_name avatar,\n" +
+            "        DISTINCT p.id,\n" +
+            "        pi.file_name AS avatar,\n" +
             "        p.product_name AS productName,\n" +
             "        p.product_code AS productCode,\n" +
             "        p.price AS price,\n" +
-            "        (p.price * (1 - s.max_purchase)) AS priceSale,\n" +
+            "        (p.price * (100 - s.max_purchase))/100 AS priceSale,\n" +
             "        c.categori_code AS categoriCode,\n" +
             "        c.categori_name AS categoriName,\n" +
             "        SUM(pd.quantity) AS quantityHave\n" +
@@ -67,9 +67,10 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
             "    LEFT JOIN product_detail pd ON pd.product_id = p.id\n" +
             "    LEFT JOIN categories c ON c.id = p.categories_id\n" +
             "    LEFT JOIN sales s ON s.product_id = p.id\n" +
-            "    left join product_img pi on pi.product_id = p.id and pi.avatar=1" +
+            "    LEFT JOIN product_img pi ON pi.product_id = p.id AND pi.avatar = 1\n" +
             "    GROUP BY\n" +
             "        p.id,\n" +
+            "        pi.file_name,\n" +
             "        p.product_name,\n" +
             "        p.product_code,\n" +
             "        p.price,\n" +
@@ -77,7 +78,7 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
             "        c.categori_name\n" +
             "    LIMIT 15\n" +
             ") AS tb1\n" +
-            "JOIN (\n" +
+            "left JOIN (\n" +
             "    SELECT\n" +
             "        p.id AS productId,\n" +
             "        IF(SUM(od.quantity) IS NULL, 0, SUM(od.quantity)) AS orderQuantity,\n" +
@@ -87,6 +88,8 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
             "    LEFT JOIN product_detail pd ON pd.product_id = p.id\n" +
             "    LEFT JOIN order_detail od ON od.product_detail_id = pd.id\n" +
             "    LEFT JOIN categories c ON c.id = p.categories_id\n" +
+            "    left join orders o on od.order_id = o.id\n" +
+            "    where o.status=3\n" +
             "    GROUP BY\n" +
             "        p.id\n" +
             "    LIMIT 15\n" +

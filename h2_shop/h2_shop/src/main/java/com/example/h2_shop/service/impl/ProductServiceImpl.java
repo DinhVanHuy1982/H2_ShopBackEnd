@@ -44,7 +44,6 @@ public class ProductServiceImpl implements ProductService {
     FileService fileService;
 
     private final ProductRepository productRepository;
-    private final CategoriesService categoriesService;
     private final BrandRepository brandRepository;
     private final BrandProductRepository brandProductRepository;
     private final CategoriesRepository categoriesRepository;
@@ -58,7 +57,10 @@ public class ProductServiceImpl implements ProductService {
     private final ProductDetailRepository productDetailRepository;
     private final OrderDetailMapper orderDetailMapper;
     private final OrderDetailRepository orderDetailRepository;
+    private final OrderRepository orderRepository;
+    private final OrderMapper orderMapper;
     private final ProductCustomeRepository productCustomeRepository;
+    private final CartRepository cartRepository;
 
     public ProductServiceImpl(TypeProductMapper typeProductMapper,
                               OrderDetailRepository orderDetailRepository,
@@ -74,10 +76,11 @@ public class ProductServiceImpl implements ProductService {
                               ProductImgRepository productImgRepository,
                               CategoriesRepository categoriesRepository,
                               ProductRepository productRepository,
-                              CategoriesService categoriesService,
-                              ProductCustomeRepository productCustomeRepository){
+                              OrderRepository orderRepository,
+                              ProductCustomeRepository productCustomeRepository,
+                              OrderMapper orderMapper,
+                              CartRepository cartRepository){
         this.productRepository=productRepository;
-        this.categoriesService=categoriesService;
         this.brandRepository=brandRepository;
         this.categoriesRepository=categoriesRepository;
         this.productImgRepository=productImgRepository;
@@ -92,6 +95,9 @@ public class ProductServiceImpl implements ProductService {
         this.orderDetailMapper=orderDetailMapper;
         this.orderDetailRepository=orderDetailRepository;
         this.productCustomeRepository = productCustomeRepository;
+        this.orderRepository=orderRepository;
+        this.orderMapper = orderMapper;
+        this.cartRepository=cartRepository;
     }
 
 
@@ -784,5 +790,64 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ServiceResult<Page<ProductSearchResponse>> searchProductForUser(ProductRequestDTO productRequestDTO) {
         return new ServiceResult<>(this.productCustomeRepository.searchProduct(productRequestDTO), HttpStatus.OK,"");
+    }
+
+    @Override
+    public ServiceResult<List<ProductImgDTO>> getListBanner() {
+
+        List<ProductImg> productImgList = this.productImgRepository.findByType("BANNER");
+        List<ProductImgDTO> productImgDTOList = this.productImgMapper.toDto(productImgList);
+
+
+        return new ServiceResult<>(productImgDTOList,HttpStatus.OK,"");
+    }
+
+    @Override
+    public ServiceResult<OrdersDTO> updatePayStatusOrder(String orderCode) {
+
+        Optional<Orders> ordersOP = this.orderRepository.findByOrderCode(orderCode);
+
+        if(ordersOP.isPresent()){
+            ordersOP.get().setPayStatus(1L);
+            return new ServiceResult<>(this.orderMapper.toDto(ordersOP.get()),HttpStatus.OK,"Đặt hàng thành công");
+        }else{
+            return new ServiceResult<>(null,HttpStatus.BAD_REQUEST,"Đặt hàng thất bại");
+        }
+    }
+
+    @Override
+    public ServiceResult<List<ProductImgDTO>> createBanner(List<MultipartFile> lstBanner,List<Long> lstIdDelete) {
+
+        List<ProductImg> productImgList = this.productImgRepository.findByType("BANNER");
+
+        if(lstBanner!=null){
+            if(lstBanner.size()+ (productImgList.size()-lstIdDelete.size())>8){
+                return new ServiceResult<>(null,HttpStatus.BAD_REQUEST, "Số lượng banner không được nhiều hơn 8");
+            }else{
+
+                List<FileDto> lstFile = this.fileService.createListFile(lstBanner).getData();
+
+                List<ProductImg> productImgs = new ArrayList<>();
+                for(int i=0;i<lstFile.size();i++){
+                    ProductImg productImg = new ProductImg();
+
+                    productImg.setFileId(lstFile.get(i).getFileId());
+                    productImg.setType("BANNER");
+                    productImg.setFileName(lstFile.get(i).getFileName());
+                    productImg.setFileSize(lstFile.get(i).getFileSize()+" byte");
+                    productImgs.add(productImg);
+                }
+
+                productImgs = this.productImgRepository.saveAll(productImgs);
+                List<ProductImgDTO> lst = this.productImgMapper.toDto(productImgs);
+                return  new ServiceResult<>(lst,HttpStatus.OK,"");
+
+            }
+        }
+        if(!lstIdDelete.isEmpty()){
+            this.productImgRepository.deleteAllById(lstIdDelete);
+        }
+        return  new ServiceResult<>(null,HttpStatus.OK,"");
+
     }
 }

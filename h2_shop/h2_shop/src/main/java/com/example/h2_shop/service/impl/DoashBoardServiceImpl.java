@@ -71,8 +71,8 @@ public class DoashBoardServiceImpl implements DoashBoardService {
                 "    ) as months\n" +
                 "left join orders o on\n" +
                 "\tmonths.month = month(o.order_date)\n" +
-                "\tand (year(o.order_date) = :year\n" +
-                "\t\tand o.status = 3)\n" +
+                "\tand (year(o.order_date) = :year \n" +
+                "\t\t and o.pay_status=1)\n" +
                 "group by\n" +
                 "\tmonths.month";
         Query query = entityManager.createNativeQuery(sql);

@@ -1,9 +1,6 @@
 package com.example.h2_shop.service;
 
-import com.example.h2_shop.model.dto.CommentDTO;
-import com.example.h2_shop.model.dto.OrderRequestDTO;
-import com.example.h2_shop.model.dto.OrderViewDetailDTO;
-import com.example.h2_shop.model.dto.OrdersDTO;
+import com.example.h2_shop.model.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,4 +15,5 @@ public interface OrderService {
     public ServiceResult<CommentDTO> createComment(List<MultipartFile> filesComment, CommentDTO commentDTO);
 
     public ServiceResult<?> updateOrder(OrderViewDetailDTO orderViewDetailDTO);
+    ServiceResult<OrderDetailDTO> checkAllowComment(Long userId, Long productId);
 }

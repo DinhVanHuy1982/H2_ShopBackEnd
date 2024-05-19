@@ -9,6 +9,7 @@ public class ProductDetailResponseDTO {
     private Long brandId;
     private Long categoriesID;
     private Long price;
+    private Long priceImport;
     private String description;
     private Double avgRate;
     private Long totalSold;
@@ -192,5 +193,13 @@ public class ProductDetailResponseDTO {
 
     public void setImgDelete(List<Long> imgDelete) {
         this.imgDelete = imgDelete;
+    }
+
+    public Long getPriceImport() {
+        return priceImport;
+    }
+
+    public void setPriceImport(Long priceImport) {
+        this.priceImport = priceImport;
     }
 }

@@ -13,6 +13,7 @@ public class BrandProductDTO {
     private Long importPrice;
     private Instant importDate;
     private String categoryCode;
+    private Long productDetailId;
 
     private Product product;
     private Brands brands;
@@ -74,5 +75,12 @@ public class BrandProductDTO {
 
     public void setCategoryCode(String categoryCode) {
         this.categoryCode = categoryCode;
+    }
+    public Long getProductDetailId() {
+        return productDetailId;
+    }
+
+    public void setProductDetailId(Long productDetailId) {
+        this.productDetailId = productDetailId;
     }
 }

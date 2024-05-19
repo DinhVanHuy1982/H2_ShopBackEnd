@@ -50,4 +50,10 @@ public interface CartRepository extends JpaRepository<Carts,Long> {
             "    c.user_id = :userId\n" +
             "    AND pi2.avatar = true",nativeQuery = true)
     List<Map<String, Object>> getAllCartOfUser(@Param("userId") Long userId);
+
+    @Query(value = "select c.* from orders o right join order_detail od  on o.id= od.order_id \n" +
+            "   left join product_detail pd on pd.id = od.product_detail_id \n" +
+            "   left join carts c on c.product_detail_id = pd.id \n" +
+            "   where o.order_code = :orderCode and c.user_id = :userId", nativeQuery = true)
+    List<Carts> getCartInOrder(@Param("userId")Long userId, @Param("orderCode")String orderCode);
 }

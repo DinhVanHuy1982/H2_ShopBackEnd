@@ -19,4 +19,7 @@ public interface ProductService {
     public ServiceResult<List<ProductBestSellerDTO>> getListBestSeller();
     public ServiceResult<CommentResponseDTO> getDetailComment(Long id);
     public ServiceResult<Page<ProductSearchResponse>> searchProductForUser(ProductRequestDTO productRequestDTO);
+    public ServiceResult<List<ProductImgDTO>> getListBanner();
+    public ServiceResult<OrdersDTO> updatePayStatusOrder(String orderCode);
+    public ServiceResult<List<ProductImgDTO>> createBanner(List<MultipartFile> lstBanner,List<Long> lstIdDelete);
 }

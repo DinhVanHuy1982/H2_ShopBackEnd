@@ -106,4 +106,25 @@ public class ProductController {
     public ServiceResult<Page<ProductSearchResponse>> searchProductDorClient(@RequestBody ProductRequestDTO productRequestDTO){
         return productService.searchProductForUser(productRequestDTO);
     }
+
+
+    @GetMapping("/banner/get-list-banner")
+    public ServiceResult<List<ProductImgDTO>> getListBanner(){
+        return this.productService.getListBanner();
+    }
+
+    @PostMapping("/banner/create-banner")
+    public ServiceResult<List<ProductImgDTO>> createBanner(@RequestPart(value = "banner", required = false) List<MultipartFile> lstBanner, @RequestPart(required = false,value = "lstBannerDlete") List<Long > idFileDelete){
+        return this.productService.createBanner(lstBanner,idFileDelete);
+    }
+
+    @GetMapping("/product/update/pay-status/{orderCode}")
+    public ServiceResult<OrdersDTO> updatePayStatus(@PathVariable String orderCode){
+        return this.productService.updatePayStatusOrder(orderCode);
+    }
+
+    @GetMapping("/product/get-list-order-by-user")
+    public ServiceResult<?> abc(){
+        return null;
+    }
 }

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public interface OrderDetailRepository extends JpaRepository<OrderDetail,Long> {
@@ -22,16 +23,34 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail,Long> {
             "limit 1", nativeQuery = true)
     public OrderDetail findListOrderCompleteByProductAndUser(Long userId, Long productId,Long orderDetailId);
 
-    @Query(value = "SELECT od.* FROM product_detail pd RIGHT JOIN order_detail od ON od.product_detail_id = pd.id WHERE pd.product_id = ?1", nativeQuery = true)
-    List<OrderDetail> getOrderByIdProduct( Long productId);
+    @Query(value = "SELECT od.* FROM product_detail pd \n" +
+            "   RIGHT JOIN order_detail od ON od.product_detail_id = pd.id \n" +
+            "   left join orders o on o.id = od.order_id \n" +
+            "   WHERE pd.product_id = :productId\n" +
+            "   and o.status =3", nativeQuery = true)
+    List<OrderDetail> getOrderByIdProduct(@Param("productId") Long productId);
 
+    @Query(value = "SELECT od.*\n" +
+            "FROM order_detail od\n" +
+            "LEFT JOIN orders o ON o.id = od.order_id\n" +
+            "LEFT JOIN `user` u ON u.id = o.user_id\n" +
+            "RIGHT JOIN product_detail pd ON od.product_detail_id = pd.id\n" +
+            "RIGHT JOIN products p ON p.id = pd.product_id\n" +
+            "WHERE u.id = :userId\n" +
+            "  AND p.id = :productId\n" +
+            "  AND o.status = 3\n" +
+            "  AND od.comment IS NULL\n" +
+            "  AND od.rating IS NULL\n" +
+            "ORDER BY o.order_date DESC\n" +
+            "LIMIT 1;\n", nativeQuery = true)
+    Optional<OrderDetail> checkAllowComment(@Param("userId") Long userId, @Param("productId") Long productId);
     @Query(value = "SELECT \n" +
             "    u.id AS userId,\n" +
             "    u.full_name AS fullName,\n" +
             "    u.avatar AS avatar,\n" +
             "    od.rating,\n" +
             "    od.comment,\n" +
-            "    od.reply_comment\n" +
+            "    od.reply_comment commentRepply\n" +
             "FROM \n" +
             "    order_detail od \n" +
             "JOIN \n" +
@@ -55,4 +74,7 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail,Long> {
             "WHERE \n" +
             "    od.id = :orderDetailId", nativeQuery = true)
     List<Map<String,Object>> getImgCommentAndRepply(@Param("orderDetailId") Long ordeDetailId);
+
+
+
 }
