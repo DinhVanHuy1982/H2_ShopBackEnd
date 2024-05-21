@@ -97,6 +97,18 @@ public class CartServiceImpl implements CartService {
         return new ServiceResult<>(cartDTOS, HttpStatus.OK,"OK");
     }
 
+    @Override
+    public ServiceResult<?> deleteCartItem(Long cartId) {
+
+        Optional<Carts> cartOP = this.cartRepository.findById(cartId);
+        if(cartOP.isPresent()){
+            this.cartRepository.deleteById(cartId);
+            return new ServiceResult<>("",HttpStatus.OK,"Xóa thành công");
+        }else{
+            return new ServiceResult<>("",HttpStatus.BAD_REQUEST,"Sản phẩm không tồn tại trong giỏ hàng");
+        }
+    }
+
 
     public String validationCreateCart(CartDTO cartDTO){
         String err="";

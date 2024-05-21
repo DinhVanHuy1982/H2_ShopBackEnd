@@ -6,5 +6,6 @@ import java.util.List;
 
 
 public interface CategoriesRepositoryCustome {
-    public List<CategoriesDTO> getAllCategoriesActive(CategoriesDTO categoriesDTO);
+    public List<CategoriesDTO> getAllCategories(CategoriesDTO categoriesDTO);
+    public List<CategoriesDTO> getAllCategoriesActive();
 }

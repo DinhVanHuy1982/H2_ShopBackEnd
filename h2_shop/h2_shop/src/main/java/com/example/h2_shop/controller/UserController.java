@@ -43,16 +43,6 @@ public class UserController {
     public ServiceResult<?> createUser(@RequestPart(value = "avatar", required = false)MultipartFile avatar, @RequestPart("userDto") UserDto userDto){
         ServiceResult<UserDto> serviceResult = this.userService.createUser(userDto,avatar);
         if(serviceResult.getStatus()== HttpStatus.OK){
-//            UserDto userDto1 = serviceResult.getData();
-//            ServiceResult<FileDto> fileDtoServiceResult = new ServiceResult<>();
-//            if(avatar!=null){
-//                fileDtoServiceResult = this.fileService.createFile(avatar);
-//            }
-//
-//            if(fileDtoServiceResult.getStatus() == HttpStatus.OK){
-//                userDto1.setFileDto(fileDtoServiceResult.getData());
-//                serviceResult.setData(userDto1);
-//            }
             return serviceResult;
 
         }else{
@@ -101,5 +91,14 @@ public class UserController {
     @GetMapping("/user/delete/{id}")
     public ServiceResult<?> deleteUser(@PathVariable Long id){
         return this.userService.deleteUser(id);
+    }
+
+    @PostMapping("/user/update")
+    public ServiceResult<UserDto> updateUser(@RequestPart(value = "avatar", required = false)MultipartFile multipartFile, @RequestPart("userDto") UserDto userDto){
+        return this.userService.updateUser(multipartFile, userDto);
+    }
+    @PostMapping("/user/change-pass")
+    public ServiceResult<UserDto> changePassUser(@RequestBody ChangePasswordDTO changePasswordDTO){
+        return this.userService.changePass(changePasswordDTO);
     }
 }

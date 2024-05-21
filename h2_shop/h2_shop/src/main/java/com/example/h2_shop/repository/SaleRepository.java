@@ -24,7 +24,7 @@ public interface SaleRepository extends JpaRepository<Sale,Long> {
     @Query(value = "select * from sales s where (s.start_time <= now() and s.end_time>= now()) and type=1",nativeQuery = true)
     public Sale findByTypeAndTime();
 
-    @Query(value = "select  s.code, s.name,s.`type`, s.quantity , s.start_time startTime , s.end_time endTime, GROUP_CONCAT(s.product_id SEPARATOR ',') lstProductStr\n" +
+    @Query(value = "select  s.code, s.name,s.`type`, s.quantity , s.start_time startTime , s.end_time endTime,s.max_purchase maxPurchase, GROUP_CONCAT(s.product_id SEPARATOR ',') lstProductStr\n" +
             "from sales s \n" +
             "where (:type = '' or :type is null or :type=s.`type`) \n" +
             "and (:search ='' or :search is null or s.code like concat('%',:search,'%') or s.name like concat('%',:search,'%'))\n" +
@@ -59,4 +59,21 @@ public interface SaleRepository extends JpaRepository<Sale,Long> {
 
     @Modifying
     void deleteByCode(String code);
+
+    @Modifying
+    void deleteAllByProductId(Long id);
+
+    @Query(value = "SELECT\n" +
+            "    s2.*\n" +
+            "FROM\n" +
+            "    sales s2\n" +
+            "WHERE\n" +
+            "    NOW() BETWEEN s2.start_time AND s2.end_time\n" +
+            "GROUP BY\n" +
+            "    s2.code\n" +
+            "ORDER BY\n" +
+            "    s2.max_purchase DESC,\n" +
+            "    s2.end_time ASC\n" +
+            "LIMIT 1\n", nativeQuery = true)
+    Optional<Sale> getSaleHaveMaxpurchaseForDate();
 }

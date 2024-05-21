@@ -44,6 +44,7 @@ public class ProductServiceImpl implements ProductService {
     FileService fileService;
 
     private final ProductRepository productRepository;
+    private final SaleRepository saleRepository;
     private final BrandRepository brandRepository;
     private final BrandProductRepository brandProductRepository;
     private final CategoriesRepository categoriesRepository;
@@ -79,7 +80,8 @@ public class ProductServiceImpl implements ProductService {
                               OrderRepository orderRepository,
                               ProductCustomeRepository productCustomeRepository,
                               OrderMapper orderMapper,
-                              CartRepository cartRepository){
+                              CartRepository cartRepository,
+                              SaleRepository saleRepository){
         this.productRepository=productRepository;
         this.brandRepository=brandRepository;
         this.categoriesRepository=categoriesRepository;
@@ -98,6 +100,7 @@ public class ProductServiceImpl implements ProductService {
         this.orderRepository=orderRepository;
         this.orderMapper = orderMapper;
         this.cartRepository=cartRepository;
+        this.saleRepository=saleRepository;
     }
 
 
@@ -120,7 +123,7 @@ public class ProductServiceImpl implements ProductService {
         if(productDTO.getCategoriesID()!=null){
             Optional<Categories> categoriesOp = this.categoriesRepository.findById(productDTO.getCategoriesID());
             if(categoriesOp.isPresent()){ // check xem có tôn tại categori này hay không
-                Optional<Categories> categoriesParent = this.categoriesRepository.findByParentId(productDTO.getCategoriesID());
+                List<Categories> categoriesParent = this.categoriesRepository.findByParentId(productDTO.getCategoriesID());
                 if(categoriesParent.isEmpty()){  // check xem categori có là danh mục cha của 1 danh mục nào đó hay không
                     product.setCategories(categoriesOp.get());
                 }
@@ -253,6 +256,16 @@ public class ProductServiceImpl implements ProductService {
 
         Optional<Product> productOP = this.productRepository.findById(productResponseDTO.getId());
         Product product = new Product();
+        List<Categories> categoriesOP = this.categoriesRepository.findByParentId(productResponseDTO.getCategoriesID());
+        if(!categoriesOP.isEmpty()){
+            return new ServiceResult<>(null, HttpStatus.BAD_REQUEST,"Danh mục sản phẩm phải là cấp thấp nhất");
+        }
+        List<BrandProduct> lstBrandProduct = this.brandProductRepository.findByProductId(productResponseDTO.getId());
+        Optional<Brands> brandsOP = this.brandRepository.findById(productResponseDTO.getBrandId());
+        if(!brandsOP.isPresent()){
+            return new ServiceResult<>(null, HttpStatus.BAD_REQUEST,"Nhãn hàng không tồn tại");
+        }
+
         if(productOP.isPresent()){
             product=productOP.get();
             product.setId(productResponseDTO.getId());
@@ -263,6 +276,11 @@ public class ProductServiceImpl implements ProductService {
             product.setPrice(productResponseDTO.getPrice());
             product.setDescription(productResponseDTO.getDescription());
             product.setProductName(productResponseDTO.getProductName());
+
+            for(BrandProduct bp:lstBrandProduct){
+                bp.setBrands(brandsOP.get());
+            }
+
         }else{
             return new ServiceResult<>(null, HttpStatus.BAD_REQUEST,"Sản phẩm không tồn tại");
         }
@@ -437,8 +455,8 @@ public class ProductServiceImpl implements ProductService {
         if(productDTO.getCategoriesID()!=null){
             Optional<Categories> categoriesOp = this.categoriesRepository.findById(productDTO.getCategoriesID());
             if(categoriesOp.isPresent()){
-                Optional<Categories> categoriesParent = this.categoriesRepository.findByParentId(productDTO.getCategoriesID());
-                if(categoriesParent.isPresent()){
+                List<Categories> categoriesParent = this.categoriesRepository.findByParentId(productDTO.getCategoriesID());
+                if(!categoriesParent.isEmpty()){
                     err.append(" Danh mục phải chọn cấp thấp nhất ");
                 }
             }else{
@@ -654,6 +672,14 @@ public class ProductServiceImpl implements ProductService {
             productDetailResponseDTO.setCategoriesId(productDTO.getCategories().getId());
             productDetailResponseDTO.setBrandId(productDTO.getBrandId());
 
+            // kiểm tra sản phẩm có thuộc chương trình giảm giá nào hay không
+            Optional<Sale> saleOP = this.saleRepository.findByProductID(id);
+            if(saleOP.isPresent()){
+                productDetailResponseDTO.setMaxPurchase(saleOP.get().getMaxPurchase());
+                Double priceSale = Double.parseDouble( productDetailResponseDTO.getPrice()* ((100 - saleOP.get().getMaxPurchase()) / 100) +"");
+                productDetailResponseDTO.setPriceSale(priceSale);
+            }
+
             // lấy danh sách đường dẫn ảnh
             List<ProductImg> productImgList = this.productImgRepository.findByProductId(productDTO.getId());
             List<ProductImgDTO> productImgDTOList = this.productImgMapper.toDto(productImgList);
@@ -692,49 +718,9 @@ public class ProductServiceImpl implements ProductService {
 //            // lấy sao đánh giá cho sản phẩm
             List<OrderDetail> lstObj = this.orderDetailRepository.getOrderByIdProduct(id);
             Long totalSold=0l;
-//            int rate1=0;
-//            int rate2=0;
-//            int rate3=0;
-//            int rate4=0;
-//            int rate5=0;
-//            Integer totalRate=0;
-//            int count=0;
             for(OrderDetail o : lstObj){
                 totalSold+=o.getQuantity();
-//                if(lstObj.get(i).getRating()!=null){
-//                    totalRate += lstObj.get(i).getRating();
-//                    count++;
-//                    if (lstObj.get(i).getRating() == 1){
-//                        rate1++;
-//                    } else if (lstObj.get(i).getRating()==2) {
-//                        rate2++;
-//                    } else if (lstObj.get(i).getRating()==3) {
-//                        rate3++;
-//                    } else if (lstObj.get(i).getRating()==4) {
-//                        rate4++;
-//                    } else if (lstObj.get(i).getRating()==5) {
-//                        rate5++;
-//                    }
-//                }
             }
-//            if(count!=0){
-//                productDetailResponseDTO.setAvgRate((double)totalRate/count);
-//            }
-//            productDetailResponseDTO.setRate1(rate1);
-//            productDetailResponseDTO.setRate2(rate2);
-//            productDetailResponseDTO.setRate3(rate3);
-//            productDetailResponseDTO.setRate4(rate4);
-//            productDetailResponseDTO.setRate5(rate5);
-//            List<OrderDetailDTO> orderDetailDTO= this.orderDetailMapper.toDto(lstObj);
-//            for(int i=0;i<orderDetailDTO.size();i++){
-//                List<ProductImg> productImgComment = this.productImgRepository.findByOrderDetailId(orderDetailDTO.get(i).getId());
-//                orderDetailDTO.get(i).setListImgComment(this.productImgMapper.toDto(productImgComment));
-//                orderDetailDTO.get(i).setOrders(null);
-//                orderDetailDTO.get(i).setProductDetail(null);
-//
-//            }
-//            productDetailResponseDTO.setLstOrderDetail(orderDetailDTO);
-
             productDetailResponseDTO.setTotalSold(totalSold);
             return new ServiceResult<>(productDetailResponseDTO,HttpStatus.OK,"Success");
         }else{
@@ -849,5 +835,75 @@ public class ProductServiceImpl implements ProductService {
         }
         return  new ServiceResult<>(null,HttpStatus.OK,"");
 
+    }
+
+    @Override
+    public ServiceResult<ProductDTO> deleteProduct(Long id) {
+        ServiceResult<ProductDTO> serviceResult = new ServiceResult<>();
+        Optional<Product> productOP = productRepository.findById(id);
+        if(productOP.isPresent()){
+            this.productDetailRepository.findAllByProductId(id);
+
+            // kiểm tra sản phẩm đã được đặt hàng hay chưa
+            List<Map<String,Object>> mapOrderDetail = this.productRepository.getOrderOfProduct(id);
+            if(mapOrderDetail.isEmpty()){
+                Long quantityImport = this.brandProductRepository.sumQuantityByProduct(id);
+                if(quantityImport>0){
+                    serviceResult.setStatus(HttpStatus.BAD_REQUEST);
+                    serviceResult.setMessage("Sản phẩm đã được nhập hàng, không được xóa");
+                }else{
+                    // xóa bản ghi trong brand_product
+                    this.brandProductRepository.deleteByProductId(id);
+
+                    List<ProductDetail> productDetails = this.productDetailRepository.findAllByProductId(id);
+
+                    List<TypeProduct> typeProductsDelete = new ArrayList<>();
+                    List<Size> sizeDelete = new ArrayList<>();
+                    List<Long> idProductDetails = new ArrayList<>();
+                    for( int i = 0 ;i<productDetails.size();i++){
+                        typeProductsDelete.add(productDetails.get(i).getTypeProduct());
+                        sizeDelete.add(productDetails.get(i).getSize());
+                        idProductDetails.add(productDetails.get(i).getId());
+                    }
+                    this.cartRepository.deleteCartWithProductId(idProductDetails);
+                    this.productDetailRepository.deleteAll(productDetails);
+                    this.sizeRepository.deleteAll(sizeDelete);
+                    this.typeProductRepository.deleteAll(typeProductsDelete);
+
+                    this.productImgRepository.deleteAllByProductId(id);
+                    this.saleRepository.deleteAllByProductId(id);
+                    this.productRepository.delete(productOP.get());
+
+//                    serviceResult.setData(this.productMapper.toDto(productOP.get()));
+                    serviceResult.setStatus(HttpStatus.OK);
+                    serviceResult.setMessage("Xóa sản phẩm thành công");
+                }
+            }else{
+                serviceResult.setStatus(HttpStatus.BAD_REQUEST);
+                serviceResult.setMessage("Sản phẩm đã được mua, không được xóa");
+            }
+        }else{
+            serviceResult.setStatus(HttpStatus.BAD_REQUEST);
+            serviceResult.setMessage("Sản phẩm không tồn tại");
+        }
+        return serviceResult;
+    }
+
+    @Override
+    public ServiceResult<SaleForProductDTO> getLstBestSaleForDay() {
+        SaleForProductDTO saleForProductDTO = new SaleForProductDTO();
+        Optional<Sale> saleOP = this.saleRepository.getSaleHaveMaxpurchaseForDate();
+        if(saleOP.isPresent()){
+            List<Map<String,Object>> map = this.productRepository.getLstProductSaleForSaleCode(saleOP.get().getCode());
+            List<ProductBestSellerDTO> lstProductBestSale = map.stream().map(item -> ReflectorUtil.mapToDTO(item,ProductBestSellerDTO.class)).collect(Collectors.toList());
+            saleForProductDTO.setCode(saleOP.get().getCode());
+            saleForProductDTO.setMaxPurchase(saleOP.get().getMaxPurchase());
+            saleForProductDTO.setEndDate(saleOP.get().getEndTime());
+            saleForProductDTO.setStartDate(saleOP.get().getStartTime());
+            saleForProductDTO.setLstProductBestSale(lstProductBestSale);
+            return new ServiceResult<>(saleForProductDTO,HttpStatus.OK,"");
+        }else {
+            return new ServiceResult<>(null,HttpStatus.BAD_REQUEST,"Không tồn tại chương trình giảm giá nào");
+        }
     }
 }

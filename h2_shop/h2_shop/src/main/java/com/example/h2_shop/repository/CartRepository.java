@@ -2,15 +2,18 @@ package com.example.h2_shop.repository;
 
 import com.example.h2_shop.model.Carts;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 @Repository
+@Transactional
 public interface CartRepository extends JpaRepository<Carts,Long> {
 
     @Query(value = "select * from carts where user_id = ?1 and product_detail_id = ?2 ",nativeQuery = true)
@@ -56,4 +59,8 @@ public interface CartRepository extends JpaRepository<Carts,Long> {
             "   left join carts c on c.product_detail_id = pd.id \n" +
             "   where o.order_code = :orderCode and c.user_id = :userId", nativeQuery = true)
     List<Carts> getCartInOrder(@Param("userId")Long userId, @Param("orderCode")String orderCode);
+
+    @Modifying
+    @Query(value = "DELETE FROM carts WHERE product_detail_id IN :productDetailIds", nativeQuery = true)
+    void deleteCartWithProductId(@Param("productDetailIds") List<Long> lstProduct);
 }

@@ -132,11 +132,12 @@ public class RolesServiceImpl implements RolesService {
                     action.setSelected(0L);
                 });
             });
-            List<ActionsDTO> actionsDTOList = new ArrayList<>();// danh sách chứa những action không có trong chức năng
-            List<Action> actionBeetwen = new ArrayList<>();
+
             for (RolesDetailsDTO rd : rolesDetailsDTOList){
                 for(FunctionsDTO functionsDTO : lstFunctionDTO){
                     if(functionsDTO.getId() == rd.getFunction().getId()){
+                        List<ActionsDTO> actionsDTOList = new ArrayList<>();// danh sách chứa những action không có trong chức năng
+                        List<Action> actionBeetwen = new ArrayList<>();
                         String[] stringArray = rd.getAction().split(",");
                         Long[] longArray = new Long[stringArray.length];
                         for (int i = 0; i < stringArray.length; i++) {

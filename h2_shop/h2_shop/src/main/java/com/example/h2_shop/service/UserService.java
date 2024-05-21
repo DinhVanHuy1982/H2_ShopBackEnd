@@ -2,10 +2,7 @@ package com.example.h2_shop.service;
 
 import com.example.h2_shop.model.Notify;
 import com.example.h2_shop.model.User;
-import com.example.h2_shop.model.dto.NotifyDTO;
-import com.example.h2_shop.model.dto.SearchFormDTO;
-import com.example.h2_shop.model.dto.UserDto;
-import com.example.h2_shop.model.dto.UserResponseDTO;
+import com.example.h2_shop.model.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,4 +21,8 @@ public interface UserService {
     public ServiceResult<NotifyDTO> forgotPassword(UserDto userDto) throws MessagingException;
     public ServiceResult<?> confirmPassWord(UserDto userDto);
     public ServiceResult<UserDto> loginUser(UserDto userDto);
+
+    ServiceResult<UserDto> updateUser(MultipartFile multipartFile, UserDto userDto);
+
+    ServiceResult<UserDto> changePass(ChangePasswordDTO changePasswordDTO);
 }

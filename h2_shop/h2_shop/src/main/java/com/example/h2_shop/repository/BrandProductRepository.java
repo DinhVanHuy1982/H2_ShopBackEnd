@@ -33,4 +33,12 @@ public interface BrandProductRepository extends JpaRepository<BrandProduct,Long>
             "    bp.import_date\n",nativeQuery = true)
     List<Map<String,Object>> getHistoryImportByProductId(@Param("productId")Long productId);
 
+    @Query(value = "select bp.* from brand_product bp where bp.brand_id =:brandId",nativeQuery = true)
+    List<BrandProduct> findByBrandId(@Param("brandId") Long brandId);
+    @Query(value = "SELECT if(SUM(bp.import_quantity) is null, 0,SUM(bp.import_quantity)) FROM brand_product bp WHERE bp.product_id = :productId", nativeQuery = true)
+    Long sumQuantityByProduct(@Param("productId") Long productId);
+
+    void deleteByProductId(Long productId);
+
+    List<BrandProduct> findByProductId(Long id);
 }

@@ -22,4 +22,8 @@ public interface ProductService {
     public ServiceResult<List<ProductImgDTO>> getListBanner();
     public ServiceResult<OrdersDTO> updatePayStatusOrder(String orderCode);
     public ServiceResult<List<ProductImgDTO>> createBanner(List<MultipartFile> lstBanner,List<Long> lstIdDelete);
+
+    public ServiceResult<ProductDTO> deleteProduct(Long id);
+
+    ServiceResult<SaleForProductDTO> getLstBestSaleForDay();
 }

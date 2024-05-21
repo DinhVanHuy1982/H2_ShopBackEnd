@@ -127,4 +127,14 @@ public class ProductController {
     public ServiceResult<?> abc(){
         return null;
     }
+
+    @GetMapping("/product/delete/product/{id}")
+    public ServiceResult<ProductDTO> deleteProduct(@PathVariable("id")Long id){
+
+        return this.productService.deleteProduct(id);
+    }
+    @GetMapping("/product/get-best-sell")
+    public ServiceResult<SaleForProductDTO> getLstProductBestSaleForDay(){
+        return this.productService.getLstBestSaleForDay();
+    }
 }

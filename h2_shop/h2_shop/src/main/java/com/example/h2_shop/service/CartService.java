@@ -7,4 +7,6 @@ import java.util.List;
 public interface CartService {
     public ServiceResult<CartDTO> createCart(CartDTO cartDTO);
     ServiceResult<List<CartDTO>> getCartByUser(Long userId);
+
+    ServiceResult<?> deleteCartItem(Long cartId);
 }

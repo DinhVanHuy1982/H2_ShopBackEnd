@@ -37,9 +37,16 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
             "LEFT JOIN \n" +
             "    product_detail pd ON pd.product_id = p.id\n" +
             "LEFT JOIN \n" +
-            "    brand_product bp ON bp.product_id = p.id\n" +
-            "LEFT JOIN \n" +
-            "    brand b ON bp.brand_id = b.id\n" +
+            "    (\n" +
+            "        SELECT DISTINCT \n" +
+            "            b.brand_name, \n" +
+            "            b.id, \n" +
+            "            bp.product_id  \n" +
+            "        FROM \n" +
+            "            brand b \n" +
+            "        LEFT JOIN \n" +
+            "            brand_product bp ON bp.brand_id = b.id\n" +
+            "    ) b ON b.product_id = p.id\n" +
             "JOIN \n" +
             "    categories c ON c.id = p.categories_id\n" +
             "WHERE \n" +
@@ -47,7 +54,15 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
             "    AND (:brandId IS NULL OR b.id = :brandId)\n" +
             "    AND (:categoriId IS NULL OR c.id = :categoriId)\n" +
             "GROUP BY \n" +
-            "    p.id", nativeQuery = true)
+            "    p.id,\n" +
+            "    p.product_code,\n" +
+            "    p.product_name,\n" +
+            "    p.price,\n" +
+            "    p.create_time,\n" +
+            "    b.brand_name,\n" +
+            "    b.id,\n" +
+            "    c.categori_name,\n" +
+            "    c.id;\n", nativeQuery = true)
     public Page<Map<String,Object>> getPageProductView(Pageable pageable, @Param("keySearch")String search, @Param("brandId")Long brandId, @Param("categoriId") Long categoriId);
 
     @Query(value = "SELECT *\n" +
@@ -60,8 +75,9 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
             "        p.price AS price,\n" +
             "        (p.price * (100 - s.max_purchase))/100 AS priceSale,\n" +
             "        c.categori_code AS categoriCode,\n" +
-            "        c.categori_name AS categoriName,\n" +
-            "        SUM(pd.quantity) AS quantityHave\n" +
+            "        c.categori_name AS categorieName,\n" +
+            "        SUM(pd.quantity) AS quantityHave,\n" +
+            "        s.max_purchase maxPurchase\n" +
             "    FROM\n" +
             "        products p\n" +
             "    LEFT JOIN product_detail pd ON pd.product_id = p.id\n" +
@@ -118,4 +134,60 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
             "    pd.product_id = :productId",nativeQuery = true)
     Map<String,Object> getInforCommentProduct(@Param("productId") Long id);
 
+    @Query(value = "select od.* from products p left join product_detail pd on pd.product_id =p.id\n" +
+            "    right join order_detail od on od.product_detail_id =pd.id \n" +
+            "    where p.id =:productId", nativeQuery = true)
+    List<Map<String,Object>> getOrderOfProduct(@Param("productId")Long id);
+
+    @Query(value = "select * from products where categories_id =:categoriId",nativeQuery = true)
+    List<Product> getProductByCategoriId(@Param("categoriId")Long id);
+
+
+    @Query(value = "SELECT\n" +
+            "    *\n" +
+            "FROM\n" +
+            "    (\n" +
+            "        SELECT\n" +
+            "            p.id AS id,\n" +
+            "            p.price,\n" +
+            "            (p.price * ((100 - s.max_purchase) / 100)) AS priceSale,\n" +
+            "            p.product_name AS productName,\n" +
+            "            s.max_purchase AS maxPurchase,\n" +
+            "            SUM(pd.quantity) AS quantityHave,\n" +
+            "            pi.file_name AS avatar,\n" +
+            "            c.categori_code AS categoriCode,\n" +
+            "            c.categori_name AS categorieName\n" +
+            "        FROM\n" +
+            "            sales s\n" +
+            "        RIGHT JOIN products p ON p.id = s.product_id\n" +
+            "        LEFT JOIN categories c ON c.id = p.categories_id\n" +
+            "        LEFT JOIN product_detail pd ON pd.product_id = p.id\n" +
+            "        LEFT JOIN product_img pi ON pi.product_id = p.id AND pi.avatar = 1\n" +
+            "        WHERE\n" +
+            "            (NOW() BETWEEN s.start_time AND s.end_time)\n" +
+            "            AND s.`type` = 0\n" +
+            "            AND s.code = :saleCode\n" +
+            "        GROUP BY\n" +
+            "            p.id\n" +
+            "    ) AS tbl1\n" +
+            "LEFT JOIN \n" +
+            "    (\n" +
+            "        SELECT\n" +
+            "            p.id AS productId,\n" +
+            "            IF(SUM(od.quantity) IS NULL, 0, SUM(od.quantity)) AS orderQuantity,\n" +
+            "            IF(AVG(od.rating) IS NULL, 0, AVG(od.rating)) AS ratingAvg\n" +
+            "        FROM\n" +
+            "            products p\n" +
+            "        LEFT JOIN product_detail pd ON pd.product_id = p.id\n" +
+            "        LEFT JOIN order_detail od ON od.product_detail_id = pd.id\n" +
+            "        LEFT JOIN categories c ON c.id = p.categories_id\n" +
+            "        LEFT JOIN orders o ON od.order_id = o.id\n" +
+            "        WHERE\n" +
+            "            o.status = 3\n" +
+            "        GROUP BY\n" +
+            "            p.id\n" +
+            "    ) AS tbl2 \n" +
+            "ON\n" +
+            "    tbl2.productId = tbl1.id\n", nativeQuery = true)
+    List<Map<String,Object>> getLstProductSaleForSaleCode(@Param("saleCode")String saleCode);
 }

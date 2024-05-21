@@ -14,4 +14,6 @@ public interface SaleService {
     ServiceResult<SaleSearchResponseDTO> getDetailSale(String code);
     ServiceResult<SaleDTO> updateSale(SaleDTO saleDTO);
     ServiceResult<List<SaleDTO>>  searchSaleBill();
+
+    ServiceResult<?> deleteSaleById(String saleCode);
 }

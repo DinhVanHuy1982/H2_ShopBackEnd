@@ -16,7 +16,7 @@ import java.util.Optional;
 public interface OrderRepository extends JpaRepository<Orders,Long> {
 
 
-    @Query(value = "   SELECT \n" +
+    @Query(value = "  SELECT \n" +
             "    o.id,\n" +
             "    u.id AS userId,\n" +
             "    u.full_name AS userBuy,\n" +
@@ -24,15 +24,19 @@ public interface OrderRepository extends JpaRepository<Orders,Long> {
             "    o.price AS priceOrder,\n" +
             "    o.order_date AS orderDate,\n" +
             "    o.status,\n" +
-            "    o.payment_method paymentMethod,\n" +
-            "    a.name nameStatus\n" +
+            "    o.payment_method AS paymentMethod,\n" +
+            "    a.name AS nameStatus\n" +
             "FROM \n" +
             "    orders o \n" +
             "JOIN \n" +
             "    `user` u ON u.id = o.user_id\n" +
-            "join (select * from app_params ap where  ap.type = 'ORDERSTATUS') a on a.value = o.status  \n" +
-            "  where (:status is null or :status = o.status) \n" +
-            "  and (:keySearch is null or o.order_code like concat('%',:keySearch,'%'))",nativeQuery = true)
+            "JOIN \n" +
+            "    (SELECT * FROM app_params ap WHERE ap.type = 'ORDERSTATUS') a ON a.value = o.status\n" +
+            "WHERE \n" +
+            "    (:status IS NULL OR :status = o.status)\n" +
+            "    AND (:keySearch IS NULL OR o.order_code LIKE CONCAT('%', :keySearch, '%'))\n" +
+            "ORDER BY \n" +
+            "    o.order_date DESC;\n",nativeQuery = true)
     Page<Map<String,Object>> searchOrder(Pageable pageable, @Param("status") Long status, @Param("keySearch")String keySearch);
 
 
@@ -134,29 +138,36 @@ public interface OrderRepository extends JpaRepository<Orders,Long> {
             "    od.quantity,\n" +
             "    od.price,\n" +
             "    IF(sale.id IS NULL, NULL, od.price * (100 - sale.max_purchase) / 100) AS priceSale,\n" +
-            "    s.size_name sizeName,\n" +
-            "    tp.type_name typeName,\n" +
-            "    pd.quantity quantityHave,\n" +
-            "    pd.id as productDetailId\n" +
+            "    s.size_name AS sizeName,\n" +
+            "    tp.type_name AS typeName,\n" +
+            "    pd.quantity AS quantityHave,\n" +
+            "    pd.id AS productDetailId\n" +
             "FROM\n" +
             "    order_detail od\n" +
-            "LEFT JOIN product_detail pd ON pd.id = od.product_detail_id \n" +
-            "LEFT JOIN type_product tp ON tp.id = pd.type_product_id \n" +
-            "LEFT JOIN sizes s ON s.id = pd.size_id \n" +
-            "LEFT JOIN products p ON p.id = pd.product_id \n" +
+            "LEFT JOIN orders o ON o.id = od.order_id\n" +
+            "LEFT JOIN product_detail pd ON pd.id = od.product_detail_id\n" +
+            "LEFT JOIN type_product tp ON tp.id = pd.type_product_id\n" +
+            "LEFT JOIN sizes s ON s.id = pd.size_id\n" +
+            "LEFT JOIN products p ON p.id = pd.product_id\n" +
             "LEFT JOIN (\n" +
-            "    SELECT * FROM sales s2 WHERE NOW() BETWEEN s2.start_time AND s2.end_time AND type = 0\n" +
-            ") AS sale ON sale.product_id = p.id\n" +
+            "    SELECT * \n" +
+            "    FROM sales s2 \n" +
+            "    WHERE type = 0\n" +
+            ") AS sale ON sale.product_id = p.id AND (o.order_date BETWEEN sale.start_time AND sale.end_time)\n" +
             "WHERE\n" +
-            "    FIND_IN_SET(od.id, :orderDetailIdConcat) > 0;\n",nativeQuery = true)
+            "    FIND_IN_SET(od.id, ?1) > 0;\n\n",nativeQuery = true)
     List<Map<String,Object>> getListOrderDetailOfOrder(@Param("orderDetailIdConcat")String orderDetailIdlst);
 
     List<Orders> findByUserId(Long userId);
     Optional<Orders> findByOrderCode(String orderCode);
 
+    @Query(value = "select * from orders o where o.sale_id = :saleId ",nativeQuery = true)
+    List<Orders> findBySaleId(@Param("saleId") Long saleId);
+
 
     @Query(value = "select\n" +
-            "\to.id,\n" +
+            "\to.id," +
+            "\to.order_code orderCode,\n" +
             "\to.order_date orderDate,\n" +
             "\to.phone_number phoneNumber,\n" +
             "\to.price price,\n" +

@@ -52,4 +52,9 @@ public class BrandController {
         return this.brandService.detailBrandById(id);
     }
 
+    @GetMapping("/brand/delete-brand/{id}")
+    public ServiceResult<?> deleteBrand(@PathVariable Long id){
+        return this.brandService.deleteBrand(id);
+    }
+
 }

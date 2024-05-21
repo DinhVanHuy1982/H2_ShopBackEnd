@@ -31,7 +31,7 @@ public class CategoriesRepositoryCustomeCustomeImpl implements CategoriesReposit
 //        this.entityManager=entityManager;
     }
     @Override
-    public List<CategoriesDTO> getAllCategoriesActive(CategoriesDTO categoriesDTOSearch) {
+    public List<CategoriesDTO> getAllCategories(CategoriesDTO categoriesDTOSearch) {
         String sql = "WITH RECURSIVE cte (id, parent_id) AS (\n" +
                 "    SELECT ct.id, ct.parent_id\n" +
                 "    FROM categories ct" +
@@ -57,6 +57,70 @@ public class CategoriesRepositoryCustomeCustomeImpl implements CategoriesReposit
         }else{
             query.setParameter("search", null);
         }
+
+        List<Object[]> listObj = query.getResultList();
+
+        List<CategoriesDTO> categoriesDTOList = new ArrayList<>();
+        for(Object[] obj : listObj){
+            CategoriesDTO categoriesDTO = new CategoriesDTO();
+            categoriesDTO.setId((Long) obj[0]);
+            categoriesDTO.setCategoriCode((String) obj[1]);
+            categoriesDTO.setCategoriName((String) obj[2]);
+            categoriesDTO.setParentId((Long) obj[3]);
+            categoriesDTO.setCreateTime(DataUtil.safeToInstant(obj[4]));
+            categoriesDTO.setStatus((String) obj[5]);
+            categoriesDTO.setDescription((String) obj[6]);
+            categoriesDTOList.add(categoriesDTO);
+        }
+
+//        List<CategoriesDTO> categoriesDTOList = this.categoriesMapper.toDto(categoriesList);
+        return categoriesDTOList;
+    }
+
+
+
+    @Override
+    public List<CategoriesDTO> getAllCategoriesActive() {
+        String sql = "WITH RECURSIVE cte AS (\n" +
+                "    SELECT \n" +
+                "        ct.id, \n" +
+                "        ct.parent_id,\n" +
+                "        ct.status\n" +
+                "    FROM \n" +
+                "        categories ct\n" +
+                "    WHERE \n" +
+                "        1=1 \n" +
+                "        AND ct.status = 1 and parent_id is null\n" +
+                "    union  \n" +
+                "    SELECT \n" +
+                "        ct2.id, \n" +
+                "        ct2.parent_id,\n" +
+                "        ct2.status\n" +
+                "    FROM \n" +
+                "        categories ct2\n" +
+                "    INNER JOIN \n" +
+                "        cte ON ct2.parent_id = cte.id\n" +
+                "    WHERE \n" +
+                "        cte.status = 1\n" +
+                ")\n" +
+                "SELECT \n" +
+                "    ct.id, \n" +
+                "    ct.categori_code, \n" +
+                "    ct.categori_name, \n" +
+                "    ct.parent_id,\n" +
+                "    ct.create_time, \n" +
+                "    ct.status, \n" +
+                "    ct.description\n" +
+                "FROM \n" +
+                "    cte\n" +
+                "LEFT JOIN \n" +
+                "    categories ct ON cte.id = ct.id\n" +
+                "WHERE \n" +
+                "    cte.status = 1\n" +
+                "ORDER BY \n" +
+                "    ct.categori_code ASC;";
+
+        Query query = this.entityManager.createNativeQuery(sql);
 
         List<Object[]> listObj = query.getResultList();
 

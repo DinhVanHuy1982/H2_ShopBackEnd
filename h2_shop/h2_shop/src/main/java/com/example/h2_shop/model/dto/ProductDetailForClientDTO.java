@@ -9,6 +9,8 @@ public class ProductDetailForClientDTO {
     private Long brandId;
     private Long categoriesId;
     private Long price;
+    private Double priceSale;
+    private Float maxPurchase;
     private String description;
     private Long totalSold;
     private CommentResponseDTO commentResponseDTO;
@@ -128,5 +130,21 @@ public class ProductDetailForClientDTO {
 
     public void setCommentResponseDTO(CommentResponseDTO commentResponseDTO) {
         this.commentResponseDTO = commentResponseDTO;
+    }
+
+    public Double getPriceSale() {
+        return priceSale;
+    }
+
+    public void setPriceSale(Double priceSale) {
+        this.priceSale = priceSale;
+    }
+
+    public Float getMaxPurchase() {
+        return maxPurchase;
+    }
+
+    public void setMaxPurchase(Float maxPurchase) {
+        this.maxPurchase = maxPurchase;
     }
 }

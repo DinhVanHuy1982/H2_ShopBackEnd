@@ -1,9 +1,11 @@
 package com.example.h2_shop.service.impl;
 
+import com.example.h2_shop.model.BrandProduct;
 import com.example.h2_shop.model.Brands;
 import com.example.h2_shop.model.dto.BrandsDTO;
 import com.example.h2_shop.model.dto.FileDto;
 import com.example.h2_shop.model.mapper.BrandMapper;
+import com.example.h2_shop.repository.BrandProductRepository;
 import com.example.h2_shop.repository.BrandRepository;
 import com.example.h2_shop.service.BrandService;
 import com.example.h2_shop.service.FileService;
@@ -27,13 +29,15 @@ import java.util.Optional;
 public class BrandServiceImpl implements BrandService {
 
     private final BrandRepository brandRepository;
+    private final BrandProductRepository brandProductRepository;
     private final BrandMapper brandMapper;
 
     private final FileService fileService;
-    public BrandServiceImpl(BrandRepository brandRepository,  BrandMapper brandMapper, FileService fileService){
+    public BrandServiceImpl(BrandRepository brandRepository,  BrandProductRepository brandProductRepository, BrandMapper brandMapper, FileService fileService){
         this.brandRepository=brandRepository;
         this.brandMapper = brandMapper;
         this.fileService = fileService;
+        this.brandProductRepository=brandProductRepository;
     }
 
     @Override
@@ -131,6 +135,27 @@ public class BrandServiceImpl implements BrandService {
         }else{
             serviceResult.setStatus(HttpStatus.BAD_REQUEST);
             serviceResult.setMessage("Không tồn tại nhãn hàng này");
+        }
+        return serviceResult;
+    }
+
+    @Override
+    public ServiceResult<?> deleteBrand(Long id) {
+        ServiceResult<?> serviceResult = new ServiceResult<>();
+        Optional<Brands> brandsOP=this.brandRepository.findById(id);
+        if(brandsOP.isPresent()){
+            List<BrandProduct> lstBrandProduct = this.brandProductRepository.findByBrandId(id);
+            if(lstBrandProduct.isEmpty()){
+                this.brandRepository.delete(brandsOP.get());
+                serviceResult.setMessage("Xóa thành công");
+                serviceResult.setStatus(HttpStatus.OK);
+            }else{
+                serviceResult.setStatus(HttpStatus.BAD_REQUEST);
+                serviceResult.setMessage("Tồn tại sản phẩm thuộc nhãn hàng, không được xóa");
+            }
+        }else{
+            serviceResult.setStatus(HttpStatus.BAD_REQUEST);
+            serviceResult.setMessage("Nhãn hàng không tồn tại");
         }
         return serviceResult;
     }

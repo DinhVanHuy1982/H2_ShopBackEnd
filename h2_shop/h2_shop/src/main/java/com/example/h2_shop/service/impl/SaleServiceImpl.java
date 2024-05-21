@@ -1,16 +1,19 @@
 package com.example.h2_shop.service.impl;
 
 import com.example.h2_shop.commons.ReflectorUtil;
+import com.example.h2_shop.model.Orders;
 import com.example.h2_shop.model.Product;
 import com.example.h2_shop.model.Sale;
 import com.example.h2_shop.model.dto.ProductDTO;
 import com.example.h2_shop.model.dto.SaleDTO;
 import com.example.h2_shop.model.dto.SaleSearchResponseDTO;
 import com.example.h2_shop.model.mapper.SaleMapper;
+import com.example.h2_shop.repository.OrderRepository;
 import com.example.h2_shop.repository.SaleRepository;
 import com.example.h2_shop.service.ProductService;
 import com.example.h2_shop.service.SaleService;
 import com.example.h2_shop.service.ServiceResult;
+import org.hibernate.query.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -30,11 +33,13 @@ public class SaleServiceImpl implements SaleService {
 
     private final SaleMapper saleMapper;
     private final ProductService productService;
+    private final OrderRepository orderRepository;
 
-    public SaleServiceImpl(SaleRepository saleRepository,ProductService productService,SaleMapper saleMapper) {
+    public SaleServiceImpl(SaleRepository saleRepository,OrderRepository orderRepository,ProductService productService,SaleMapper saleMapper) {
         this.saleRepository = saleRepository;
         this.saleMapper= saleMapper;
         this.productService=productService;
+        this.orderRepository=orderRepository;
     }
 
     @Override
@@ -183,5 +188,37 @@ public class SaleServiceImpl implements SaleService {
         List<Sale> lstSale = this.saleRepository.searchSaleForBill();
 
         return new ServiceResult<>(this.saleMapper.toDto(lstSale),HttpStatus.OK,"");
+    }
+
+    @Override
+    public ServiceResult<?> deleteSaleById(String saleCode) {
+
+        ServiceResult<?> serviceResult = new ServiceResult<>();
+        List<Sale> lstSaleOP = this.saleRepository.findByCode(saleCode);
+
+        if(lstSaleOP.isEmpty()){
+            serviceResult.setMessage("Không tồn tại mã giảm giá này");
+            serviceResult.setStatus(HttpStatus.BAD_REQUEST);
+        }else{
+            if(lstSaleOP.get(0).getType().equals("0")){
+                this.saleRepository.deleteByCode(saleCode);
+                serviceResult.setStatus(HttpStatus.OK);
+                serviceResult.setMessage("Xóa thành công");
+            }else if(lstSaleOP.get(0).getType().equals("1")){
+                // nếu là mã giảm giá cho đơn hàng thì mỗi mã giảm giá (saleCode) đại diện cho 1 chương trình khuyến mãi duy nhất
+                List<Orders> lstOrder = this.orderRepository.findBySaleId(lstSaleOP.get(0).getId());
+                if (lstOrder.isEmpty()){
+                    this.saleRepository.deleteAll(lstSaleOP);
+                    serviceResult.setStatus(HttpStatus.OK);
+                    serviceResult.setMessage("Xóa thành công");
+                }else {
+                    serviceResult.setStatus(HttpStatus.BAD_REQUEST);
+                    serviceResult.setMessage("Đã có đơn hàng áp dụng mã giảm giá này");
+                }
+            }
+        }
+
+
+        return serviceResult;
     }
 }

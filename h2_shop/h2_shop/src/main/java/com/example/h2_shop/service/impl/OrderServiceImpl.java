@@ -287,33 +287,35 @@ public class OrderServiceImpl implements OrderService {
         List<Map<String,Object>> map = this.orderRepository.getListOrderDetailOfOrder(orderViewDetailDTO.getOrderDetailConcat());
 
 
-
+        Optional<Orders> ordersOP = this.orderRepository.findById(orderViewDetailDTO.getId());
         List<OrderDetailForCartDTO> orderDetailForCartDTOS =map.stream().map(item->ReflectorUtil.mapToDTO(item,OrderDetailForCartDTO.class)).collect(Collectors.toList());
 //        List<OrderDetailForCartDTO> orderDetailForCartDTOS = orderViewDetailDTO.getOrderDetailForCartDTOS();
 
 
         String err = "";
         List<Long> productDetailIdLst=new ArrayList<>();
-        for(OrderDetailForCartDTO item :orderDetailForCartDTOS){
-            productDetailIdLst.add(item.getProductDetailId());
-            if(item.getQuantity()>item.getQuantityHave()){
-                err = "Số lượng hàng còn lại không đủ để dặt hàng";
+        if(ordersOP.get().getStatus()==0 && ordersOP.get().getStatus()>0 && ordersOP.get().getStatus()<4){
+            for(OrderDetailForCartDTO item :orderDetailForCartDTOS){
+                productDetailIdLst.add(item.getProductDetailId());
+                if(item.getQuantity()>item.getQuantityHave()){
+                    err = "Số lượng hàng còn lại không đủ để dặt hàng";
+                }
             }
         }
 
         if(StringUtils.isBlank(err)){
             List<ProductDetail> productDetailList = this.productDetailRepository.findAllByIdIn(productDetailIdLst);
-            if(orderViewDetailDTO.getStatus()==1){
+            if(orderViewDetailDTO.getStatus()>=1 && ordersOP.get().getStatus()==0){
                 for (int i =0 ;i<productDetailList.size();i++){
                     productDetailList.get(i).setQuantity(productDetailList.get(i).getQuantity() - orderDetailForCartDTOS.get(i).getQuantity()); // cập nhật lại số lượng sản phẩm
                 }
-            }else if(orderViewDetailDTO.getStatus()==4){
+            }else if(orderViewDetailDTO.getStatus()==4 && ordersOP.get().getStatus()>0 && ordersOP.get().getStatus()<4){
                 for (int i =0 ;i<productDetailList.size();i++){
                     productDetailList.get(i).setQuantity(productDetailList.get(i).getQuantity() + orderDetailForCartDTOS.get(i).getQuantity()); // cập nhật lại số lượng sản phẩm
                 }
             }
             this.productDetailRepository.saveAll(productDetailList);
-            Optional<Orders> ordersOP = this.orderRepository.findById(orderViewDetailDTO.getId());
+//            Optional<Orders> ordersOP = this.orderRepository.findById(orderViewDetailDTO.getId());
             ordersOP.get().setStatus(orderViewDetailDTO.getStatus());
             ordersOP.get().setPayStatus(orderViewDetailDTO.getPayStatus());
             return new ServiceResult<>(null,HttpStatus.OK,"");

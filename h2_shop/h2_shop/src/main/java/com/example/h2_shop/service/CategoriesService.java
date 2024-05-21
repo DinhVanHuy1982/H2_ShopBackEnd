@@ -11,5 +11,7 @@ public interface CategoriesService {
     public ServiceResult<CategoriesDTO> createCategories(CategoriesDTO categoriesDTO);
     public ServiceResult<CategoriesDTO> updateCategories(CategoriesDTO categoriesDTO);
     public ServiceResult<CategoriesDTO> getById(Long id);
+    public ServiceResult<?> deleteCategoriesById(Long id);
 
+    ServiceResult<List<CategoriesDTO>> getTreeCategoriesStatus();
 }

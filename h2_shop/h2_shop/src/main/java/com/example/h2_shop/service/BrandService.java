@@ -17,4 +17,6 @@ public interface BrandService {
     public Page<BrandsDTO> getBrandWithPage(BrandsDTO brandsDTO, Pageable pageable);
     public List<BrandsDTO> getListBrand();
     public ServiceResult<BrandsDTO> detailBrandById(Long id);
+
+    public ServiceResult<?> deleteBrand(Long id);
 }

@@ -27,4 +27,9 @@ public class CartController {
     public ServiceResult<List<CartDTO>> getCartByUser(@PathVariable Long userId){
         return this.cartService.getCartByUser(userId);
     }
+
+    @GetMapping("/cart/delete-cart/{cartId}")
+    public ServiceResult<?> deleteCartById(@PathVariable Long cartId){
+        return this.cartService.deleteCartItem(cartId);
+    }
 }

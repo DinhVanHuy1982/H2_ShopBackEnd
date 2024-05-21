@@ -43,4 +43,9 @@ public class SaleController {
     public ServiceResult<SaleDTO> updateSale(@RequestBody SaleDTO saleDTO){
         return this.saleService.updateSale(saleDTO);
     }
+
+    @GetMapping("/delete/sale-by-id/{saleCode}")
+    public ServiceResult<?> deleteSaleByCode(@PathVariable String  saleCode){
+        return this.saleService.deleteSaleById(saleCode);
+    }
 }

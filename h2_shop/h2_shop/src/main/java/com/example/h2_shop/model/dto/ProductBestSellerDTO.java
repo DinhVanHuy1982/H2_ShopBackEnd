@@ -6,9 +6,10 @@ public class ProductBestSellerDTO {
     private String avatar;
     private String productCode;
     private Long price;
-    private Long priceSale;
+    private Double priceSale;
     private String categoriCode;
     private String categorieName;
+    private Float maxPurchase;
     private Long quantityHave;
     private Long orderQuantity;
     private float ratingAvg;
@@ -16,7 +17,7 @@ public class ProductBestSellerDTO {
     public ProductBestSellerDTO() {
     }
 
-    public ProductBestSellerDTO(Long id, String productName, String productCode, Long price, Long priceSale, String categoriCode, String categorieName, Long quantityHave, Long orderQuantity, float ratingAvg) {
+    public ProductBestSellerDTO(Long id, String productName, String productCode, Long price, Double priceSale, String categoriCode, String categorieName, Long quantityHave, Long orderQuantity, float ratingAvg) {
         this.id = id;
         this.productName = productName;
         this.productCode = productCode;
@@ -61,11 +62,11 @@ public class ProductBestSellerDTO {
         this.price = price;
     }
 
-    public Long getPriceSale() {
+    public Double getPriceSale() {
         return priceSale;
     }
 
-    public void setPriceSale(Long priceSale) {
+    public void setPriceSale(Double priceSale) {
         this.priceSale = priceSale;
     }
 
@@ -115,5 +116,13 @@ public class ProductBestSellerDTO {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    public Float getMaxPurchase() {
+        return maxPurchase;
+    }
+
+    public void setMaxPurchase(Float maxPurchase) {
+        this.maxPurchase = maxPurchase;
     }
 }

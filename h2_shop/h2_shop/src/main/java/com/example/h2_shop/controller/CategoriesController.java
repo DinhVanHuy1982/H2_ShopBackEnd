@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/categories")
+@RequestMapping("/api")
 public class CategoriesController {
 
     private final CategoriesService categoriesService;
@@ -16,12 +16,16 @@ public class CategoriesController {
         this.categoriesService=categoriesService;
     }
 
-    @PostMapping("/getCategories")
+    @PostMapping("/categories/getCategories")
     public ServiceResult<List<CategoriesDTO>> getAllCategoriesTree(@RequestBody CategoriesDTO categoriesDTO){
         return this.categoriesService.getTreeCategories(categoriesDTO);
     }
+    @GetMapping("/categories/getCategories-status")
+    public ServiceResult<List<CategoriesDTO>> getAllCategoriesTreeStatus(){
+        return this.categoriesService.getTreeCategoriesStatus();
+    }
 
-    @GetMapping("/get-categories-no-tree")
+    @GetMapping("/categories/get-categories-no-tree")
     public ServiceResult<List<CategoriesDTO>> getNoTree(){
         return this.categoriesService.getNoTreeCategories();
     }
@@ -38,17 +42,22 @@ public class CategoriesController {
      * @modifiedDate
      * @vesion 1.0
      */
-    @PostMapping("/createCategories")
+    @PostMapping("/categories/createCategories")
     public ServiceResult<CategoriesDTO> createCategories(@RequestBody CategoriesDTO categoriesDTO){
         return this.categoriesService.createCategories(categoriesDTO);
     }
 
-    @PostMapping("/update-categories")
+    @PostMapping("/categories/update-categories")
     public ServiceResult<CategoriesDTO> updateCategories(@RequestBody CategoriesDTO categoriesDTO){
         return this.categoriesService.updateCategories(categoriesDTO);
     }
-    @GetMapping("/get-by-id/{id}")
+    @GetMapping("/categories/get-by-id/{id}")
     public ServiceResult<CategoriesDTO> getById(@PathVariable Long id){
         return  this.categoriesService.getById(id);
+    }
+
+    @GetMapping("/categories/delete-by-id/{id}")
+    public ServiceResult<?> deleteCategories(@PathVariable Long id){
+        return this.categoriesService.deleteCategoriesById(id);
     }
 }

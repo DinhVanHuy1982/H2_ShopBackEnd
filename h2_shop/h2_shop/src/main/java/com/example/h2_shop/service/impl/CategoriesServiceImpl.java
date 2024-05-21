@@ -1,12 +1,15 @@
 package com.example.h2_shop.service.impl;
 
 import com.example.h2_shop.model.Categories;
+import com.example.h2_shop.model.Product;
 import com.example.h2_shop.model.dto.CategoriesDTO;
 import com.example.h2_shop.model.mapper.CategoriesMapper;
 import com.example.h2_shop.repository.CategoriesRepository;
 import com.example.h2_shop.repository.CategoriesRepositoryCustome;
+import com.example.h2_shop.repository.ProductRepository;
 import com.example.h2_shop.service.CategoriesService;
 import com.example.h2_shop.service.ServiceResult;
+import io.micrometer.common.util.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,12 +23,17 @@ public class CategoriesServiceImpl implements CategoriesService {
 
     private final CategoriesRepository categoriesRepository;
     private final CategoriesRepositoryCustome categoriesRepositoryCustome;
+    private final ProductRepository productRepository;
     private final CategoriesMapper categoriesMapper;
 
-    public CategoriesServiceImpl(CategoriesRepository categoriesRepository,CategoriesRepositoryCustome categoriesRepositoryCustome,CategoriesMapper categoriesMapper){
+    public CategoriesServiceImpl(CategoriesRepository categoriesRepository,
+                                 ProductRepository productRepository,
+                                 CategoriesRepositoryCustome categoriesRepositoryCustome,
+                                 CategoriesMapper categoriesMapper){
         this.categoriesMapper=categoriesMapper;
         this.categoriesRepositoryCustome=categoriesRepositoryCustome;
         this.categoriesRepository=categoriesRepository;
+        this.productRepository=productRepository;
     }
 
 
@@ -33,7 +41,7 @@ public class CategoriesServiceImpl implements CategoriesService {
 
     @Override
     public ServiceResult<List<CategoriesDTO>> getTreeCategories(CategoriesDTO categoriesDTO) {
-        List<CategoriesDTO> lst = this.categoriesRepositoryCustome.getAllCategoriesActive(categoriesDTO);
+        List<CategoriesDTO> lst = this.categoriesRepositoryCustome.getAllCategories(categoriesDTO);
         List<CategoriesDTO> tree = this.makeTree(lst);
 
 
@@ -85,7 +93,7 @@ public class CategoriesServiceImpl implements CategoriesService {
 
     @Override
     public ServiceResult<CategoriesDTO> createCategories(CategoriesDTO categoriesDTO) {
-        String errVali = this.validateCategories(categoriesDTO);
+        String errVali = this.validateCategories(categoriesDTO,true);
         ServiceResult<CategoriesDTO> serviceResult = new ServiceResult<>();
         if(errVali.isEmpty()){
 
@@ -108,6 +116,7 @@ public class CategoriesServiceImpl implements CategoriesService {
 
     @Override
     public ServiceResult<CategoriesDTO> updateCategories(CategoriesDTO categoriesDTO) {
+        String err = this.validateCategories(categoriesDTO,false);
         ServiceResult<CategoriesDTO> serviceResult = new ServiceResult<>();
         if(categoriesDTO.getId()!=null){
             Optional<Categories> categoriesOP = categoriesRepository.findById(categoriesDTO.getId());
@@ -142,32 +151,79 @@ public class CategoriesServiceImpl implements CategoriesService {
         }
     }
 
+    @Override
+    public ServiceResult<?> deleteCategoriesById(Long id) {
+        ServiceResult<?> serviceResult = new ServiceResult<>();
+        Optional<Categories> categoriesOP = this.categoriesRepository.findById(id);
+        if(categoriesOP.isPresent()){
+            List< Product> productList = this.productRepository.getProductByCategoriId(id);
+            if(productList.isEmpty()){
+                List<Categories> categoriesChild = this.categoriesRepository.findByParentId(id);
+                categoriesChild.forEach(item -> item.setParentId(null));
+                this.categoriesRepository.saveAll(categoriesChild);
+                this.categoriesRepository.delete(categoriesOP.get());
+                serviceResult.setStatus(HttpStatus.OK);
+                serviceResult.setMessage("Xóa thành công");
+            }else {
+                serviceResult.setStatus(HttpStatus.BAD_REQUEST);
+                serviceResult.setMessage("Tồn tại sản phẩm thuộc danh mục này");
+            }
+        }else{
+            serviceResult.setStatus(HttpStatus.BAD_REQUEST);
+            serviceResult.setMessage("Danh mục này không tồn tại");
+        }
 
-    public String validateCategories(CategoriesDTO categoriesDTO){
+        return serviceResult;
+    }
+
+    @Override
+    public ServiceResult<List<CategoriesDTO>> getTreeCategoriesStatus() {
+        List<CategoriesDTO> lst = this.categoriesRepositoryCustome.getAllCategoriesActive();
+        List<CategoriesDTO> tree = this.makeTree(lst);
+        return new ServiceResult<>(tree,HttpStatus.OK,"Thành công");
+    }
+
+
+    public String validateCategories(CategoriesDTO categoriesDTO,boolean isCreate){
         StringBuilder err = new StringBuilder();
 
         //code
-        if(categoriesDTO.getCategoriCode().isEmpty()){
-            err.append("Mã danh mục không được để trống");
+        if(StringUtils.isEmpty(categoriesDTO.getCategoriCode())){
+            err.append("Mã danh mục không được để trống\n");
         }else{
             Optional<Categories> OpCategories = this.categoriesRepository.findByCategoriCode(categoriesDTO.getCategoriCode());
-            if(OpCategories.isPresent()){
-                err.append(" Mã danh mục đã tồn tại ");
+            if(isCreate){
+                if(OpCategories.isPresent()){
+                    err.append(" Mã danh mục đã tồn tại \n");
+                }
+            }else{
+                if (OpCategories.isEmpty()){
+                    err.append("Danh mục không tồn tại\n");
+                }
             }
         }
 
         //name
-        if(categoriesDTO.getCategoriName().isEmpty()){
-            err.append(" Tên danh mục không được để trống ");
+        if(StringUtils.isEmpty(categoriesDTO.getCategoriName())){
+            err.append(" Tên danh mục không được để trống \n");
         }
 
         //parent id
         if(categoriesDTO.getParentId()!=null){
             Optional<Categories> categories = this.categoriesRepository.findById(categoriesDTO.getParentId());
             if(categories.isEmpty()){
-                err.append(" Danh mục cha không tồn tại ");
+                err.append(" Danh mục cha không tồn tại \n");
+            }else{
+                List<Product> lstProductOfCategories = this.productRepository.getProductByCategoriId(categories.get().getId());
+                if (!lstProductOfCategories.isEmpty()){
+                    err.append("Danh mục cha có sản phẩm thuộc. Vui lòng chọn danh mục cha khác\n");
+                }
             }
         }
+
+
+
+
         return err.toString();
     }
 

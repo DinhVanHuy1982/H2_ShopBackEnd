@@ -12,6 +12,8 @@ import com.example.h2_shop.service.ServiceResult;
 import com.example.h2_shop.service.UserService;
 import io.micrometer.common.util.StringUtils;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -33,6 +35,9 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class UserServiceImpl implements UserService {
+
+    private final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
+
     @Autowired
     UserRepository userRepository;
 
@@ -180,7 +185,7 @@ public class UserServiceImpl implements UserService {
             UserDto userDtoVali = serviceResultUser.getData();
             User user = this.userMapper.toEntity(userDtoVali);
             user.setCreateTime(Instant.now());
-            user.setStatus(0L);
+            user.setStatus(1L);
 
             FileDto fileDto = new FileDto();
             if(file!=null){ // kiểm tra có upload file ảnh đại diện hay không
@@ -410,6 +415,80 @@ public class UserServiceImpl implements UserService {
                 serviceResult.setStatus(HttpStatus.BAD_REQUEST);
                 serviceResult.setMessage("Tên tài khoản hoặc mật khẩu không chính xác");
             }
+        }
+        return serviceResult;
+    }
+
+    @Override
+    public ServiceResult<UserDto> updateUser(MultipartFile multipartFile, UserDto userDto) {
+        Optional<User> userOP = this.userRepository.findById(userDto.getId());
+        ServiceResult<UserDto> serviceResult = new ServiceResult<>();
+
+        if(userOP.isPresent()){
+            User user = userOP.get();
+            if(!StringUtils.isEmpty(userDto.getFullName())){
+                user.setFullName(userDto.getFullName());
+            }
+            if(!StringUtils.isEmpty(userDto.getEmail())){
+                user.setEmail(userDto.getEmail());
+            }
+            if(!StringUtils.isEmpty(userDto.getPhoneNumber())){
+                user.setPhoneNumber(userDto.getPhoneNumber());
+            }
+            if(userDto.getProvinceId()!=null){
+                user.setProvinceId(userDto.getProvinceId());
+            }
+            if(userDto.getDistrictId()!=null){
+                user.setDistrictId(userDto.getDistrictId());
+            }
+            if(userDto.getWard()!=null){
+                user.setWard(userDto.getWard());
+            }
+            if(multipartFile!=null){
+                try{
+                    this.fileService.deleteFileByName(user.getAvatar());
+                    ServiceResult<FileDto> fileServiceRt= this.fileService.createFile(multipartFile);
+                    if(fileServiceRt.getStatus().equals(HttpStatus.OK)){
+                        user.setAvatar(fileServiceRt.getData().getFileName());
+                    }
+                }catch (Exception e){
+                    this.log.error(e.getMessage(),e);
+                }
+            }
+            user = this.userRepository.save(user);
+            userDto = this.userMapper.toDto(user);
+            serviceResult.setData(userDto);
+            serviceResult.setStatus(HttpStatus.OK);
+        }else{
+            serviceResult.setStatus(HttpStatus.BAD_REQUEST);
+            serviceResult.setMessage("Tài khoản không tồn tại");
+        }
+        return serviceResult;
+    }
+
+    @Override
+    public ServiceResult<UserDto> changePass(ChangePasswordDTO changePasswordDTO) {
+        ServiceResult<UserDto> serviceResult = new ServiceResult<>();
+        Optional<User> userOp = this.userRepository.findById(changePasswordDTO.getUserId());
+
+        if(userOp.isPresent()){
+            User user = userOp.get();
+            String currentPass = changePasswordDTO.getCurrentPassword();
+            String md5HexPassCurrent = DigestUtils.md5Hex(currentPass);
+            if(md5HexPassCurrent.equals(user.getPassword())){
+                String md5Hex = DigestUtils.md5Hex(changePasswordDTO.getPassword());
+                user.setPassword(md5Hex);
+                user = this.userRepository.save(user);
+                UserDto userDto = this.userMapper.toDto(user);
+                serviceResult.setData(userDto);
+                serviceResult.setStatus(HttpStatus.OK);
+            }else{
+                serviceResult.setStatus(HttpStatus.BAD_REQUEST);
+                serviceResult.setMessage("Mật khẩu hiện tại không chính xác");
+            }
+        }else{
+            serviceResult.setStatus(HttpStatus.BAD_REQUEST);
+            serviceResult.setMessage("Tài khoản không tồn tại");
         }
         return serviceResult;
     }

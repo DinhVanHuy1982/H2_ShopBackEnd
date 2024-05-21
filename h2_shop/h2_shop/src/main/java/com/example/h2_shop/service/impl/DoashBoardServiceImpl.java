@@ -28,10 +28,10 @@ public class DoashBoardServiceImpl implements DoashBoardService {
 
         // TODO: 5/15/2024 lấy ra doanh thu
         String sql = "select\n" +
-                "\tif(o.price,\n" +
-                "\to.price,\n" +
-                "\t0) as doanh_thu\n" +
-                "from\n" +
+                "\tif(sum(o.price),\n" +
+                "\tsum(o.price),\n" +
+                "\t0) doanh_thu\n" +
+                "\tfrom\n" +
                 "\t(\n" +
                 "\tselect\n" +
                 "\t\t1 as month\n" +
@@ -86,10 +86,10 @@ public class DoashBoardServiceImpl implements DoashBoardService {
         diagramDetailDTO.setDataTurnover(doubleList);
 
         String sql2="select\n" +
-                "\tif(bp.import_price,\n" +
-                "\tbp.import_price * bp.import_quantity,\n" +
-                "\t0) as doanh_thu\n" +
-                "from\n" +
+                "\tif(sum(bp.import_price),\n" +
+                "\t sum(bp.import_price * bp.import_quantity),\n" +
+                "\t0) as chi_tieu\n" +
+                "\tfrom\n" +
                 "\t(\n" +
                 "\tselect\n" +
                 "\t\t1 as month\n" +
